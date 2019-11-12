@@ -39,7 +39,7 @@ class Templater
 		}
 
 		if (empty($tpl_dirs)) {
-			throw new \Exception("No Templates dir", 1);
+			throw new \Exception("No Templates dir. Please define TPL_DIR with a valid directory path.", 1);
 		}
 
 		$tpl_path = false;

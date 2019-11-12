@@ -8,7 +8,7 @@ class Router
 	private static $routes = [];
 
 
-	// Add a route to the router
+	// Register a route in the router
 	public static function add($methods, $url_match, $callback=null, $type_match='exact', $regex_params=[])
 	{
 		$route = new Route();
@@ -68,7 +68,7 @@ class Router
 				$callback = $route->getCallback();
 				if (empty($callback)) {
 					// Do nothing
-					return false;
+					return 0;
 
 				} else if (is_callable($callback)) {
 					self::routeRun($route, $callback, $request_method, $request_uri, $match_params);

@@ -25,6 +25,11 @@ class SqlDb
 			$driver_class = $this->getDriverClass($driver_name);
 		}
 
+		if (empty($driver_class)) {
+			throw new \Exception("No SQL driver specified. Please define DB_DSN with something like 'mysql://root:pass@localhost/my_app'", 1);
+		}
+
+
 		$this->driver = new $driver_class($this, $credentials);
 
 	}
@@ -46,7 +51,7 @@ class SqlDb
 			'mysql' => \KarmaFW\Database\Sql\Drivers\Mysqli\MySqliDriver::class,
 			'sqlite' => \KarmaFW\Database\Sql\Drivers\Mysqli\SqliteDriver::class,
 		];
-		return isset($available_drivers[$driver_name]) ? $available_drivers[$driver_name] : null;
+		return (! empty($driver_name) && isset($available_drivers[$driver_name])) ? $available_drivers[$driver_name] : null;
 	}
 
 
@@ -68,14 +73,14 @@ class SqlDb
 
 
 
-	public function createQuery($query=null)
+	public function createQuery($sql=null)
 	{
-		return new SqlQuery($this, $query);
+		return new SqlQuery($this, $sql);
 	}
 
 
 
-	public function getTable($table_name) : SqlTable
+	public function getTable($table_name) /* : SqlTable */
 	{
 		return new SqlTable($this, $table_name);
 	}
@@ -104,6 +109,43 @@ class SqlDb
 		return $this->createQuery()->execute($sql, $params);
 	}
 
+	public function query($sql, $params=[])
+	{
+		// Alias of executeSelectAll
+		return $this->executeSelectAll($sql, $params);
+	}
+	
+	public function executeSelect($sql, $params=[])
+	{
+		// Alias of executeSelectAll
+		return $this->executeSelectAll($sql, $params);
+	}
+
+	public function executeSelectAll($sql, $params=[])
+	{
+		return $this->createQuery()->executeSelectAll($sql, $params);
+	}
+
+	public function executeSelectOne($sql, $params=[])
+	{
+		return $this->createQuery()->executeSelectOne($sql, $params);
+	}
+
+	public function executeInsert($query, $params=[])
+	{
+		return $this->createQuery()->executeInsert($sql, $params);
+	}
+
+	public function executeUpdate($query, $params=[])
+	{
+		return $this->createQuery()->executeUpdate($sql, $params);
+	}
+	
+	public function executeDelete($query, $params=[])
+	{
+		return $this->createQuery()->executeDelete($sql, $params);
+	}
+
 
 	public function getInsertId()
 	{
@@ -121,7 +163,7 @@ class SqlDb
 
 	// DATABASE
 
-	public function use($database_name)
+	public function useDatabase($database_name)
 	{
 		return $this->schema->useDatabase($database_name);
 	}

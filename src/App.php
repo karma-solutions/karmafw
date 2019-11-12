@@ -24,13 +24,13 @@ class App
 
 	public static function boot()
 	{
-		HooksManager::applyHook('fw_app_boot__before', []);
+		HooksManager::applyHook('app_boot__before', []);
 
 		// include helpers
 		self::loadHelpers(FW_SRC_DIR . "/../helpers");
 
 		self::$booted = true;
-		HooksManager::applyHook('fw_app_boot__after', []);
+		HooksManager::applyHook('app_boot__after', []);
 	}	
 
 
@@ -52,7 +52,11 @@ class App
 
 		// routing: parse l'url puis transfert au controller
 
+		HooksManager::applyHook('app_route__before', []);
+
 		$route = Router::routeByUrl( $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], false );
+
+		HooksManager::applyHook('app_route__after', [$route]);
 
 		if ($route) {
 			//echo "success: route ok";
@@ -60,23 +64,26 @@ class App
 
 		} else if ($route === null) {
 			// route found but callback is not callable
-			HooksManager::applyHook('fw_bootstrap_404', []);
+			HooksManager::applyHook('app_route_404', []);
 			errorHttp(404, 'Warning: route callback is not callable', '404 Not Found');
 			exit(1);
 
-		} else if ($route === true) {
+		} else if ($route === 0) {
 			// route found but no callback defined
-			HooksManager::applyHook('fw_bootstrap_404', []);
+			HooksManager::applyHook('app_route_404', []);
 			errorHttp(404, "Warning: route found but no callback defined", '404 Not Found');
 			exit(1);
 
 		} else if ($route === false) {
 			// no matching route
-			HooksManager::applyHook('fw_bootstrap_404', []);
+			HooksManager::applyHook('app_route_404', []);
 			errorHttp(404, "Warning: no matching route", '404 Not Found');
 			exit(1);
 
 		} else {
+			// other cases
+			HooksManager::applyHook('app_route_404', []);
+			errorHttp(404, "Warning: cannot route", '404 Not Found');
 			exit(1);
 		}
 

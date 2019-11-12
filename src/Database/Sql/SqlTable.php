@@ -29,7 +29,7 @@ class SqlTable
 	}
 
 
-	public function listColumns() : array
+	public function listColumns() /* : array */
 	{
 		$schema = new SqlSchema($this->db);
 		$this->columns = $schema->listTableColumns($table, $column=null);
@@ -37,7 +37,7 @@ class SqlTable
 	}
 
 
-	public function insert($values=[], $options=[]) : int
+	public function insert($values=[], $options=[]) /* : int */
 	{
 		$this->insertAll([$values], $options);
 		return $this->db->getInsertId();
@@ -73,7 +73,7 @@ class SqlTable
 	}
 
 
-	public function update(array $updates=[], array $where=[], $options=[]) : int
+	public function update(array $updates=[], array $where=[], $options=[]) /* : int */
 	{
 		$limit_sql = (isset($options['limit']) && ! is_null($options['limit'])) ? ("limit " . $options['limit']) : "";
 
@@ -85,7 +85,7 @@ class SqlTable
 	}
 
 
-	public function delete(array $where=[], $options=[]) : int
+	public function delete(array $where=[], $options=[]) /* : int */
 	{
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
 
@@ -108,7 +108,7 @@ class SqlTable
 		return $this->getAll($where, $options);
 	}
 
-	public function getAll($where=null, $options=[]) : array
+	public function getAll($where=null, $options=[]) /* : array */
 	{
 		//return $this->db->createQuery()->tableSelect($this->table_name, $where, $options)->fetchAll();
 
@@ -123,14 +123,14 @@ class SqlTable
 		return $this->getOne($where, $options);
 	}
 
-	public function getOne($where=null, $options=[]) : array
+	public function getOne($where=null, $options=[]) /* : array */
 	{
 		$options['limit'] = 1;
 		return $this->getAll($where, $options)->fetchOne();
 	}
 
 
-	public function buildQuery($where=null, $options=[]) : string
+	public function buildQuery($where=null, $options=[]) /* : string */
 	{
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
 		$order_by_sql = isset($options['order_by']) ? ("order by " . $options['order_by']) : "";

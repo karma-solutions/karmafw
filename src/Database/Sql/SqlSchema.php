@@ -15,7 +15,7 @@ class SqlSchema
 
 	/* DATABASES */
 
-	public function useDatabase($database_name) : bool
+	public function useDatabase($database_name) /* : bool */
 	{
 		$sql = "use " . $database_name;
 		$ret = $this->db->createQuery()->execute($sql);
@@ -23,7 +23,7 @@ class SqlSchema
 	}
 
 
-	public function dropDatabase($database_name, $if_exists=false) : bool
+	public function dropDatabase($database_name, $if_exists=false) /* : bool */
 	{
 		if ($if_exists) {
 			$sql = "drop database if exists " . $database_name;
@@ -36,7 +36,7 @@ class SqlSchema
 	}
 
 
-	public function createDatabase($database_name, $if_not_exists=false) : bool
+	public function createDatabase($database_name, $if_not_exists=false) /* : bool */
 	{
 		if ($if_not_exists) {
 			$sql = "create database if not exists " . $database_name;
@@ -49,7 +49,7 @@ class SqlSchema
 	}
 
 
-	public function listDatabases($database=null) : array
+	public function listDatabases($database=null) /* : array */
 	{
 		$sql = "show databases";
 
@@ -68,7 +68,7 @@ class SqlSchema
 
 	/* TABLES */
 
-	public function createTable($table_name, array $columns, array $indexes=[], $if_not_exists=false) : bool
+	public function createTable($table_name, array $columns, array $indexes=[], $if_not_exists=false) /* : bool */
 	{
 		if ($if_not_exists) {
 			$sql = "create table if not exists " . $table_name . " (" . PHP_EOL;
@@ -99,7 +99,7 @@ class SqlSchema
 
 
 
-	public function dropTable($table_name, $if_exists=false) : bool
+	public function dropTable($table_name, $if_exists=false) /* : bool */
 	{
 		if ($if_exists) {
 			$sql = "drop table if exists " . $table_name;
@@ -112,7 +112,7 @@ class SqlSchema
 	}
 
 
-	public function listTables($table=null, $database=null) : array
+	public function listTables($table=null, $database=null) /* : array */
 	{
 		$sql = "show tables";
 
@@ -135,7 +135,7 @@ class SqlSchema
 
 	/* COLUMNS */
 
-	public function listTableColumns($table, $column=null) : array
+	public function listTableColumns($table, $column=null) /* : array */
 	{
 		$sql = "show columns from " . $table;
 
@@ -152,7 +152,7 @@ class SqlSchema
 	}
 
 
-	public function listTableIndexes($table) : array
+	public function listTableIndexes($table) /* : array */
 	{
 		$sql = "show indexes from " . $table;
 
