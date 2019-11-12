@@ -3,7 +3,7 @@
 namespace KarmaFW\Templates;
 
 
-class Templater
+class PhpTemplate
 {
 	public $tpl_dir = APP_DIR . '/templates';
 	protected $vars = [];
