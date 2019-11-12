@@ -26,6 +26,11 @@ class Templater
 		});
 	}
 
+	public static function createTemplate($tpl_dir=null, $default_vars=[])
+	{
+		return new Templater($tpl_dir, $default_vars);
+	}
+
 	public function fetch($tpl, $layout=null, $extra_vars=array())
 	{
 		$tpl_dirs = [];
