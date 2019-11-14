@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Database\Sql;
 
+use \KarmaFW\App;
+
 
 class SqlOrmModel
 {
@@ -14,11 +16,18 @@ class SqlOrmModel
 	public $autosave = false;
 
 
-	public function __construct($db, $table_name=null, $primary_key_values=[])
+	public function __construct($table_name=null, $primary_key_values=[], $db=null)
 	{
+		if (is_null($db)) {
+			$db = App::getDb();
+		}
 		$this->db = $db;
 		$this->table_name = $table_name;
 		$this->primary_key_values = $primary_key_values;
+
+		if (! empty($primary_key_values)) {
+			$this->load($primary_key_values);
+		}
 	}
 
 
@@ -138,7 +147,14 @@ class SqlOrmModel
 	{
 		$this->primary_key_values = $primary_key_values;
 
-		$data = $this->db->createQuery()->tableSelect($this->table_name, $this->primary_key_values, ['limit' => 1])->fetchOne();
+		$data = $this->db->createQuery()->tableSelectOne($this->table_name, $this->primary_key_values, ['limit' => 1]);
+		
+		if (is_null($data)) {
+			$this->primary_key_values = [];
+			$this->table_row = [];
+			return null;
+		}
+
 		$result = $this->loadFromArray($data, $primary_key_values);
 
 		return $result;

@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Routing\Controllers;
 
+use \KarmaFW\Hooks\HooksManager;
+
 
 class WebController
 {
@@ -17,6 +19,24 @@ class WebController
 		$this->request_uri = $request_uri;
 		
 		//echo "DEBUG " . __CLASS__ . ": controller instanced<hr />" . PHP_EOL;
+
+		HooksManager::applyHook('webcontroller__init', [$this]);
+	}
+
+
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	public function getRequestMethod()
+	{
+		return $this->request_method;
+	}
+
+	public function getRequestUri()
+	{
+		return $this->request_uri;
 	}
 
 }

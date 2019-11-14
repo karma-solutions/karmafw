@@ -115,5 +115,42 @@ class Router
 		return null;
 	}
 
+	
+	public static function getRouteUrl($route_name, $urls_args=[])
+	{
+		if (empty($urls_args)) {
+			$urls_args = array();
+		}
+
+		if (! is_array($urls_args)) {
+			$urls_args = array($urls_args);
+		}
+
+		$route = Router::findRouteByName($route_name);
+		if (empty($route) || $route === true) {
+			return null;
+		}
+
+		$link = $route->getMatchUrl();
+		//echo "<pre>"; var_dump($route); exit;
+		$link = rtrim($link, '$');
+		$link = ltrim($link, '^');
+
+		if (! empty($urls_args)) {
+			foreach ($urls_args as $arg_value) {
+				$pos1 = strpos($link, '(');
+				if ($pos1 === false) {
+					break;
+				}
+				$pos2 = strpos($link, ')', $pos1);
+				if ($pos2 === false) {
+					break;
+				}
+				$link = substr($link, 0, $pos1) . $arg_value . substr($link, $pos2+1);
+			}
+		}
+
+		return $link;
+	}
 
 }

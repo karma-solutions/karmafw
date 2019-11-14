@@ -39,10 +39,12 @@ class MysqliResultset extends SqlResultset implements SqlResultsetInterface
 		$rows = parent::fetchAll();
 
 		if (! is_null($this->found_rows)) {
+			/*
 			$rows = array(
-				'FOUND_ROWS' => $this->found_rows,
-				'ROWS' => $rows,
+				'found_rows' => $this->found_rows,
+				'data' => $rows,
 			);
+			*/
 		}
 
 		return $rows;

@@ -128,13 +128,15 @@ class SqlTools
 
                 }else if (is_string($value)) {
                     $where_sql[] = $key . ' = ' . $this->escape($value);
-/*
-                }else if ($value instanceof DB\DbWhere) {
-                    $where_sql[] = (string) $value;
-
-                }else if ($value instanceof DB\DbExpr) {
+                    
+                }else if ($value instanceof SqlLike) {
+                    $where_sql[] = $key . ' like ' . (string) $this->escape($value);
+                    
+                }else if ($value instanceof SqlExpr) {
                     $where_sql[] = $key . ' = ' . (string) $value;
-*/
+                    
+                }else if ($value instanceof SqlWhere) {
+                    $where_sql[] = (string) $value;
                     
                 }else{
                     $where_sql[] = $key . ' = ' . $this->escape($value);
@@ -142,7 +144,8 @@ class SqlTools
                 }
             }
         }
-        //print_r($where_sql);
+        //pre($where_sql, 1);
+
         return implode(" and ", $where_sql);
 
 	}

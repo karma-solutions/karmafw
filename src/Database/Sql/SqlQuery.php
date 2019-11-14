@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Database\Sql;
 
+use KarmaFW\Database\Sql\SqlResultSetError;
+
 
 class SqlQuery
 {
@@ -42,7 +44,7 @@ class SqlQuery
         ];
     }
 
-
+    /*
 	public function fetchColumn($column_name)
 	{
 		if ($this->status == 'ready') {
@@ -68,6 +70,7 @@ class SqlQuery
 		}
 		return $this->recordset->fetchAll();
 	}
+	*/
 
 
 	public function getQuery()
@@ -84,6 +87,10 @@ class SqlQuery
 
 	public function execute($query=null, $params=[])
 	{
+		if (! $this->db->isConnected()) {
+			$this->db->connect();
+		}
+
 		if (empty($query)) {
 			$query = $this->query;
 		}
@@ -114,6 +121,7 @@ class SqlQuery
 
 		//echo $query . "<hr />";
 		$rs = $this->db->getDriver()->execute($query);
+		//pre($query);
 		//pre($rs);
 
 		$ts_end = microtime(true);
@@ -122,11 +130,10 @@ class SqlQuery
 		$this->recordset = $rs;
 		$this->db->setLastQuery($this);
 
-		$error_code = $this->db->getDriver()->getConn()->errno;
-	
-		if ($error_code !== 0) {
+		if ($rs instanceOf SqlResultSetError) {
 			// query error
-			$error_msg = $this->db->getDriver()->getConn()->error;
+			$error_code = $rs->getErrorCode();
+			$error_msg = $rs->getErrorMessage();
 			$this->error = $error_msg;
 			$this->status = 'error';
 
@@ -142,14 +149,8 @@ class SqlQuery
 		$this->results_rows_count = $rs->getRowsCount();
 		$this->affected_rows_count = $this->db->getDriver()->getAffectedRowsCount();
 
-		if (strpos($query, "SQL_CALC_FOUND_ROWS")) {
-	        $found_rows = $this->execute('SELECT FOUND_ROWS() AS found_rows')->oneField('found_rows');
-		} else {
-			$found_rows = null;
-		}
-
-
-		return $this;
+		//return $this;
+		return $rs;
 	}
 
 	
@@ -206,12 +207,12 @@ class SqlQuery
 	public function tableSelect($table_name, $where=[], $options=[])
 	{
 		// Alias of tableSelectAll
-		return $this->tableSelectAll($table_name, $where, $options)->all();
+		return $this->tableSelectAll($table_name, $where, $options);
 	}
 
 	public function tableSelectAll($table_name, $where=[], $options=[])
 	{
-		$table = new SqlTable($this->db, $table_name);
+		$table = new SqlTable($table_name, $this->db);
 		$query = $table->buildQuery($where, $options);
 		return $this->executeSelectAll($query);
 	}
@@ -223,7 +224,9 @@ class SqlQuery
 		}
 		$options['limit'] = 1;
 
-		return $this->tableSelect($table_name, $where, $options)->one();
+		$table = new SqlTable($table_name, $this->db);
+		$query = $table->buildQuery($where, $options);
+		return $this->executeSelectOne($query);
 	}
 
 
@@ -239,21 +242,21 @@ class SqlQuery
 
 	public function tableInsertAll($table_name, $inserts=[], $options=[])
 	{
-		$table = new SqlTable($this->db, $table_name);
+		$table = new SqlTable($table_name, $this->db);
 		return $table->insertAll($inserts, $options);		
 	}
 
 
 	public function tableUpdate($table_name, $updates=[], $where=[], $options=[])
 	{
-		$table = new SqlTable($this->db, $table_name);
+		$table = new SqlTable($table_name, $this->db);
 		return $table->update($updates, $where, $options);
 	}
 
 
 	public function tableDelete($table_name, $where=[], $options=[])
 	{
-		$table = new SqlTable($this->db, $table_name);
+		$table = new SqlTable($table_name, $this->db);
 		return $table->delete($where, $options);
 	}
 

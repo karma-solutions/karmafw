@@ -6,7 +6,7 @@ use KarmaFW\Routing\Router;
 use KarmaFW\Hooks\HooksManager;
 use KarmaFW\Database\Sql\SqlDb;
 use \KarmaFW\Database\Sql\SqlOrmModel;
-use KarmaFW\Templates\Templater;
+use KarmaFW\Templates\PhpTemplate;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -21,18 +21,30 @@ if (! defined('APP_DIR')) {
 class App
 {
 	protected static $booted = false;
+	protected static $session_user = false; // user connected with a session
+	protected static $helpers_dirs = [FW_SRC_DIR . "/../helpers"];
 
 	public static function boot()
 	{
 		HooksManager::applyHook('app_boot__before', []);
 
+		// start session
+		session_start();
+
 		// include helpers
-		self::loadHelpers(FW_SRC_DIR . "/../helpers");
+		foreach (self::$helpers_dirs as $helpers_dir) {
+			self::loadHelpers($helpers_dir);
+		}
 
 		self::$booted = true;
 		HooksManager::applyHook('app_boot__after', []);
 	}	
 
+
+	public static function registerHelpersDir($dir)
+	{
+		self::$helpers_dirs[] = $dir;
+	}
 
 	protected static function loadHelpers($dir)
 	{
@@ -121,13 +133,24 @@ class App
 
 	public static function createTemplate()
 	{
-		return new Templater();
+		return new PhpTemplate();
 	}
 
 
-	public static function createOrmModel($db, $table_name, $primary_key_values=[])
+	public static function createOrmItem($table_name, $primary_key_values=[], $db=null)
 	{
-		return new SqlOrmModel($db, $table_name, $primary_key_values);
+		return new SqlOrmModel($table_name, $primary_key_values, $db);
+	}
+	
+
+	public static function getUser()
+	{
+		return self::$session_user;
+	}
+
+	public static function setUser($user)
+	{
+		self::$session_user = $user;
 	}
 
 }

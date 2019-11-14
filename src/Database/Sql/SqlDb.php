@@ -9,7 +9,7 @@ class SqlDb
 	protected $last_query = null;
 	protected $schema = null;
 	protected $tools = null;
-	public $throwOnSqlError = false;
+	public $throwOnSqlError = 1;
 	public $throwOnConnectionError = true;
 
 
@@ -82,7 +82,13 @@ class SqlDb
 
 	public function getTable($table_name) /* : SqlTable */
 	{
-		return new SqlTable($this, $table_name);
+		return new SqlTable($table_name, $this);
+	}
+
+
+	public function createOrmItem($table_name, $primary_key_values=[]) /* : SqlOrmModel */
+	{
+		return new SqlOrmModel($table_name, $primary_key_values, $this);
 	}
 
 
@@ -98,6 +104,12 @@ class SqlDb
 	public function disconnect()
 	{
 		return $this->getDriver()->disconnect();
+	}
+
+
+	public function isConnected()
+	{
+		return $this->getDriver()->isConnected();
 	}
 
 
@@ -140,7 +152,7 @@ class SqlDb
 	{
 		return $this->createQuery()->executeUpdate($sql, $params);
 	}
-	
+
 	public function executeDelete($query, $params=[])
 	{
 		return $this->createQuery()->executeDelete($sql, $params);

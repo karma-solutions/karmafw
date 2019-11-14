@@ -1,5 +1,7 @@
 <?php
 
+use \KarmaFW\App;
+
 
 if (! function_exists('arrayReduceToOneColumn')) {
 	function arrayReduceToOneColumn($array, $column_key) {
@@ -57,6 +59,19 @@ if (! function_exists('arrayGroupByColumn')) {
 	}
 }
 
+if (! function_exists('arrayToList')) {
+	function arrayToList($array) {
+		$results = array();
+		$db = App::getDb();
+
+		foreach ($array as $k => $v) {
+			$results[] = $db->escape($v);
+		}
+
+		return implode(', ', $results);
+	}
+}
+
 
 if (! function_exists('get_csv')) {
 	function get_csv($arr, $fields=array(), $sep=";") {
@@ -92,3 +107,21 @@ if (! function_exists('get_csv')) {
 	}
 }
 
+
+if (! function_exists('exportToCsvFile')) {
+	function exportToCsvFile($rows, $export_filename=null, $fields=null) {
+		if (! empty($export_filename)) {
+			// download file
+			header('Content-Type: text/csv');
+			header('Content-Disposition: attachment;filename=' . basename($export_filename));
+			header("Pragma: no-cache");
+			header("Expires: 0");
+		} else {
+			// show in browser
+			header('Content-Type: text/plain');
+		}
+
+		echo get_csv($rows, $fields);
+		exit;
+	}
+}

@@ -8,6 +8,7 @@ class PhpTemplate
 	public $tpl_dir = APP_DIR . '/templates';
 	protected $vars = [];
 	protected $plugins = [];
+	protected $layout = null;
 
 	function __construct($tpl_dir=null, $default_vars=[])
 	{
@@ -21,17 +22,37 @@ class PhpTemplate
 
 		$this->assign($default_vars);
 
+		$template = $this;
+		$this->addPlugin('layout', function ($param) use ($template) {
+			$template->layout = $param;
+			return '';
+		});
+		$this->addPlugin('\/\/', function ($param) {
+			return '';
+		});
 		$this->addPlugin('tr', function ($param) {
 			return gettext($param);
+		});
+		$this->addPlugin('include', function ($param) use ($template) {
+			$template = new PhpTemplate($template->tpl_dir, $template->vars);
+			$templatechild_content = $template->fetch($param);
+			return $templatechild_content;
+		});
+		$this->addPlugin('routeUrl', function ($param) use ($template) {
+			$params = explode(' ', $param);
+			$route_name = array_shift($params);
+			$url_args = $params;
+			$url = getRouteUrl($route_name, $url_args);
+			return $url;
 		});
 	}
 
 	public static function createTemplate($tpl_dir=null, $default_vars=[])
 	{
-		return new Templater($tpl_dir, $default_vars);
+		return new PhpTemplate($tpl_dir, $default_vars);
 	}
 
-	public function fetch($tpl, $layout=null, $extra_vars=array())
+	public function fetch($tpl, $layout=null, $extra_vars=[])
 	{
 		$tpl_dirs = [];
 
@@ -62,8 +83,8 @@ class PhpTemplate
 			throw new \Exception("Template not found : " . $tpl, 1);
 		}
 		
-		extract($this->vars);
-		extract($extra_vars);
+		$tpl_vars = array_merge($this->vars, $extra_vars);
+		extract($tpl_vars);
 		
 		if ($tpl_path) {
 			ob_start();
@@ -76,10 +97,11 @@ class PhpTemplate
 		}
 
 
-		// plugins. ex: {tr:English text} ==> "Texte francais"
+		// plugins. ex: {tr English text} ==> "Texte francais"
 		if (! empty($this->plugins)) {
 			foreach ($this->plugins as $prefix => $callback) {
-				preg_match_all('/{' . $prefix . ':([^}]+)}/', $content, $regs, PREG_SET_ORDER);
+				//preg_match_all('/{' . $prefix . ':([^}]+)}/', $content, $regs, PREG_SET_ORDER);
+				preg_match_all('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_SET_ORDER);
 				foreach($regs as $reg) {
 					$replaced = $callback($reg[1]);
 					$content = str_replace($reg[0], $replaced, $content);
@@ -88,19 +110,41 @@ class PhpTemplate
 			}
 		}
 
+		// variables. ex: {$user_name} ==> John
+		if (true) {
+			preg_match_all('/{\$([a-zA-Z0-9_\[\]\']+)}/', $content, $regs, PREG_SET_ORDER);
+			foreach($regs as $reg) {
+				$var = $reg[1];
+				
+				if (isset(${$var})) {
+					$replaced = ${$var};
+					$content = str_replace($reg[0], $replaced, $content);
+				} else {
+					//$content = str_replace($reg[0], '', $content);
+				}
+			}
+		}
+
+		// si pas de layout defini, on recupere celui eventuel du plugin layout (c'est a dire venant d'un marker {layout xxx} dans le template)
+		if (is_null($layout)) {
+			$layout = $this->layout;
+		}
+		$this->layout = null;
 
 		if (empty($layout)) {
 			return $content;
 
 		} else {
-			$content_layout = $this->fetch($layout, null, array('layout_content' => $content));
+			$extra_vars['child_content'] = $content;
+			//$extra_vars['child_content'] = '{CONTENT OF ' . $tpl . '}';
+			$content_layout = $this->fetch($layout, null, $extra_vars);
 			return $content_layout;
 		}
 	}
 
-	public function display($tpl, $layout=null)
+	public function display($tpl, $layout=null, $extra_vars=[])
 	{
-		echo $this->fetch($tpl, $layout);
+		echo $this->fetch($tpl, $layout, $extra_vars);
 	}
 
 	public function assign($var_name, $var_value=null)

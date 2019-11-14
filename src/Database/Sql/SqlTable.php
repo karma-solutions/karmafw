@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Database\Sql;
 
+use \KarmaFW\App;
+
 
 class SqlTable
 {
@@ -10,10 +12,13 @@ class SqlTable
 	protected $columns = null;
 
 
-	public function __construct($db, $table_name)
+	public function __construct($table_name, $db=null)
 	{
-		$this->db = $db;
+		if (is_null($db)) {
+			$db = App::getDb();
+		}
 		$this->table_name = $table_name;
+		$this->db = $db;
 	}
 
 
@@ -110,10 +115,17 @@ class SqlTable
 
 	public function getAll($where=null, $options=[]) /* : array */
 	{
-		//return $this->db->createQuery()->tableSelect($this->table_name, $where, $options)->fetchAll();
-
 		$query = $this->buildQuery($where, $options);
 		return $this->db->createQuery()->executeSelectAll($query);
+	}
+
+	public function getAllWithFoundRows($where=null, $options=[]) /* : array */
+	{
+		$query = $this->buildQuery($where, $options);
+		$rs = $this->db->createQuery()->execute($query);
+		$data = $rs->fetchAll();
+		$found_rows = $rs->getfoundRowsCount();
+		return ['found_rows' => $found_rows, 'data' => $data];
 	}
 
 
@@ -126,12 +138,19 @@ class SqlTable
 	public function getOne($where=null, $options=[]) /* : array */
 	{
 		$options['limit'] = 1;
-		return $this->getAll($where, $options)->fetchOne();
+		//return $this->getAll($where, $options)->fetchOne();
+		$query = $this->buildQuery($where, $options);
+		return $this->db->createQuery()->executeSelectOne($query);
 	}
 
 
 	public function buildQuery($where=null, $options=[]) /* : string */
 	{
+		if (empty($options['order_by']) && ! empty($options['order by'])) {
+			// alias "order by" to "order_by"
+			$options['order_by'] = $options['order by'];
+		}
+
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
 		$order_by_sql = isset($options['order_by']) ? ("order by " . $options['order_by']) : "";
 		$table_name = isset($options['from']) ? $options['from'] : $this->table_name;
@@ -159,7 +178,7 @@ class SqlTable
 					" . $limit_sql;
 
 		if (! empty($options['debug'])) {
-			echo "<pre>" .preg_replace('/\s+/', '', $query) . "</pre>";
+			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
 		}
 
 		return $query;
