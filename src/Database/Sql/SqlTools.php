@@ -132,6 +132,14 @@ class SqlTools
                 }else if ($value instanceof SqlLike) {
                     $where_sql[] = $key . ' like ' . (string) $this->escape($value);
                     
+                }else if ($value instanceof SqlIn) {
+                    $value = (string) $value;
+                    if (empty($value)) {
+                        $where_sql[] = '0';
+                    } else {
+                        $where_sql[] = $key . ' in (' . $value . ')';
+                    }
+                    
                 }else if ($value instanceof SqlExpr) {
                     $where_sql[] = $key . ' = ' . (string) $value;
                     

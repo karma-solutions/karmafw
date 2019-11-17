@@ -9,7 +9,17 @@ if (! function_exists('pre')) {
 		if (!empty($prefix)) {
 			echo $prefix;
 		}
-		print_r($var);
+		if (is_null($var)) {
+			echo "NULL";
+		} else if ($var === true) {
+			echo "TRUE";
+		} else if ($var === false) {
+			echo "FALSE";
+		} else if (is_string($var)) {
+			echo '"' . $var . '"';
+		} else {
+			print_r($var);
+		}
 		echo "</pre>";
 
 		if ($exit) {

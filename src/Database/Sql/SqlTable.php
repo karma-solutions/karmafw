@@ -129,6 +129,13 @@ class SqlTable
 	}
 
 
+	public function selectCount($where=null, $options=[])
+	{
+		$options['select'] = 'count(*) as nb';
+		$row = $this->getOne($where, $options);
+		return empty($row['nb']) ? 0 : $row['nb'];
+	}
+
 	public function selectOne($where=null, $options=[])
 	{
 		// Alias of getOne
@@ -153,6 +160,7 @@ class SqlTable
 
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
 		$order_by_sql = isset($options['order_by']) ? ("order by " . $options['order_by']) : "";
+		$having_sql = isset($options['having']) ? ("having " . $options['having']) : "";
 		$table_name = isset($options['from']) ? $options['from'] : $this->table_name;
 
 		$select_sql = '*';
@@ -170,10 +178,12 @@ class SqlTable
 			$joins_sql = implode(' ', $options['join']);
 		}
 
+
 		$query = "select " . $select_sql . "
 					from " . $this->table_name . "
 					" . $joins_sql . "
 					where " . $this->db->buildSqlWhere($where) . "
+					" . $having_sql . "
 					" . $order_by_sql . "
 					" . $limit_sql;
 

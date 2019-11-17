@@ -31,6 +31,12 @@ class App
 		// start session
 		session_start();
 
+		// move fw_helpers at the end of the list (to be loaded the last one)
+		if (count(self::$helpers_dirs) > 1) {
+		$fw_helpers = array_shift(self::$helpers_dirs);
+		self::$helpers_dirs[] = $fw_helpers;
+		}
+
 		// include helpers
 		foreach (self::$helpers_dirs as $helpers_dir) {
 			self::loadHelpers($helpers_dir);
@@ -131,9 +137,9 @@ class App
 	}
 
 
-	public static function createTemplate()
+	public static function createTemplate($tpl_dir=null, $default_vars=[])
 	{
-		return new PhpTemplate();
+		return new PhpTemplate($tpl_dir, $default_vars);
 	}
 
 
