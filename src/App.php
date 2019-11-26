@@ -29,7 +29,9 @@ class App
 		HooksManager::applyHook('app_boot__before', []);
 
 		// start session
-		session_start();
+		if (empty(session_id())) {
+			session_start();
+		}
 
 		// move fw_helpers at the end of the list (to be loaded the last one)
 		if (count(self::$helpers_dirs) > 1) {
@@ -137,9 +139,9 @@ class App
 	}
 
 
-	public static function createTemplate($tpl_dir=null, $default_vars=[])
+	public static function createTemplate($tpl_path=null, $variables=[], $layout=null, $templates_dirs=null)
 	{
-		return new PhpTemplate($tpl_dir, $default_vars);
+		return new PhpTemplate($tpl_path, $variables, $layout, $templates_dirs);
 	}
 
 

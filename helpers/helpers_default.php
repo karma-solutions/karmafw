@@ -161,3 +161,12 @@ if (! function_exists('getRouteUrl')) {
 		return Router::getRouteUrl($route_name, $urls_args);
 	}
 }
+
+
+if (! function_exists('dateUstoFr')) {
+	function dateUstoFr($date_us) {
+	    $date_us = substr($date_us, 0, 10);
+	    $parts = explode('-', $date_us);
+	    return implode('/', array_reverse($parts));
+	}
+}

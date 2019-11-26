@@ -85,7 +85,7 @@ class SqlQuery
 	}
 
 
-	public function execute($query=null, $params=[])
+	public function execute($query=null, $params=[], $nb_tries=1)
 	{
 		if (! $this->db->isConnected()) {
 			$this->db->connect();
@@ -137,6 +137,14 @@ class SqlQuery
 			$this->error = $error_msg;
 			$this->status = 'error';
 
+			if ($error_code == 2006) {
+				// MySQL server has gone away
+				if ($nb_tries > 1) {
+					sleep(1);
+					return $this->execute($query, $params, $nb_tries-1);
+				}
+			}
+
 			if ($this->db->throwOnSqlError) {
 				throw new \Exception('SqlQuery::execute() => DB error [' . $error_code . '] : ' . $error_msg . PHP_EOL . '[QUERY: ' . preg_replace('/\s+/', ' ', $query) . ' ]');
 			}
@@ -166,6 +174,11 @@ class SqlQuery
 		return $this->execute($query, $params)->fetchOne();
 	}
 
+	public function executeSelectValue($query, $column_name, $params=[])
+	{
+		return $this->execute($query, $params)->fetchColumn($column_name);
+	}
+
 	public function executeSelectAll($query, $params=[])
 	{
 		return $this->execute($query, $params)->fetchAll();
@@ -175,7 +188,7 @@ class SqlQuery
 	public function executeInsert($query, $params=[])
 	{
 		$this->execute($query, $params);
-		return $this->insert_id();
+		return $this->db->getInsertId();
 	}
 	
 

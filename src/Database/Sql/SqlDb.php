@@ -143,17 +143,22 @@ class SqlDb
 		return $this->createQuery()->executeSelectOne($sql, $params);
 	}
 
-	public function executeInsert($query, $params=[])
+	public function executeSelectValue($sql, $column_name, $params=[])
+	{
+		return $this->createQuery()->executeSelectValue($sql, $column_name, $params);
+	}
+
+	public function executeInsert($sql, $params=[])
 	{
 		return $this->createQuery()->executeInsert($sql, $params);
 	}
 
-	public function executeUpdate($query, $params=[])
+	public function executeUpdate($sql, $params=[])
 	{
 		return $this->createQuery()->executeUpdate($sql, $params);
 	}
 
-	public function executeDelete($query, $params=[])
+	public function executeDelete($sql, $params=[])
 	{
 		return $this->createQuery()->executeDelete($sql, $params);
 	}

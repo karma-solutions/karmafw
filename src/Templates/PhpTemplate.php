@@ -5,67 +5,105 @@ namespace KarmaFW\Templates;
 
 class PhpTemplate
 {
-	public $tpl_dir = APP_DIR . '/templates';
-	protected $vars = [];
-	protected $plugins = [];
+	protected $tpl_path = null;
+	protected $variables = [];
 	protected $layout = null;
+	protected $plugins = [];
+	public $templates_dirs = APP_DIR . '/templates';
 
-	function __construct($tpl_dir=null, $default_vars=[])
+
+	public static function createTemplate($tpl_path=null, $variables=[], $layout=null, $templates_dirs=null)
 	{
-		if (is_null($tpl_dir) && defined('TPL_DIR')) {
-			$tpl_dir = TPL_DIR;
+		return new PhpTemplate($tpl_path, $variables, $layout, $templates_dirs);
+	}
+
+
+	function __construct($tpl_path=null, $variables=[], $layout=null, $templates_dirs=null)
+	{
+		if (is_null($templates_dirs) && defined('TPL_DIR')) {
+			$templates_dirs = explode(':', TPL_DIR);
+
+		} else if (is_string($templates_dirs)) {
+			$templates_dirs = explode(':', $templates_dirs);
+
+		} else if (is_array($templates_dirs)) {
+
+		} else {
+			$templates_dirs = null;
 		}
 		
-		if (! is_null($tpl_dir)) {
-			$this->tpl_dir = $tpl_dir;
-		}
+		$this->tpl_path = $tpl_path;
+		$this->variables = is_array($variables) ? $variables : [];
+		$this->layout = $layout;
+		$this->templates_dirs = $templates_dirs;
 
-		$this->assign($default_vars);
+
+		// PLUGINS
 
 		$template = $this;
 		$this->addPlugin('layout', function ($param) use ($template) {
+			// {layout my_layout_template.tpl.php}
 			$template->layout = $param;
 			return '';
 		});
 		$this->addPlugin('\/\/', function ($param) {
+			// {// this is a comment}
+			return '';
+		});
+		$this->addPlugin('#', function ($param) {
+			// {# this is a comment}
 			return '';
 		});
 		$this->addPlugin('tr', function ($param) {
+			// {tr my text in english} ==> mon texte en francais
 			return gettext($param);
 		});
 		$this->addPlugin('include', function ($param) use ($template) {
-			$template = new PhpTemplate($template->tpl_dir, $template->vars);
+			// {include my_template.tpl.php}
+			$template = new PhpTemplate($template->templates_dirs, $template->variables);
 			$templatechild_content = $template->fetch($param);
 			return $templatechild_content;
 		});
-		$this->addPlugin('routeUrl', function ($param) use ($template) {
+		$this->addPlugin('routeUrl', function ($param) {
+			// {routeUrl login_page} ===> /login
 			$params = explode(' ', $param);
 			$route_name = array_shift($params);
 			$url_args = $params;
 			$url = getRouteUrl($route_name, $url_args);
 			return $url;
 		});
+
 	}
 
-	public static function createTemplate($tpl_dir=null, $default_vars=[])
-	{
-		return new PhpTemplate($tpl_dir, $default_vars);
-	}
 
-	public function fetch($tpl, $layout=null, $extra_vars=[])
+	public function fetch($tpl, $extra_vars=[], $layout=null, $options=[])
 	{
 		$tpl_dirs = [];
 
-		if (! is_null($this->tpl_dir) && is_dir($this->tpl_dir)) {
-			$tpl_dirs[] = $this->tpl_dir; // user templates
+		// user templates
+		if (! empty($this->templates_dirs)) {
+			foreach ($this->templates_dirs as $templates_dir) {
+				if (is_dir($templates_dir)) {
+					$tpl_dirs[] = $templates_dir;
+				}
+			}
 		}
 
+		// framework templates
 		if (is_dir(FW_DIR . '/templates')) {
-			$tpl_dirs[] = FW_DIR . '/templates'; // framework templates
+			$tpl_dirs[] = FW_DIR . '/templates';
 		}
 
 		if (empty($tpl_dirs)) {
 			throw new \Exception("No Templates dir. Please define TPL_DIR with a valid directory path.", 1);
+		}
+
+		if (empty($tpl)) {
+			$tpl = $this->tpl_path;
+		}
+		if (empty($tpl)) {
+			//throw new Exception("no template specified", 1);
+			return '';
 		}
 
 		$tpl_path = false;
@@ -83,8 +121,12 @@ class PhpTemplate
 			throw new \Exception("Template not found : " . $tpl, 1);
 		}
 		
-		$tpl_vars = array_merge($this->vars, $extra_vars);
-		extract($tpl_vars);
+		//$tpl_vars = array_merge($this->variables, $extra_vars);
+		//extract($tpl_vars);
+		if (! empty($extra_vars) && is_array($extra_vars)) {
+			$this->variables = array_merge($this->variables, $extra_vars);
+		}
+		extract($this->variables);
 		
 		if ($tpl_path) {
 			ob_start();
@@ -98,29 +140,31 @@ class PhpTemplate
 
 
 		// plugins. ex: {tr English text} ==> "Texte francais"
-		if (! empty($this->plugins)) {
-			foreach ($this->plugins as $prefix => $callback) {
-				//preg_match_all('/{' . $prefix . ':([^}]+)}/', $content, $regs, PREG_SET_ORDER);
-				preg_match_all('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_SET_ORDER);
-				foreach($regs as $reg) {
-					$replaced = $callback($reg[1]);
-					$content = str_replace($reg[0], $replaced, $content);
+		if (empty($options['no_plugins'])) {
+			if (! empty($this->plugins)) {
+				foreach ($this->plugins as $prefix => $callback) {
+					//preg_match_all('/{' . $prefix . ':([^}]+)}/', $content, $regs, PREG_SET_ORDER);
+					preg_match_all('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_SET_ORDER);
+					foreach($regs as $reg) {
+						$replaced = $callback($reg[1]);
+						$content = str_replace($reg[0], $replaced, $content);
+					}
+
 				}
-
 			}
-		}
 
-		// variables. ex: {$user_name} ==> John
-		if (true) {
-			preg_match_all('/{\$([a-zA-Z0-9_\[\]\']+)}/', $content, $regs, PREG_SET_ORDER);
-			foreach($regs as $reg) {
-				$var = $reg[1];
-				
-				if (isset(${$var})) {
-					$replaced = ${$var};
-					$content = str_replace($reg[0], $replaced, $content);
-				} else {
-					//$content = str_replace($reg[0], '', $content);
+			// variables. ex: {$user_name} ==> John
+			if (true) {
+				preg_match_all('/{\$([a-zA-Z0-9_\[\]\']+)}/', $content, $regs, PREG_SET_ORDER);
+				foreach($regs as $reg) {
+					$var = $reg[1];
+					
+					if (isset(${$var})) {
+						$replaced = ${$var};
+						$content = str_replace($reg[0], $replaced, $content);
+					} else {
+						//$content = str_replace($reg[0], '', $content);
+					}
 				}
 			}
 		}
@@ -137,14 +181,25 @@ class PhpTemplate
 		} else {
 			$extra_vars['child_content'] = $content;
 			//$extra_vars['child_content'] = '{CONTENT OF ' . $tpl . '}';
-			$content_layout = $this->fetch($layout, null, $extra_vars);
+			$content_layout = $this->fetch($layout, $extra_vars, null, $options);
 			return $content_layout;
 		}
 	}
 
-	public function display($tpl, $layout=null, $extra_vars=[])
+	public function display($tpl, $extra_vars=[], $layout=null, $options=[])
 	{
-		echo $this->fetch($tpl, $layout, $extra_vars);
+		echo $this->fetch($tpl, $extra_vars, $layout, $options);
+	}
+
+
+	public function setAllVariables($variables=[])
+	{
+		$this->variables = $variables;
+	}
+
+	public function setVariable($var_name, $var_value)
+	{
+		$this->variables[$var_name] = $var_value;
 	}
 
 	public function assign($var_name, $var_value=null)
@@ -156,7 +211,7 @@ class PhpTemplate
 			return $this;
 		}
 
-		$this->vars[$var_name] = $var_value;
+		$this->variables[$var_name] = $var_value;
 
 		return $this;
 	}

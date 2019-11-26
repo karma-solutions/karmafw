@@ -73,7 +73,12 @@ class SqlTable
 
 		$inserts_sql = implode(', ', $values_array);
 
-		$query = "insert into " . $this->table_name . " (" . $fields_sql . ") values " . $inserts_sql;
+		$ignore_sql = empty($options['ignore']) ? '' : 'ignore';
+
+		$on_duplicate_key_updates_sql = empty($options['on_duplicate_key_updates']) ? "" : ("on duplicate key update " . $options['on_duplicate_key_updates']);
+		// TODO: gerer on_duplicate_key_updates comme le where, dans un tableau et non dans un string
+
+		$query = "insert " . $ignore_sql . " into " . $this->table_name . " (" . $fields_sql . ") values " . $inserts_sql . " " . $on_duplicate_key_updates_sql;
 		return $this->db->createQuery()->executeInsertAll($query);
 	}
 
@@ -157,8 +162,13 @@ class SqlTable
 			// alias "order by" to "order_by"
 			$options['order_by'] = $options['order by'];
 		}
+		if (empty($options['group_by']) && ! empty($options['group by'])) {
+			// alias "group by" to "group_by"
+			$options['group_by'] = $options['group by'];
+		}
 
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
+		$group_by_sql = isset($options['group_by']) ? ("group by " . $options['group_by']) : "";
 		$order_by_sql = isset($options['order_by']) ? ("order by " . $options['order_by']) : "";
 		$having_sql = isset($options['having']) ? ("having " . $options['having']) : "";
 		$table_name = isset($options['from']) ? $options['from'] : $this->table_name;
@@ -184,6 +194,7 @@ class SqlTable
 					" . $joins_sql . "
 					where " . $this->db->buildSqlWhere($where) . "
 					" . $having_sql . "
+					" . $group_by_sql . "
 					" . $order_by_sql . "
 					" . $limit_sql;
 

@@ -27,7 +27,10 @@ class MysqliResultset extends SqlResultset implements SqlResultsetInterface
 
 	public function fetchOne()
 	{
-		if (empty($this->rs)) {
+		if (is_bool($this->rs)) {
+			//debug_print_backtrace();
+		}
+		if (empty($this->rs) || $this->rs === true) {
 			return [];
 		}
 		return mysqli_fetch_assoc($this->rs);
