@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\Hooks;
+namespace KarmaFW\Lib\Hooks;
 
 class HooksManager {
 	// source: https://stackoverflow.com/questions/5931324/what-is-a-hook-in-php

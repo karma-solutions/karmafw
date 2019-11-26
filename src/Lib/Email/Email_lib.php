@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\Lib;
+namespace KarmaFW\Lib\Email;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

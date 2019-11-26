@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\Lib;
+namespace KarmaFW\Lib\Pdf;
 
 use \Mpdf\Mpdf;
 
