@@ -171,4 +171,7 @@ if (! function_exists('dateUstoFr')) {
 	}
 }
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
