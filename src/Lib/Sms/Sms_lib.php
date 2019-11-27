@@ -81,6 +81,47 @@ class Sms_lib
 
 
 
+	/*
+	public static function sendSmsTwilio($numero, $message)
+	{
+		// https://www.twilio.com/docs/api/messaging/send-messages
+
+		if (! defined('TWILIO_API_KEY') || empty(TWILIO_API_KEY)) {
+			return false;
+		}
+		if (! defined('TWILIO_API_SECRET') || empty(TWILIO_API_SECRET)) {
+			return false;
+		}
+		
+		$url = "https://api.twilio.com/2010-04-01/Accounts/" . TWILIO_API_KEY . "/Messages.json";
+
+		$params = array(
+			"To" => urlencode($numero),
+			//"From" => urlencode("+33682437831"),
+			"From" => urlencode("+33644646493"),
+			"Body" => urlencode($message),
+			//"MediaUrl" => "http://www.example.com/cheeseburger.png",
+		);
+		$postdata = http_build_query($params);
+
+		$opts = array(
+			'http' => array(
+		        'method'  => 'POST',
+		        'header'  => "Content-type: application/x-www-form-urlencoded\r\n" . "Authorization: Basic " . base64_encode(TWILIO_API_KEY . ":" . TWILIO_API_SECRET),
+		        'content' => $postdata
+	    	)
+		);
+		//print_r($opts);
+		$context = stream_context_create($opts);
+
+		// NE FONCTIONNE PAS => HTTP/1.1 400 BAD REQUEST  => A DEBUGER
+
+		//echo $url; exit;
+		$result = file_get_contents($url, false, $context);
+		echo $result; exit;
+	}
+	*/
+	
 }
 
 
