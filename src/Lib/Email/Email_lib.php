@@ -18,13 +18,13 @@ class Email_lib
 
 	public static function sendmailSMTP($to, $subject, $message_html, $message_text='', $from=null, $from_name=null, $options=[]) {
 
-		if (defined('SMTP_CALLBACK') && empty($options['no_callback'])) {
-			$smtp_callback_func = SMTP_CALLBACK;
-			if (is_callable($smtp_callback_func)) {
-				return $smtp_callback_func($to, $subject, $message_html, $message_text, $from, $from_name);
+		if (defined('SMTP_HOOK') && empty($options['no_hook'])) {
+			$smtp_hook_func = SMTP_HOOK;
+			if (is_callable($smtp_hook_func)) {
+				return $smtp_hook_func($to, $subject, $message_html, $message_text, $from, $from_name);
 			}
-			// aucun message envoyé ni callback
-			return boolval($smtp_callback_func); // permet de mettre "1" pour un retour ok ou "0" pour un retour en erreur
+			// aucun message envoyé ni hook
+			return boolval($smtp_hook_func); // permet de mettre "1" pour un retour ok ou "0" pour un retour en erreur
 		}
 
 		if (true) {
