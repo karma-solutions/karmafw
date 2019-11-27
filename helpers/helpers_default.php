@@ -115,8 +115,8 @@ if (! function_exists('slugify')) {
 }
 
 
-if (! function_exists('geneateGuid')) {
-	function geneateGuid() {
+if (! function_exists('generate_uid')) {
+	function generate_uid() {
 	    
 	    if (function_exists('com_create_guid')) {
 	        return trim(com_create_guid(), '{}');
@@ -146,8 +146,8 @@ if (! function_exists('geneateGuid')) {
 
 
 
-if (! function_exists('generatePassword')) {
-	function generatePassword($nb_chars = 8) {
+if (! function_exists('generate_password')) {
+	function generate_password($nb_chars = 8) {
 	    $ref = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 62 caractères au total
 	    $ref = $ref . $ref . $ref; // permet d'avoir jusqu'à 3 fois le meme caractere dans le mot de passe
 	    $ref = str_shuffle($ref);
@@ -163,11 +163,38 @@ if (! function_exists('getRouteUrl')) {
 }
 
 
-if (! function_exists('dateUstoFr')) {
-	function dateUstoFr($date_us) {
+if (! function_exists('date_us_to_fr')) {
+	function date_us_to_fr($date_us) {
 	    $date_us = substr($date_us, 0, 10);
 	    $parts = explode('-', $date_us);
 	    return implode('/', array_reverse($parts));
+	}
+}
+
+
+if (! function_exists('date_us_to_fr')) {
+	function truncate_str($str, $max_length) {
+	    if (strlen($str) > $max_length) {
+	        $str = substr($str, 0, $max_length-1) . '…';
+	    }
+	    return $str;
+	}
+}
+
+
+if (! function_exists('get_url_path')) {
+	function get_url_path($url, $with_querystring=true, $with_url_hash=false) {
+	    $url_parts = parse_url($url);
+	    $url = $url_parts['path'];
+
+	    if ($with_querystring && ! empty($url_parts['query'])) {
+	        $url .= '?' . $url_parts['query'];
+	    }
+	    if ($with_url_hash && ! empty($url_parts['fragment'])) {
+	        $url .= '#' . $url_parts['fragment'];
+	    }
+
+	    return $url;
 	}
 }
 
