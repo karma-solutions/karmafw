@@ -2,7 +2,7 @@
 
 namespace KarmaFW\Routing\Controllers;
 
-use \KarmaFW\Hooks\HooksManager;
+use \KarmaFW\Lib\Hooks\HooksManager;
 
 
 class WebController

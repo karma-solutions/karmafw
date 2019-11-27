@@ -3,7 +3,7 @@
 namespace KarmaFW;
 
 use KarmaFW\Routing\Router;
-use KarmaFW\Hooks\HooksManager;
+use KarmaFW\Lib\Hooks\HooksManager;
 use KarmaFW\Database\Sql\SqlDb;
 use \KarmaFW\Database\Sql\SqlOrmModel;
 use KarmaFW\Templates\PhpTemplate;
