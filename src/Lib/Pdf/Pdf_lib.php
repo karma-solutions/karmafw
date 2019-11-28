@@ -8,17 +8,17 @@ use \Mpdf\Mpdf;
 class Pdf_lib
 {
 
-	protected $tocPreHTML = '<div class="container"><h1>Table des matières</h1><br /><br />';
-	protected $tocPostHTML = '';
-	protected $tocFont = 'Roboto';
-	protected $subject = 'Document';
-	protected $author = '';
-	protected $creator = '';
+	protected static $tocPreHTML = '<div class="container"><h1>Table des matières</h1><br /><br />';
+	protected static $tocPostHTML = '';
+	protected static $tocFont = 'Roboto';
+	protected static $subject = 'Document';
+	protected static $author = '';
+	protected static $creator = '';
 
 
 	protected static function getFooter()
 	{
-		return 'KarmaCRM by <a href="http://www.karma-solutions.fr/" class="text-muted">Karma Solutions</a> © 2019 &nbsp; - &nbsp; page {PAGENO}/{nb} &nbsp;';
+		return '&nbsp; page {PAGENO}/{nb} &nbsp;';
 	}
 
 
@@ -76,18 +76,18 @@ class Pdf_lib
 
 			$mpdf->AddPage();
 
-			if ($page_idx == 2) {
+			if ($page_idx == 2 && empty($pdf_options['no_footer'])) {
 				// on met le footer uniquement à partir de la 2eme page
 				$mpdf->SetFooter( self::getFooter() );
 			}
 
 
-			if ($page_idx > 1) {
+			if ($page_idx > 1 && empty($pdf_options['no_toc'])) {
 				$mpdf->TOC_Entry($toc_title, $toc_level);
 			}
 
 
-			if ($page_idx == 2) {
+			if ($page_idx == 2 && empty($pdf_options['no_toc'])) {
 				// on insere la table des matieres juste apres la 1ere page
 				$mpdf->TOCpagebreakByArray( [
 					'tocfont' => static::$tocFont,
@@ -103,7 +103,7 @@ class Pdf_lib
 				@$mpdf->WriteHTML($page['content']);
 			}
 
-			if (! empty($page['footer'])) {
+			if (! empty($page['footer']) && empty($pdf_options['no_footer'])) {
 				@$mpdf->setHTMLFooter($page['footer']);
 			}
 		}
