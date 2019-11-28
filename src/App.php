@@ -44,6 +44,20 @@ class App
 			self::loadHelpers($helpers_dir);
 		}
 
+		// define class aliases
+		class_alias('\\KarmaFW\\App', 'App');
+		class_alias('\\KarmaFW\\App', 'SqlDb');
+		class_alias('\\KarmaFW\\App', 'SqlSchema');
+		class_alias('\\KarmaFW\\App', 'SqlTable');
+		class_alias('\\KarmaFW\\App', 'SqlOrmModel');
+		class_alias('\\KarmaFW\\App', 'SqlQuery');
+		class_alias('\\KarmaFW\\App', 'SqlWhere');
+		class_alias('\\KarmaFW\\App', 'SqlExpr');
+		class_alias('\\KarmaFW\\App', 'SqlLike');
+		class_alias('\\KarmaFW\\App', 'SqlIn');
+		class_alias('\\KarmaFW\\App', 'SqlTools');
+		
+
 		self::$booted = true;
 		HooksManager::applyHook('app_boot__after', []);
 	}	
