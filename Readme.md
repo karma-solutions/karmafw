@@ -52,6 +52,8 @@ $whoops->register();
 require APP_DIR . '/config/routes.php';
 
 
+\KarmaFW\App::registerHelpersDir(APP_DIR . '/src/helpers');
+
 // APP BOOT & ROUTE
 \KarmaFW\App::boot();
 \KarmaFW\App::route();
@@ -68,6 +70,10 @@ require APP_DIR . '/config/routes.php';
 ini_set('display_errors', 1);
 
 define('TPL_DIR', APP_DIR . '/templates');
+
+define('DB_DSN', 'mysql://root@localhost/myapp');
+
+define('APP_NAME', "MyAPP");
 
 ```
 
@@ -93,8 +99,6 @@ namespace App\Controllers;
 
 use \KarmaFW\App;
 use \KarmaFW\Routing\Controllers\WebController;
-use \KarmaFW\Templates\Templater;
-use \KarmaFW\Database\Sql\SqlDb;
 
 
 class AppController extends WebController
@@ -108,9 +112,10 @@ class AppController extends WebController
 		$rs = $db->execute('show databases');
 		$databases = $rs->fetchAll();
 
-		$templater = new Templater();
-		$templater->assign('databases', $databases);
-		$templater->display('homepage.tpl.php');
+		$template = App::createTemplate();
+		$template->assign('title', 'My APP');
+		$template->assign('databases', $databases);
+		$template->display('homepage.tpl.php');
 	}
 	
 }
@@ -121,6 +126,9 @@ class AppController extends WebController
 ## 6) Homepage template : templates/homepage.tpl.php
 ```
 <html>
+<head>
+	<title>{$title}</title>
+</head>
 <body>
 <h1>hello world</h1>
 <pre>
