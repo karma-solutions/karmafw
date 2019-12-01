@@ -46,16 +46,16 @@ class App
 
 		// define class aliases
 		class_alias('\\KarmaFW\\App', 'App');
-		class_alias('\\KarmaFW\\App', 'SqlDb');
-		class_alias('\\KarmaFW\\App', 'SqlSchema');
-		class_alias('\\KarmaFW\\App', 'SqlTable');
-		class_alias('\\KarmaFW\\App', 'SqlOrmModel');
-		class_alias('\\KarmaFW\\App', 'SqlQuery');
-		class_alias('\\KarmaFW\\App', 'SqlWhere');
-		class_alias('\\KarmaFW\\App', 'SqlExpr');
-		class_alias('\\KarmaFW\\App', 'SqlLike');
-		class_alias('\\KarmaFW\\App', 'SqlIn');
-		class_alias('\\KarmaFW\\App', 'SqlTools');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlDb', 'SqlDb');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlSchema', 'SqlSchema');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlTable', 'SqlTable');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlOrmModel', 'SqlOrmModel');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlQuery', 'SqlQuery');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlWhere', 'SqlWhere');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlExpr', 'SqlExpr');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlLike', 'SqlLike');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlIn', 'SqlIn');
+		class_alias('\\KarmaFW\\Database\\Sql\\SqlTools', 'SqlTools');
 		
 
 		self::$booted = true;

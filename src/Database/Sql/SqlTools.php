@@ -129,10 +129,10 @@ class SqlTools
                 }else if (is_string($value)) {
                     $where_sql[] = $key . ' = ' . $this->escape($value);
                     
-                }else if ($value instanceof SqlLike) {
+                }else if ($value instanceof \KarmaFW\Database\Sql\SqlLike) {
                     $where_sql[] = $key . ' like ' . (string) $this->escape($value);
                     
-                }else if ($value instanceof SqlIn) {
+                }else if ($value instanceof \KarmaFW\Database\Sql\SqlIn) {
                     $value = (string) $value;
                     if (empty($value)) {
                         $where_sql[] = '0';
@@ -140,10 +140,10 @@ class SqlTools
                         $where_sql[] = $key . ' in (' . $value . ')';
                     }
                     
-                }else if ($value instanceof SqlExpr) {
+                }else if ($value instanceof \KarmaFW\Database\Sql\SqlExpr) {
                     $where_sql[] = $key . ' = ' . (string) $value;
                     
-                }else if ($value instanceof SqlWhere) {
+                }else if ($value instanceof \KarmaFW\Database\Sql\SqlWhere) {
                     $where_sql[] = (string) $value;
                     
                 }else{
