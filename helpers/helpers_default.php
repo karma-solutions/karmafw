@@ -172,7 +172,7 @@ if (! function_exists('date_us_to_fr')) {
 }
 
 
-if (! function_exists('date_us_to_fr')) {
+if (! function_exists('truncate_str')) {
 	function truncate_str($str, $max_length) {
 	    if (strlen($str) > $max_length) {
 	        $str = substr($str, 0, $max_length-1) . '…';
