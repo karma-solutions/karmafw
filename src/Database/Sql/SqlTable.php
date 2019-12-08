@@ -181,6 +181,13 @@ class SqlTable
 		if (! empty($options['CALC_FOUND_ROWS'])) {
 			$select_sql = 'SQL_CALC_FOUND_ROWS ' . $select_sql;
 		}
+		if (! empty($options['where'])) {
+			if (empty($where)) {
+				$where = $options['where'];
+			} else {
+				$where = array_merge($where, $options['where']);
+			}
+		}
 
 		$joins_sql = '';
 		if (! empty($options['join'])) {
