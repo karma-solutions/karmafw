@@ -120,7 +120,7 @@ class SqlTableModel
 
 
 	// load a table row by his primary key. (usage: `$user = User::load($user_id);` )
-	public static function load($pk_where=[], $options=[])
+	public static function load($pk_where=[], $where=[], $options=[])
 	{
 		if (empty($pk_where)) {
 			return null;
@@ -134,7 +134,9 @@ class SqlTableModel
 			throw new \Exception("no primary_key defined in " . get_called_class(), 1);
 		}
 
-		$where = [];
+		if (empty($where)) {
+			$where = [];
+		}
 
 		foreach (static::$primary_key as $key) {
 			if (! isset($pk_where[$key])) {
