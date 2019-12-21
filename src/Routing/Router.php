@@ -136,6 +136,11 @@ class Router
 		$link = rtrim($link, '$');
 		$link = ltrim($link, '^');
 
+		$link = str_replace('\\.', '.', $link);
+		$link = str_replace('\\?', '?', $link);
+		$link = str_replace('\\+', '+', $link);
+		$link = str_replace('\\-', '-', $link);
+
 		if (! empty($urls_args)) {
 			foreach ($urls_args as $arg_value) {
 				$pos1 = strpos($link, '(');

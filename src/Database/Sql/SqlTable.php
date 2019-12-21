@@ -87,7 +87,17 @@ class SqlTable
 	{
 		$limit_sql = (isset($options['limit']) && ! is_null($options['limit'])) ? ("limit " . $options['limit']) : "";
 
+		$join_sql = isset($options['join']) ? implode(" ", $options['join']) : "";
+
+		/*
+		if (isset($options['group by']) && empty($options['group_by'])) {
+			$options['group_by'] = $options['group by'];
+		}
+		$group_by_sql = isset($options['group_by']) ? ("group by " . $options['group_by']) : "";
+		*/
+
 		$query = "update " . $this->table_name . "
+					" . $join_sql . "
 					set " . $this->db->buildSqlUpdateValues($updates) . "
 					where " . $this->db->buildSqlWhere($where) . "
 					" . $limit_sql;
@@ -105,6 +115,12 @@ class SqlTable
 		return $this->db->createQuery()->executeDelete($query);
 	}
 
+
+	public function all($where=null, $options=[])
+	{
+		// Alias of getAll
+		return $this->getAll($where, $options);
+	}
 
 	public function select($where=null, $options=[])
 	{
@@ -189,6 +205,8 @@ class SqlTable
 			}
 		}
 
+		$table_alias = empty($options['alias']) ? "" : $options['alias'];
+
 		$joins_sql = '';
 		if (! empty($options['join'])) {
 			$options['join'] = is_array($options['join']) ? $options['join'] : [$options['join']];
@@ -197,7 +215,7 @@ class SqlTable
 
 
 		$query = "select " . $select_sql . "
-					from " . $this->table_name . "
+					from " . $this->table_name . " " . $table_alias . "
 					" . $joins_sql . "
 					where " . $this->db->buildSqlWhere($where) . "
 					" . $having_sql . "

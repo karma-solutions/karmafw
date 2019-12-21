@@ -60,7 +60,7 @@ class PhpTemplate
 		});
 		$this->addPlugin('include', function ($param) use ($template) {
 			// {include my_template.tpl.php}
-			$template = new PhpTemplate($template->templates_dirs, $template->variables);
+			$template = new PhpTemplate($template->templates_dirs, $template->variables, null, $template->templates_dirs);
 			$templatechild_content = $template->fetch($param);
 			return $templatechild_content;
 		});
@@ -73,6 +73,23 @@ class PhpTemplate
 			return $url;
 		});
 
+		$this->addPlugin('block', function ($param, $matched_expr, $begin_block_offset_start, &$content) use ($template) {
+			// {block block_name}my html content{/block}  ==> assign variable $block_name with block content
+			$begin_block_offset_end = $begin_block_offset_start + strlen($matched_expr);
+
+			$end_block_offset_start = strpos($content, '{/block}', $begin_block_offset_end);
+
+			if ($end_block_offset_start) {
+				$block = substr($content, $begin_block_offset_end, $end_block_offset_start - $begin_block_offset_end);
+				$template->assign($param, $block);
+
+				$end_block_offset_end = $end_block_offset_start + strlen("{/block}");
+				$content = substr($content, 0, $begin_block_offset_start) . substr($content, $end_block_offset_end);
+			}
+
+
+			return '';
+		});
 	}
 
 
@@ -143,12 +160,27 @@ class PhpTemplate
 		if (empty($options['no_plugins'])) {
 			if (! empty($this->plugins)) {
 				foreach ($this->plugins as $prefix => $callback) {
-					//preg_match_all('/{' . $prefix . ':([^}]+)}/', $content, $regs, PREG_SET_ORDER);
-					preg_match_all('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_SET_ORDER);
-					foreach($regs as $reg) {
-						$replaced = $callback($reg[1]);
-						$content = str_replace($reg[0], $replaced, $content);
+
+					if ($prefix != 'block') {
+						preg_match_all('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_SET_ORDER);
+						foreach($regs as $reg) {
+							$replaced = $callback($reg[1], $reg);
+							$content = str_replace($reg[0], $replaced, $content);
+						}
+					} else {
+
+						$nb_iterations = 10;
+						while ($nb_iterations--) {
+							preg_match('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_OFFSET_CAPTURE);
+							if (! $regs) {
+								break;
+							}
+
+							$replaced = $callback($regs[1][0], $regs[0][0], $regs[0][1], $content);
+							$content = str_replace($regs[0][0], $replaced, $content);
+						}
 					}
+
 
 				}
 			}
@@ -163,7 +195,8 @@ class PhpTemplate
 						$replaced = ${$var};
 						$content = str_replace($reg[0], $replaced, $content);
 					} else {
-						//$content = str_replace($reg[0], '', $content);
+						// if variable not exists, replace with empty string
+						$content = str_replace($reg[0], '', $content);
 					}
 				}
 			}

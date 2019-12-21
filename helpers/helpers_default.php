@@ -82,65 +82,73 @@ if (! function_exists('cookie')) {
 
 if (! function_exists('slugify')) {
 	function slugify($text, $max_length=null) {
-	    // https://stackoverflow.com/questions/2955251/php-function-to-make-slug-url-string
+		// https://stackoverflow.com/questions/2955251/php-function-to-make-slug-url-string
+		// https://stackoverflow.com/questions/3371697/replacing-accented-characters-php
 
-	    // replace non letter or digits by -
-	    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+		$unwanted_array = array(    'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+									'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+									'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+									'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+									'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
+		$text = strtr( $text, $unwanted_array );
 
-	    // transliterate
-	    $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+		// replace non letter or digits by -
+		$text = preg_replace('~[^\pL\d]+~u', '-', $text);
 
-	    // remove unwanted characters
-	    $text = preg_replace('~[^-\w]+~', '', $text);
+		// transliterate
+		$text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
 
-	    // trim
-	    $text = trim($text, '-');
+		// remove unwanted characters
+		$text = preg_replace('~[^-\w]+~', '', $text);
 
-	    // remove duplicate -
-	    $text = preg_replace('~-+~', '-', $text);
+		// trim
+		$text = trim($text, '-');
 
-	    // lowercase
-	    $text = strtolower($text);
+		// remove duplicate -
+		$text = preg_replace('~-+~', '-', $text);
 
-	    if (empty($text)) {
-	    	return 'n-a';
-	    }
+		// lowercase
+		$text = strtolower($text);
 
-	    if (! empty($max_length) && strlen($text) > $max_length) {
-	    	$text = substr(0, $max_length);
-	    }
+		if (empty($text)) {
+			return 'n-a';
+		}
 
-	    return $text;
+		if (! empty($max_length) && strlen($text) > $max_length) {
+			$text = substr(0, $max_length);
+		}
+
+		return $text;
 	}
 }
 
 
 if (! function_exists('generate_uid')) {
 	function generate_uid() {
-	    
-	    if (function_exists('com_create_guid')) {
-	        return trim(com_create_guid(), '{}');
-	    }
+		
+		if (function_exists('com_create_guid')) {
+			return trim(com_create_guid(), '{}');
+		}
 
-	    if (function_exists('openssl_random_pseudo_bytes') === true) {
-	        $data = openssl_random_pseudo_bytes(16);
-	        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);    // set version to 0100
-	        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);    // set bits 6-7 to 10
-	        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-	    }
+		if (function_exists('openssl_random_pseudo_bytes') === true) {
+			$data = openssl_random_pseudo_bytes(16);
+			$data[6] = chr(ord($data[6]) & 0x0f | 0x40);    // set version to 0100
+			$data[8] = chr(ord($data[8]) & 0x3f | 0x80);    // set bits 6-7 to 10
+			return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+		}
 
-	    mt_srand((double)microtime()*10000);
-	    
-	    $charid = strtoupper(md5(uniqid(rand(), true)));
-	    $uuid = sprintf(
-	                "%s-%s-%s-%s-%s",
-	                substr($charid, 0, 8),
-	                substr($charid, 8, 4),
-	                substr($charid,12, 4),
-	                substr($charid,16, 4),
-	                substr($charid,20,12)
-	             );
-	    return strtolower($uuid);
+		mt_srand((double)microtime()*10000);
+		
+		$charid = strtoupper(md5(uniqid(rand(), true)));
+		$uuid = sprintf(
+					"%s-%s-%s-%s-%s",
+					substr($charid, 0, 8),
+					substr($charid, 8, 4),
+					substr($charid,12, 4),
+					substr($charid,16, 4),
+					substr($charid,20,12)
+				 );
+		return strtolower($uuid);
 	}
 }
 
@@ -148,10 +156,10 @@ if (! function_exists('generate_uid')) {
 
 if (! function_exists('generate_password')) {
 	function generate_password($nb_chars = 8) {
-	    $ref = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 62 caractères au total
-	    $ref = $ref . $ref . $ref; // permet d'avoir jusqu'à 3 fois le meme caractere dans le mot de passe
-	    $ref = str_shuffle($ref);
-	    return substr($ref, 0, $nb_chars);
+		$ref = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 62 caractères au total
+		$ref = $ref . $ref . $ref; // permet d'avoir jusqu'à 3 fois le meme caractere dans le mot de passe
+		$ref = str_shuffle($ref);
+		return substr($ref, 0, $nb_chars);
 	}
 }
 
@@ -165,36 +173,36 @@ if (! function_exists('getRouteUrl')) {
 
 if (! function_exists('date_us_to_fr')) {
 	function date_us_to_fr($date_us) {
-	    $date_us = substr($date_us, 0, 10);
-	    $parts = explode('-', $date_us);
-	    return implode('/', array_reverse($parts));
+		$date_us = substr($date_us, 0, 10);
+		$parts = explode('-', $date_us);
+		return implode('/', array_reverse($parts));
 	}
 }
 
 
 if (! function_exists('truncate_str')) {
 	function truncate_str($str, $max_length) {
-	    if (strlen($str) > $max_length) {
-	        $str = substr($str, 0, $max_length-1) . '…';
-	    }
-	    return $str;
+		if (strlen($str) > $max_length) {
+			$str = substr($str, 0, $max_length-1) . '…';
+		}
+		return $str;
 	}
 }
 
 
 if (! function_exists('get_url_path')) {
 	function get_url_path($url, $with_querystring=true, $with_url_hash=false) {
-	    $url_parts = parse_url($url);
-	    $url = $url_parts['path'];
+		$url_parts = parse_url($url);
+		$url = $url_parts['path'];
 
-	    if ($with_querystring && ! empty($url_parts['query'])) {
-	        $url .= '?' . $url_parts['query'];
-	    }
-	    if ($with_url_hash && ! empty($url_parts['fragment'])) {
-	        $url .= '#' . $url_parts['fragment'];
-	    }
+		if ($with_querystring && ! empty($url_parts['query'])) {
+			$url .= '?' . $url_parts['query'];
+		}
+		if ($with_url_hash && ! empty($url_parts['fragment'])) {
+			$url .= '#' . $url_parts['fragment'];
+		}
 
-	    return $url;
+		return $url;
 	}
 }
 
