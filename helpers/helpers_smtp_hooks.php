@@ -4,7 +4,7 @@ use \KarmaFW\Lib\Email_lib;
 
 
 function smtp_hook_email($to, $subject, $message_html, $message_text='', $from=null, $from_name=null, $options=[]) {
-	// redirige les emails vers vers SMTP_HOOK_EMAIL
+	// redirige les emails sortants vers l'adresse SMTP_HOOK_EMAIL
 	if (! defined('SMTP_HOOK_EMAIL')) {
 		return false;
 	}
@@ -14,7 +14,7 @@ function smtp_hook_email($to, $subject, $message_html, $message_text='', $from=n
 }
 
 function smtp_hook_domain($to, $subject, $message_html, $message_text='', $from=null, $from_name=null, $options=[]) {
-	// redirige les emails vers vers SMTP_HOOK_DOMAIN  -  exemple:  paul.martin@gmail.com => paul.martin__gmail.com@mon-domaine-a-moi.com
+	// redirige les emails sortants vers le domaine SMTP_HOOK_DOMAIN  -  exemple:  paul.martin@gmail.com => paul.martin__gmail.com@mon-domaine-a-moi.com
 	if (! defined('SMTP_HOOK_DOMAIN')) {
 		return false;
 	}
