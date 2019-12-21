@@ -188,8 +188,13 @@ class Stripe_lib
 			$payment_ok = true;
 		}
 
+		$payment_id = $charge->id;
+		$amount = $charge->amount;
+
 		return [
 			'payment_accepted' => $payment_ok,
+			'payment_id' => $payment_id,
+			'amount' => $amount,
 			'customer_id' => $customer_id,
 			'stripe_token' => $stripe_token,
 			'stripe_error' => $stripe_error,
@@ -200,7 +205,7 @@ class Stripe_lib
 
 	public function paymentIntentInit($unit, $quantity=1, $optionnal_data=[])
 	{
-		// Paiement en 2 temps, via Stripe.js
+		// Paiement en 2 temps, via Stripe.js - 1/2  (method 1)
 		// Methode appelée en ajax
 
 		if (in_array(STRIPE_ENV, ['LIVE', 'PROD'])) {
@@ -228,6 +233,11 @@ class Stripe_lib
 
         $client_secret = $intent->client_secret;
 
+
+		if (empty($_SESSION['stripe_payment'])) {
+			$_SESSION['stripe_payment'] = [];
+		}
+
         $_SESSION['stripe_payment'][$client_secret] = [
         	'unit' => $unit,
         	'quantity' => $quantity,
@@ -246,7 +256,7 @@ class Stripe_lib
 
 	public function paymentIntentConfirm()
 	{
-		// Paiement en 2 temps, via Stripe.js
+		// Paiement en 2 temps, via Stripe.js - 2/2  (method 1)
 		// Methode appelée en ajax
 
         $payment_id = get('pid');
