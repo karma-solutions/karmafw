@@ -80,7 +80,10 @@ class PhpTemplate
 			$end_block_offset_start = strpos($content, '{/block}', $begin_block_offset_end);
 
 			if ($end_block_offset_start) {
-				$block = substr($content, $begin_block_offset_end, $end_block_offset_start - $begin_block_offset_end);
+				$block = isset($template->variables[$param]) ? $template->variables[$param] : '';
+
+				$block = substr($content, $begin_block_offset_end, $end_block_offset_start - $begin_block_offset_end) . $block;
+
 				$template->assign($param, $block);
 
 				$end_block_offset_end = $end_block_offset_start + strlen("{/block}");
