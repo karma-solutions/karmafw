@@ -41,50 +41,54 @@ class PhpTemplate
 		// PLUGINS
 
 		$template = $this;
-		$this->addPlugin('layout', function ($param) use ($template) {
+		$this->addPlugin('layout', function ($key) use ($template) {
 			// {layout my_layout_template.tpl.php}
-			$template->layout = $param;
+			$template->layout = $key;
 			return '';
 		});
-		$this->addPlugin('\/\/', function ($param) {
+		$this->addPlugin('\/\/', function ($key) {
 			// {// this is a comment}
 			return '';
 		});
-		$this->addPlugin('#', function ($param) {
+		$this->addPlugin('#', function ($key) {
 			// {# this is a comment}
 			return '';
 		});
-		$this->addPlugin('tr', function ($param) {
-			// {tr my text in english} ==> mon texte en francais
-			return gettext($param);
+		$this->addPlugin('assign', function ($key, $value) use ($template) {
+			// {assign var_name content of my variable}
+			$template->assign($key, $value);
+			return '';
 		});
-		$this->addPlugin('include', function ($param) use ($template) {
+		$this->addPlugin('tr', function ($key) {
+			// {tr my text in english} ==> mon texte en francais
+			return gettext($key);
+		});
+		$this->addPlugin('include', function ($key) use ($template) {
 			// {include my_template.tpl.php}
 			$template = new PhpTemplate($template->templates_dirs, $template->variables, null, $template->templates_dirs);
-			$templatechild_content = $template->fetch($param);
+			$templatechild_content = $template->fetch($key);
 			return $templatechild_content;
 		});
-		$this->addPlugin('routeUrl', function ($param) {
+		$this->addPlugin('routeUrl', function ($key, $value=[]) {
 			// {routeUrl login_page} ===> /login
-			$params = explode(' ', $param);
-			$route_name = array_shift($params);
-			$url_args = $params;
+			$route_name = $key;
+			$url_args = explode(' ', $value);
 			$url = getRouteUrl($route_name, $url_args);
 			return $url;
 		});
 
-		$this->addPlugin('block', function ($param, $matched_expr, $begin_block_offset_start, &$content) use ($template) {
+		$this->addPlugin('block', function ($key, $matched_expr, $begin_block_offset_start, &$content) use ($template) {
 			// {block block_name}my html content{/block}  ==> assign variable $block_name with block content
 			$begin_block_offset_end = $begin_block_offset_start + strlen($matched_expr);
 
 			$end_block_offset_start = strpos($content, '{/block}', $begin_block_offset_end);
 
 			if ($end_block_offset_start) {
-				$block = isset($template->variables[$param]) ? $template->variables[$param] : '';
+				$block = isset($template->variables[$key]) ? $template->variables[$key] : '';
 
 				$block = substr($content, $begin_block_offset_end, $end_block_offset_start - $begin_block_offset_end) . $block;
 
-				$template->assign($param, $block);
+				$template->assign($key, $block);
 
 				$end_block_offset_end = $end_block_offset_start + strlen("{/block}");
 				$content = substr($content, 0, $begin_block_offset_start) . substr($content, $end_block_offset_end);
@@ -165,9 +169,10 @@ class PhpTemplate
 				foreach ($this->plugins as $prefix => $callback) {
 
 					if ($prefix != 'block') {
-						preg_match_all('/{' . $prefix . ' ([^}]+)}/', $content, $regs, PREG_SET_ORDER);
+						preg_match_all('/{' . $prefix . ' ([^} ]+)( ([^}]+))?}/', $content, $regs, PREG_SET_ORDER);
 						foreach($regs as $reg) {
-							$replaced = $callback($reg[1], $reg);
+							$value = isset($reg[3]) ? $reg[3] : null;
+							$replaced = $callback($reg[1], $value);
 							$content = str_replace($reg[0], $replaced, $content);
 						}
 					} else {
