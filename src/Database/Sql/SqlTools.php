@@ -115,6 +115,7 @@ class SqlTools
 	public function buildSqlWhere($where)
 	{
         $where_sql = array("1" => "1");
+        
         if (! empty($where)) {
             foreach ($where as $key => $value) {
                 if (is_null($value)) {
@@ -147,6 +148,7 @@ class SqlTools
                     $where_sql[] = (string) $value;
                     
                 }else{
+                    pre($where, 1);
                     $where_sql[] = $key . ' = ' . $this->escape($value);
                     //$where_sql[] = $key . ' = ' . (string) $value;
                 }

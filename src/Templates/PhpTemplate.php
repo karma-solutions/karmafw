@@ -142,7 +142,7 @@ class PhpTemplate
 		}
 
 		if (is_null($tpl_path)) {
-			throw new \Exception("Template not found : " . $tpl, 1);
+			throw new \Exception("Template not found : " . $tpl . " (dirs: " . implode(" | ", $tpl_dirs) . ")", 1);
 		}
 		
 		//$tpl_vars = array_merge($this->variables, $extra_vars);

@@ -118,10 +118,18 @@ class SqlQuery
 
 		$this->status = 'running';
 		$ts_start = microtime(true);
+		
 
-		//echo $query . "<hr />";
-		$rs = $this->db->getDriver()->execute($query);
-		//pre($query);
+		if (! empty($_GET['debug_sql'])) {
+			echo $query . "<hr />";
+		}
+
+		$_query = $query;
+		if (! empty($_GET['dry_sql'])) {
+			$_query = "select 1 from ( select 1 ) tmp where 0";
+		}
+
+		$rs = $this->db->getDriver()->execute($_query);
 		//pre($rs);
 
 		$ts_end = microtime(true);
