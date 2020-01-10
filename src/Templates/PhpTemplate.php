@@ -195,14 +195,28 @@ class PhpTemplate
 
 			// variables. ex: {$user_name} ==> John
 			if (true) {
-				preg_match_all('/{\$([a-zA-Z0-9_\[\]\']+)}/', $content, $regs, PREG_SET_ORDER);
+				preg_match_all('/{\$([a-zA-Z0-9._\[\]\']+)}/', $content, $regs, PREG_SET_ORDER);
 				foreach($regs as $reg) {
 					$var = $reg[1];
+					$var_parts = explode(".", $var);
 					
-					if (isset(${$var})) {
+					if (count($var_parts) > 1) {
+						// $variable.key  ==> $variable['key']
+
+						$var = ${ array_shift($var_parts) };
+						foreach ($var_parts as $part) {
+							$var = $var[ $part ];
+						}
+
+						$replaced = $var;
+						$content = str_replace($reg[0], $replaced, $content);
+
+					} else if (isset(${$var})) {
+						// $variable
 						$replaced = ${$var};
 						$content = str_replace($reg[0], $replaced, $content);
 					} else {
+
 						// if variable not exists, replace with empty string
 						$content = str_replace($reg[0], '', $content);
 					}

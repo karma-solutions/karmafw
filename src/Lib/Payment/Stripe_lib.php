@@ -8,18 +8,8 @@ use \Stripe\Stripe;
 class Stripe_lib
 {
 
-	public function paymentChargeByCard($card, $customer_id=null, $payment_label='', $payment_price=0, $save_customer=false, $new_customer_email=null, $new_customer_description=null)
+	public static function getKeys($type=null)
 	{
-		/*
-		$card = [
-			'number' => '4242424242424242',
-			'exp_month' => 12,
-			'exp_year' => 2020,
-			'cvc' => '314',
-		];
-		*/
-
-
 		if (STRIPE_ENV == 'LIVE') {
 			if (! defined('STRIPE_LIVE_PUBLIC_KEY') || ! defined('STRIPE_LIVE_SECRET_KEY')) {
 				return false;
@@ -34,9 +24,33 @@ class Stripe_lib
 			$stripe_public_key = STRIPE_TEST_PUBLIC_KEY;
 			$stripe_secret_key = STRIPE_TEST_SECRET_KEY;
 		}
+		if ($type == 'public') 	{
+			return $stripe_public_key;
+		}
+		if ($type == 'secret') 	{
+			return $stripe_secret_key;
+		}
+		return [
+			'public' => $stripe_public_key,
+			'secret' => $stripe_secret_key,
+		];
 
+	}
+
+
+	public static function paymentChargeByCard($card, $customer_id=null, $payment_label='', $payment_price=0, $save_customer=false, $new_customer_email=null, $new_customer_description=null)
+	{
+		/*
+		$card = [
+			'number' => '4242424242424242',
+			'exp_month' => 12,
+			'exp_year' => 2020,
+			'cvc' => '314',
+		];
+		*/
+
+		$stripe_secret_key = self::getKeys('secret');
 		\Stripe\Stripe::setApiKey($stripe_secret_key);
-
 
 
 		// Warning: l'API \Stripe\Token requiert que l'on ai vérifié son téléphone sur notre compte Stripe
@@ -45,7 +59,7 @@ class Stripe_lib
 		  'card' => $card,
 		]);
 
-		$result = \KarmaFW\Lib\Payment\Stripe_lib::paymentCharge($client_secret, $customer_id, $payment_label, $payment_price, $save_customer, $new_customer_email, $new_customer_description);
+		$payment_result = \KarmaFW\Lib\Payment\Stripe_lib::paymentCharge($client_secret, $customer_id, $payment_label, $payment_price, $save_customer, $new_customer_email, $new_customer_description);
 
 
 		/*
@@ -97,7 +111,7 @@ class Stripe_lib
 		)
 		*/
 
-		return ! empty($result['payment_accepted']);
+		return $payment_result;
 	}
 
 
@@ -113,23 +127,10 @@ class Stripe_lib
 		// TEST CB valide  => visa: 4242 4242 4242 4242  /  mastercard: 5555 5555 5555 4444
 		// TEST CB refusée => visa: 4242 4242 4242 1214  /  mastercard: 5555 5555 5555 7777
 
-		if (STRIPE_ENV == 'LIVE') {
-			if (! defined('STRIPE_LIVE_PUBLIC_KEY') || ! defined('STRIPE_LIVE_SECRET_KEY')) {
-				return false;
-			}
-			$stripe_public_key = STRIPE_LIVE_PUBLIC_KEY;
-			$stripe_secret_key = STRIPE_LIVE_SECRET_KEY;
-
-		} else {
-			if (! defined('STRIPE_TEST_PUBLIC_KEY') || ! defined('STRIPE_TEST_SECRET_KEY')) {
-				return false;
-			}
-			$stripe_public_key = STRIPE_TEST_PUBLIC_KEY;
-			$stripe_secret_key = STRIPE_TEST_SECRET_KEY;
-		}
-
 		$stripe_error = '';
 		$payment_ok = false;
+
+		$stripe_secret_key = self::getKeys('secret');
 		\Stripe\Stripe::setApiKey($stripe_secret_key);
 
 		try {
@@ -203,25 +204,14 @@ class Stripe_lib
 
 
 
+	// API Methode Stripe.js ajax
+
 	public function paymentIntentInit($unit, $quantity=1, $optionnal_data=[])
 	{
 		// Paiement en 2 temps, via Stripe.js - 1/2  (method 1)
 		// Methode appelée en ajax
 
-		if (in_array(STRIPE_ENV, ['LIVE', 'PROD'])) {
-			if (! defined('STRIPE_LIVE_PUBLIC_KEY') || ! defined('STRIPE_LIVE_SECRET_KEY')) {
-				return false;
-			}
-			$stripe_secret_key = STRIPE_LIVE_SECRET_KEY;
-
-		} else {
-			if (! defined('STRIPE_TEST_PUBLIC_KEY') || ! defined('STRIPE_TEST_SECRET_KEY')) {
-				return false;
-			}
-			$stripe_secret_key = STRIPE_TEST_SECRET_KEY;
-		}
-		
-
+		$stripe_secret_key = self::getKeys('secret');
         \Stripe\Stripe::setApiKey($stripe_secret_key);
 
         $currency = 'eur';
