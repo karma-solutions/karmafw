@@ -14,7 +14,7 @@ class Paypal_lib
 	// https://github.com/paypal/PayPal-PHP-SDK/wiki/Making-First-Call
 	// https://www.grafikart.fr/tutoriels/paypal-express-checkout-rest-962
 	
-	public static function PaymentPaypal($payment_label='', $payment_product_label='', $payment_price=0, $customer_description='')
+	public static function paymentPaypal($url_callback="/paypal-callback", $url_cancel="/paypal-cancel", $payment_label='', $payment_price=0, $products_details=[], $customer_description='', $optionnal_data=[])
 	{
 		// Paypal STEP 1 (creating payment)
 
@@ -22,7 +22,7 @@ class Paypal_lib
 			return false;
 		}
 
-		if (PAYPAL_ENV == 'PROD') {
+		if (in_array(PAYPAL_ENV, ['PROD', 'LIVE'])) {
 			if (! defined('PAYPAL_PROD_CLIENT_ID') || ! defined('PAYPAL_PROD_SECRET')) {
 				return false;
 			}
@@ -51,7 +51,7 @@ class Paypal_lib
 			//'log.LogEnabled' => true,
 			//'log.FileName' => '/tmp/PayPal.log',
 			//'log.LogLevel' => 'FINE',
-			'mode' => (PAYPAL_ENV == 'PROD') ? 'live' : 'sandbox',
+			'mode' => (in_array(PAYPAL_ENV, ['PROD', 'LIVE'])) ? 'live' : 'sandbox',
 		]);
 
 		
@@ -74,15 +74,19 @@ class Paypal_lib
 			$transaction->setDescription($payment_label); // optionnal
 		}
 
-		if (! empty($payment_product_label)) {
+		if (! empty($products_details)) {
 			// specify products list
 			$list = new \PayPal\Api\ItemList();
-			$item = (new \PayPal\Api\Item())
-	                ->setName($payment_product_label)
-	                ->setPrice($payment_price)
-	                ->setCurrency('EUR')
-	                ->setQuantity(1);
-	        $list->addItem($item);
+			
+			foreach ($products_details as $product_detail) {
+				$item = (new \PayPal\Api\Item())
+		                ->setName($product_detail['name'])
+		                ->setPrice($product_detail['price'])
+		                ->setCurrency('EUR')
+		                ->setQuantity($product_detail['quantity']);
+		        $list->addItem($item);
+			}
+
 			$transaction->setItemList($list); // optionnal
 		}
 
@@ -95,7 +99,7 @@ class Paypal_lib
 		// set redirections urls
 		$scheme = ( (! empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https') || (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (! empty($_SERVER['REDIRECT_HTTPS']) && $_SERVER['REDIRECT_HTTPS'] == 'on') ) ? 'https' : 'http';
 		$redirectUrls = new \PayPal\Api\RedirectUrls();
-		$redirectUrls->setReturnUrl($scheme."://" . $_SERVER['HTTP_HOST'] . "/paypal_callback")->setCancelUrl($scheme."://" . $_SERVER['HTTP_HOST'] . "/paypal_canceled");
+		$redirectUrls->setReturnUrl($scheme."://" . $_SERVER['HTTP_HOST'] . $url_callback)->setCancelUrl($scheme."://" . $_SERVER['HTTP_HOST'] . $url_cancel);
 
 
 		// Build payment
@@ -128,6 +132,13 @@ class Paypal_lib
 		}
 
 
+		$_SESSION['paypal_payment'][$paymentId] = [];
+
+        if (! empty($optionnal_data)) {
+        	$_SESSION['paypal_payment'][$paymentId] = array_merge($_SESSION['paypal_payment'][$paymentId], $optionnal_data);
+        }
+
+
 		return [
 			'approval_url' => $approval_url,
 			'paypal_error' => $paypal_error,
@@ -137,7 +148,7 @@ class Paypal_lib
 
 
 
-	public static function PaymentPaypal_Callback()
+	public static function paymentPaypal_Callback()
 	{
 		// Paypal STEP 2 (validating payment)
 
@@ -145,7 +156,7 @@ class Paypal_lib
 			return false;
 		}
 
-		if (PAYPAL_ENV == 'PROD') {
+		if (in_array(PAYPAL_ENV, ['PROD', 'LIVE'])) {
 			if (! defined('PAYPAL_PROD_CLIENT_ID') || ! defined('PAYPAL_PROD_SECRET')) {
 				return false;
 			}
@@ -198,20 +209,31 @@ class Paypal_lib
 			}
 		}
 
-		$paypal_result = [
-			'payment_ok' => $payment_ok,
-	    	'paymentId' => $paymentId,
-	    	'token' => $token,
-	    	'PayerID' => $PayerID,
-	    	'payment' => $payment,
-		];
+
+		$_SESSION['paypal_payment'][$paymentId]['payment_accepted'] = $payment_ok;
+		$_SESSION['paypal_payment'][$paymentId]['payment_id'] = $paymentId;
+		$_SESSION['paypal_payment'][$paymentId]['token'] = $token;
+		$_SESSION['paypal_payment'][$paymentId]['PayerID'] = $PayerID;
+		//$_SESSION['paypal_payment'][$paymentId]['payment'] = $payment;
 
 		if (! $payment_ok) {
-			return $paypal_result;
+			$_SESSION['paypal_payment'][$paymentId]['payment'] = $payment;
+
+			return $_SESSION['paypal_payment'][$paymentId];
 		}
 
 
 		if (false) {
+			// DEBUG
+
+			$paypal_result = [
+				'payment_ok' => $payment_ok,
+		    	'paymentId' => $paymentId,
+		    	'token' => $token,
+		    	'PayerID' => $PayerID,
+		    	'payment' => $payment,
+			];
+
 			$transaction = $paypal_result['payment']->getTransactions()[0];
 
 			echo "paymentId: " . $paymentId . "<hr />";
@@ -225,7 +247,7 @@ class Paypal_lib
 			echo "<pre>" . print_r($paypal_result['payment'], 1);
 		}
 
-		return $paypal_result;
+		return $_SESSION['paypal_payment'][$paymentId];
 
 	}
 

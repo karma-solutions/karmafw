@@ -41,7 +41,7 @@ if (! function_exists('arrayAddKeyFromColumn')) {
 }
 
 if (! function_exists('arrayGroupByColumn')) {
-	function arrayGroupByColumn($array, $column_key) {
+	function arrayGroupByColumn($array, $column_key, $preserve_keys=true) {
 		$results = array();
 		foreach ($array as $k => $v) {
 			if (is_callable($column_key)) {
@@ -53,7 +53,12 @@ if (! function_exists('arrayGroupByColumn')) {
 			if (! isset($results[$key_value])) {
 				$results[$key_value] = array();
 			}
-			$results[$key_value][$k] = $v;
+			if ($preserve_keys) {
+				$results[$key_value][$k] = $v;
+				
+			} else {
+				$results[$key_value][] = $v;
+			}
 		}
 		return $results;
 	}
@@ -130,3 +135,15 @@ if (! function_exists('exportToCsvFile')) {
 		exit;
 	}
 }
+
+
+if (! function_exists('array_map_with_keys')) {
+	function array_map_with_keys($func, $array) {
+		$ret = [];
+		foreach ($array as $k => $v) {
+			$ret[$k] = $func($v, $k);
+		}
+		return $ret;
+	}
+}
+

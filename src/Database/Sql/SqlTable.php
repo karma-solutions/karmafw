@@ -79,7 +79,44 @@ class SqlTable
 		// TODO: gerer on_duplicate_key_updates comme le where, dans un tableau et non dans un string
 
 		$query = "insert " . $ignore_sql . " into " . $this->table_name . " (" . $fields_sql . ") values " . $inserts_sql . " " . $on_duplicate_key_updates_sql;
+
+		if (! empty($options['debug'])) {
+			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
+		}
+
+		if (! empty($options['dry'])) {
+			return true;
+		}
+
 		return $this->db->createQuery()->executeInsertAll($query);
+	}
+
+
+	public function insertSelect($insert_table, $insert_keys=null, $where=null, $options=[]) 
+	{
+		$options_select = array_slice($options, 0);
+		unset($options_select['debug']);
+
+		$ignore_sql = empty($options['ignore']) ? '' : 'ignore';
+		
+		$on_duplicate_key_updates_sql = empty($options['on_duplicate_key_updates']) ? "" : ("on duplicate key update " . $options['on_duplicate_key_updates']);
+
+		$sql_keys = $insert_keys ? ("(" . $insert_keys . ")") : "";
+
+		$insert = "insert " . $ignore_sql . " into " . $insert_table . " " . $sql_keys . PHP_EOL;
+
+		$query = $this->buildQuery($where, $options_select);
+		$query = $insert . " " . $query . " " . $on_duplicate_key_updates_sql;
+
+		if (! empty($options['debug'])) {
+			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
+		}
+
+		if (! empty($options['dry'])) {
+			return true;
+		}
+
+		return $this->db->createQuery()->execute($query);
 	}
 
 
@@ -101,6 +138,15 @@ class SqlTable
 					set " . $this->db->buildSqlUpdateValues($updates) . "
 					where " . $this->db->buildSqlWhere($where) . "
 					" . $limit_sql;
+
+		if (! empty($options['debug'])) {
+			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
+		}
+
+		if (! empty($options['dry'])) {
+			return true;
+		}
+
 		return $this->db->createQuery()->executeUpdate($query);
 	}
 
@@ -112,6 +158,15 @@ class SqlTable
 		$query = "delete from " . $this->table_name . "
 					where " . $this->db->buildSqlWhere($where) . "
 					" . $limit_sql;
+
+		if (! empty($options['debug'])) {
+			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
+		}
+
+		if (! empty($options['dry'])) {
+			return true;
+		}
+
 		return $this->db->createQuery()->executeDelete($query);
 	}
 
@@ -137,15 +192,28 @@ class SqlTable
 	public function getAll($where=null, $options=[]) /* : array */
 	{
 		$query = $this->buildQuery($where, $options);
+
+		if (! empty($options['dry'])) {
+			return [];
+		}
+
 		return $this->db->createQuery()->executeSelectAll($query);
 	}
 
 	public function getAllWithFoundRows($where=null, $options=[]) /* : array */
 	{
 		$query = $this->buildQuery($where, $options);
-		$rs = $this->db->createQuery()->execute($query);
-		$data = $rs->fetchAll();
-		$found_rows = $rs->getfoundRowsCount();
+
+		if (! empty($options['dry'])) {
+			$data = [];
+			$found_rows = 0;
+
+		} else {
+			$rs = $this->db->createQuery()->execute($query);
+			$data = $rs->fetchAll();
+			$found_rows = $rs->getfoundRowsCount();
+
+		}
 		return ['found_rows' => $found_rows, 'data' => $data];
 	}
 
@@ -167,7 +235,13 @@ class SqlTable
 	{
 		$options['limit'] = 1;
 		//return $this->getAll($where, $options)->fetchOne();
+
 		$query = $this->buildQuery($where, $options);
+
+		if (! empty($options['dry'])) {
+			return [];
+		}
+
 		return $this->db->createQuery()->executeSelectOne($query);
 	}
 

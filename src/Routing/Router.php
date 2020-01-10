@@ -6,28 +6,41 @@ namespace KarmaFW\Routing;
 class Router
 {
 	private static $routes = [];
+	private static $prefixes = [];
+	private static $routed_url = null;
 
 
 	// Register a route in the router
 	public static function add($methods, $url_match, $callback=null, $type_match='exact', $regex_params=[])
 	{
-		$route = new Route();
+		$prefixes = self::$prefixes ?: ['' => null];
 
-		$route->setMatchUrl($url_match);
-		$route->setCallback($callback);
-		$route->setMatchType($type_match	);
-		$route->setRegexParams($regex_params);
-		
-		if (! is_array($methods)) {
-			$methods = [$methods];
+		$routes_group = new RoutesGroup;
+
+		foreach ($prefixes as $prefix => $prefix_callback) {
+			$route = new Route();
+
+			$route->setPrefix($prefix, $prefix_callback);
+			//$route->setPrefixCallback($prefix_callback);
+			$route->setMatchUrl($url_match);
+			$route->setCallback($callback);
+			$route->setMatchType($type_match	);
+			$route->setRegexParams($regex_params);
+			
+			if (! is_array($methods)) {
+				$methods = [$methods];
+			}
+			foreach ($methods as $method) {
+				$route->setMethod($method);
+			}
+
+			$routes_group->add($route);
+			self::$routes[] = $route;
 		}
-		foreach ($methods as $method) {
-			$route->setMethod($method);
-		}
 
-		self::$routes[] = $route;
 
-		return $route;
+		return $routes_group;
+		//return $route;
 	}
 
 
@@ -64,6 +77,11 @@ class Router
 				if ($debug) {
 					echo " => MATCH !<br />" . PHP_EOL;
 				}
+				
+				$prefix_callback = $route->getPrefixCallback();
+				if (! empty($prefix_callback) && is_callable($prefix_callback)) {
+					$prefix_callback();
+				}
 
 				$callback = $route->getCallback();
 				if (empty($callback)) {
@@ -71,6 +89,7 @@ class Router
 					return 0;
 
 				} else if (is_callable($callback)) {
+					self::$routed_url = $route;
 					self::routeRun($route, $callback, $request_method, $request_uri, $match_params);
 
 				} else {
@@ -131,8 +150,20 @@ class Router
 			return null;
 		}
 
+
+		$prefix = self::$routed_url ? self::$routed_url->getPrefix() : '';
+		if ($prefix) {
+			$route_prefix = $route->getPrefix();
+			$route->setPrefix($prefix);
+		}
+
 		$link = $route->getMatchUrl();
-		//echo "<pre>"; var_dump($route); exit;
+
+		if ($prefix) {
+			$route->setPrefix($route_prefix);
+		}
+
+
 		$link = rtrim($link, '$');
 		$link = ltrim($link, '^');
 
@@ -156,6 +187,32 @@ class Router
 		}
 
 		return $link;
+	}
+
+
+	public static function printRoutes()
+	{
+		dump(self::$prefixes);
+		dump(self::$routes);
+		exit;
+	}
+
+
+	public static function prefix($prefix, $callback)
+	{
+		self::$prefixes[$prefix] = $callback;
+	}
+
+
+	public static function clearPrefixes()
+	{
+		self::$prefixes = [];
+	}
+
+
+	public static function getRoutedUrl()
+	{
+		return self::$routed_url;
 	}
 
 }

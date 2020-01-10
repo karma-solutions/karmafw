@@ -11,6 +11,9 @@ class Route
 	private $match_type = 'exact';
 	private $regex_params = [];
 	private $callback = null;
+	private $prefix = '';
+	private $prefix_callback = null;
+	private $nomatch_patterns = [];
 
 
 	public function __construct()
@@ -35,7 +38,7 @@ class Route
 	// Get route match url
 	public function getMatchUrl()
 	{
-		return $this->match_url;
+		return $this->prefix . $this->match_url;
 	}
 
 	// Set route match type (exact, startsWith, endsWith, regex, regexStartsWith, regexEndsWith)
@@ -75,44 +78,94 @@ class Route
 	}
 
 
+	// Set route prefix
+	public function setPrefix($prefix=null, $callback=null)
+	{
+		$this->prefix = $prefix;
+		$this->prefix_callback = $callback;
+	}
+
+	// Get route prefix
+	public function getPrefix()
+	{
+		return $this->prefix;
+	}
+
+	// Set route prefix callback
+	public function setPrefixCallback($callback)
+	{
+		$this->prefix_callback = $callback;
+	}
+
+	// Get route prefix callback
+	public function getPrefixCallback()
+	{
+		return $this->prefix_callback;
+	}
+
+
+	// Declare pattern to not match
+	public function notMatch($pattern)
+	{
+		if (! is_array($pattern)) {
+			$pattern = [$pattern];
+		}
+		foreach ($pattern as $p) {
+			$this->nomatch_patterns[] = $p;
+		}
+	}
+
+
+
 	// Check if route is matching the request_method and request_uri
 	public function match($request_method, $request_uri)
 	{
 		if (empty($this->methods) || in_array($request_method, $this->methods)) {
 
 			$request_uri_short = explode('?', $request_uri)[0];
+
+			// on verifie qu'il n'y a pas un pattern de nomatching
+			if ($this->nomatch_patterns) {
+				foreach ($this->nomatch_patterns as $pattern) {
+					if (preg_match('#' . $pattern . '#', $request_uri_short, $regs)) {
+						return null;
+					}
+				}
+			}
+
+			$match_url = $this->getMatchUrl();
 			
 			// exact match
 			if ($this->match_type == 'exact') {
-				if ($request_uri_short === $this->match_url) {
+				if ($request_uri_short === $match_url) {
 					return [];
 				}
 			}
 
 			// startsWith
 			if ($this->match_type == 'startsWith') {
-				if (substr($request_uri_short, 0, strlen($this->match_url)) === $this->match_url) {
+				if (substr($request_uri_short, 0, strlen($match_url)) === $match_url) {
 					return [];
 				}
 			}
 
 			// endsWith
 			if ($this->match_type == 'endsWith') {
-				if (substr($request_uri_short, -1 * strlen($this->match_url)) === $this->match_url) {
+				if (substr($request_uri_short, -1 * strlen($match_url)) === $match_url) {
 					return [];
 				}
 			}
 
 			// regex / regexStartsWith / regexEndsWith
 			if (in_array($this->match_type, ['regex', 'regexStartsWith', 'regexEndsWith'])) {
-				$match_pattern = '#^' . $this->match_url . '$#';
+				$match_pattern = '#^' . $match_url . '$#';
 	
 				if ($this->match_type == 'regexStartsWith') {
-					$match_pattern = '#^' . $this->match_url . '#';
+					$match_pattern = '#^' . $match_url . '#';
 				}
 
 				if ($this->match_type == 'regexEndsWith') {
-					$match_pattern = '#' . $this->match_url . '$#';
+					$match_pattern = '#' . $match_url . '$#';
 				}
 
 				if (preg_match($match_pattern, $request_uri_short, $regs)) {

@@ -103,6 +103,13 @@ class SqlTableModel
 		return $db->getTable(static::$table_name)->insertAll($rows, $options);
 	}
 
+	public static function insertSelect($insert_table, $insert_keys=null, $rows=[], $options=[])
+	{
+		$db = static::getDb();
+		static::checkTable();
+		return $db->getTable(static::$table_name)->insertSelect($insert_table, $insert_keys, $rows, $options);
+	}
+
 	public static function update($updates=[], $where=[], $options=[])
 	{
 		$db = static::getDb();
