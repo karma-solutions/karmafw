@@ -218,8 +218,8 @@ class SqlTable
 					from " . $this->table_name . " " . $table_alias . "
 					" . $joins_sql . "
 					where " . $this->db->buildSqlWhere($where) . "
-					" . $having_sql . "
 					" . $group_by_sql . "
+					" . $having_sql . "
 					" . $order_by_sql . "
 					" . $limit_sql;
 
