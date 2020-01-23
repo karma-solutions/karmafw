@@ -27,7 +27,7 @@ class Email_lib
 			return boolval($smtp_hook_func); // permet de mettre "1" pour un retour ok ou "0" pour un retour en erreur
 		}
 
-		if (true) {
+		if (false) {
 			$mail = [
 				'from' => $from,
 				'from_name' => $from_name,
