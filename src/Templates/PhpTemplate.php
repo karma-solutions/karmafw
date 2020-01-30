@@ -215,8 +215,8 @@ class PhpTemplate
 						// $variable
 						$replaced = ${$var};
 						$content = str_replace($reg[0], $replaced, $content);
-					} else {
 
+					} else {
 						// if variable not exists, replace with empty string
 						$content = str_replace($reg[0], '', $content);
 					}
