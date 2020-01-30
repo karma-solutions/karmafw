@@ -30,6 +30,15 @@ class App
 
 		// start session
 		if (empty(session_id())) {
+			if (defined('SESSION_NAME') && ! empty(SESSION_NAME)) {
+				session_name(SESSION_NAME);
+			}
+
+			if (defined('SESSION_DURATION') && is_numeric(SESSION_DURATION)) {
+				ini_set('session.gc_maxlifetime', SESSION_DURATION);
+				session_set_cookie_params(SESSION_DURATION);
+			}
+
 			session_start();
 		}
 
