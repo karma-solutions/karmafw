@@ -107,6 +107,8 @@ class Router
 
 	public static function routeRun($route, $callback, $request_method, $request_uri, $match_params)
 	{
+		$route->setMatchedParams($match_params);
+
 		if (gettype($callback) == 'array') {
 			$class = new $callback[0]($route, $request_method, $request_uri);
 			call_user_func([$class, $callback[1]], $match_params);
