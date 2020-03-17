@@ -120,6 +120,8 @@ if (! function_exists('get_csv')) {
 
 if (! function_exists('exportToCsvFile')) {
 	function exportToCsvFile($rows, $export_filename=null, $fields=null) {
+		$csv_content = get_csv($rows, $fields);
+		
 		if (! empty($export_filename)) {
 			// download file
 			header('Content-Type: text/csv');
@@ -131,7 +133,7 @@ if (! function_exists('exportToCsvFile')) {
 			header('Content-Type: text/plain');
 		}
 
-		echo get_csv($rows, $fields);
+		echo $csv_content;
 		exit;
 	}
 }
