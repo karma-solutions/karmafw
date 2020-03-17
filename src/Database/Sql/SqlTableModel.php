@@ -9,6 +9,7 @@ class SqlTableModel
 {
 	public static $table_name = '';
 	public static $primary_key = [];
+	protected static $default_item = [];
 
 
 	public static function getDb()
@@ -64,6 +65,17 @@ class SqlTableModel
 		static::checkTable();
 
 		return $db->getTable(static::$table_name)->selectCount($where, $options);
+	}
+
+
+	public static function getAllPagination($where=null, $options=[])
+	{
+		$db = static::getDb();
+		static::checkTable();
+		
+		$tuple = $db->getTable(static::$table_name)->getAllWithFoundRows($where, $options);
+		//list($found_rows, $data) = $tuple;
+		return $tuple;
 	}
 
 
@@ -156,6 +168,13 @@ class SqlTableModel
 
 		return static::getOne($where, $options);
 
+	}
+
+
+
+	public static function getDefaultItem()
+	{
+		return array_slice(static::$default_item, 0);
 	}
 
 }
