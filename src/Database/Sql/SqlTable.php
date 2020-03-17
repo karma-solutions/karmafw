@@ -202,6 +202,7 @@ class SqlTable
 
 	public function getAllWithFoundRows($where=null, $options=[]) /* : array */
 	{
+		$options['CALC_FOUND_ROWS'] = true;
 		$query = $this->buildQuery($where, $options);
 
 		if (! empty($options['dry'])) {
@@ -268,7 +269,7 @@ class SqlTable
 			$options['select'] = is_array($options['select']) ? $options['select'] : [$options['select']];
 			$select_sql = implode(', ', $options['select']);
 		}
-		if (! empty($options['CALC_FOUND_ROWS'])) {
+		if (! empty($options['CALC_FOUND_ROWS']) && stripos($select_sql, 'SQL_CALC_FOUND_ROWS') === false) {
 			$select_sql = 'SQL_CALC_FOUND_ROWS ' . $select_sql;
 		}
 		if (! empty($options['where'])) {
