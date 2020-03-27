@@ -71,6 +71,29 @@ class SqlTable
 			return null;
 		}
 
+		if (! empty($options['on duplicate key updates'])) {
+			$options['on_duplicate_key_updates'] = $options['on duplicate key updates'];
+		}
+		if (! empty($options['on_duplicate_key_update'])) {
+			$options['on_duplicate_key_updates'] = $options['on_duplicate_key_update'];
+		}
+		if (! empty($options['on duplicate key update'])) {
+			$options['on_duplicate_key_updates'] = $options['on duplicate key update'];
+		}
+		if (! empty($options['on duplicate key'])) {
+			$options['on_duplicate_key_updates'] = $options['on duplicate key'];
+		}
+		if (! empty($options['on_duplicate_key'])) {
+			$options['on_duplicate_key_updates'] = $options['on_duplicate_key'];
+		}
+		if (! empty($options['on_duplicate'])) {
+			$options['on_duplicate_key_updates'] = $options['on_duplicate'];
+		}
+		if (! empty($options['on duplicate'])) {
+			$options['on_duplicate_key_updates'] = $options['on duplicate'];
+		}
+
+
 		$inserts_sql = implode(', ', $values_array);
 
 		$ignore_sql = empty($options['ignore']) ? '' : 'ignore';

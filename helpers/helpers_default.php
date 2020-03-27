@@ -49,6 +49,10 @@ if (! function_exists('errorHttp')) {
 
 if (! function_exists('redirect')) {
 	function redirect($url, $http_code=302) {
+		if ($http_code == 'link' || $http_code == 'debug') {
+			echo 'continue to <a href="' . $url . '">' . $url . '</a>';
+			exit;
+		}
 		header('Location: ' . $url, true, $http_code);
 		exit;
 	}
