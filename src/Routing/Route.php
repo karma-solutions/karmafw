@@ -16,6 +16,7 @@ class Route
 	private $prefix = '';
 	private $prefix_callback = null;
 	private $nomatch_patterns = [];
+	private $matched_params = [];
 
 
 	public function __construct()
@@ -65,6 +66,20 @@ class Route
 	public function setRegexParams(array $regex_params)
 	{
 		$this->regex_params = $regex_params;
+	}
+
+	public function getRegexParams()
+	{
+		return $this->regex_params;
+	}
+
+	public function setMatchedParams(array $matched_params)
+	{
+		$this->matched_params = $matched_params;
+	}
+	public function getMatchedParams()
+	{
+		return $this->matched_params;
 	}
 
 	// Get route name

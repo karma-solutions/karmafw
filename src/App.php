@@ -30,6 +30,16 @@ class App
 
 		// start session
 		if (empty(session_id())) {
+			if (defined('SESSION_NAME') && ! empty(SESSION_NAME)) {
+				session_name(SESSION_NAME);
+			}
+
+			if (defined('SESSION_DURATION') && is_numeric(SESSION_DURATION)) {
+				ini_set('session.gc_maxlifetime', SESSION_DURATION);
+				session_set_cookie_params(SESSION_DURATION);
+				// Note: si cron est actif, il faut modifier la valeur de session.gc_maxlifetime dans /etc/php/7.3/apache2/php.ini (voir /etc/cron.d/php)
+			}
+
 			session_start();
 		}
 

@@ -2,8 +2,8 @@
 
 namespace KarmaFW\Lib\Email;
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use \PHPMailer\PHPMailer\PHPMailer;
+use \PHPMailer\PHPMailer\Exception;
 
 
 class Email_lib
@@ -85,8 +85,13 @@ class Email_lib
 			$mail->Body = $message_text;
 		}
 
+		//$mail->SMTPDebug = 4;
+
 		if(!$mail->Send()){
-			//echo $mail->ErrorInfo;
+			if (false) {
+				echo $mail->ErrorInfo . PHP_EOL;
+				print_r($mail);
+			}
 			$ok = false;
 		} else {
 			//echo 'Mail envoyé avec succès';

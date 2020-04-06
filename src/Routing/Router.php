@@ -110,6 +110,8 @@ class Router
 
 	public static function routeRun($route, $callback, $request_method, $request_uri, $match_params)
 	{
+		$route->setMatchedParams($match_params);
+
 		if (gettype($callback) == 'array') {
 			//echo " => ARRAY !<br />" . PHP_EOL;
 			//pre($callback, 1);
