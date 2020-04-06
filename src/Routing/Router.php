@@ -71,6 +71,9 @@ class Router
 				pre($route);
 			}
 
+			$route->setCalledMethod($request_method);
+			$route->setCalledUrl($request_uri);
+
 			$match_params = $route->match($request_method, $request_uri);
 
 			if (! is_null($match_params)) {
@@ -108,12 +111,18 @@ class Router
 	public static function routeRun($route, $callback, $request_method, $request_uri, $match_params)
 	{
 		if (gettype($callback) == 'array') {
+			//echo " => ARRAY !<br />" . PHP_EOL;
+			//pre($callback, 1);
 			$class = new $callback[0]($route, $request_method, $request_uri);
 			call_user_func([$class, $callback[1]], $match_params);
 
 		} else {
-			$callback($route, $request_method, $request_uri);
+			//echo " => FUNCTION !<br />" . PHP_EOL;
+			//pre($callback, 1);
+			//$callback($route, $request_method, $request_uri);
+			$callback($route, $match_params);
 		}
+
 
 		return true;
 	}

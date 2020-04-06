@@ -7,6 +7,8 @@ class Route
 {
 	private $name = null;
 	private $methods = [];
+	private $called_method = null;
+	private $called_url = null;
 	private $match_url = '';
 	private $match_type = 'exact';
 	private $regex_params = [];
@@ -33,6 +35,18 @@ class Route
 	public function setMatchUrl($match_url)
 	{
 		$this->match_url = $match_url;
+	}
+
+	// Set route called method
+	public function setCalledMethod($called_method)
+	{
+		$this->called_method = $called_method;
+	}
+
+	// Set route called url
+	public function setCalledUrl($called_url)
+	{
+		$this->called_url = $called_url;
 	}
 
 	// Get route match url
