@@ -68,7 +68,7 @@ class SqlTableModel
 	}
 
 
-	public static function getAllPagination($where=null, $options=[])
+	public static function getAllWithFoundRows($where=null, $options=[])
 	{
 		$db = static::getDb();
 		static::checkTable();
@@ -76,6 +76,41 @@ class SqlTableModel
 		$tuple = $db->getTable(static::$table_name)->getAllWithFoundRows($where, $options);
 		//list($found_rows, $data) = $tuple;
 		return $tuple;
+	}
+
+
+	public static function getAllPagination($where=null, $nb_per_page=10, $page_idx=1, $options=[])
+	{
+		$db = static::getDb();
+		static::checkTable();
+
+		if (! is_array($options)) {
+			$options = [];
+		}
+
+		$page_idx = max(1, intval($page_idx));
+		$nb_per_page = max(1, intval($nb_per_page));
+
+		$offset = ($page_idx - 1) * $nb_per_page;
+		$options['limit'] = $offset . ', ' . $nb_per_page;
+		
+		$result = self::getAllWithFoundRows($where, $options);
+		$found_rows = $result['found_rows'];
+		$data = $result['data'];
+
+		$pagination = [
+			'page' => $page_idx,
+			'limit' => $nb_per_page,
+			'offset' => $offset,
+			'page_rows' => count($data),
+			'total_rows' => $found_rows,
+			'nb_pages' => ceil($found_rows / $nb_per_page),
+		];
+
+		return [
+			'pagination' => $pagination,
+			'data' => $data,
+		];
 	}
 
 
