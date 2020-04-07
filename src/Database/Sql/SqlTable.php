@@ -57,6 +57,7 @@ class SqlTable
 			['id' => 2, 'name' => 'bar'],
 		];
 		*/
+
 		$values_array = [];
 		$fields_sql = '';
 		foreach ($rows as $values) {

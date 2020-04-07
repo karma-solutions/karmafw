@@ -96,6 +96,10 @@ class SqlTools
 
 	public function escape($var)
 	{
+        if (! $this->db->isConnected()) {
+            $this->db->connect();
+        }
+        
 		if (is_null($var)) {
 			return 'NULL';
 		}
@@ -148,7 +152,7 @@ class SqlTools
                     $where_sql[] = (string) $value;
                     
                 }else{
-                    pre($where, 1);
+                    //pre($where, 1);
                     $where_sql[] = $key . ' = ' . $this->escape($value);
                     //$where_sql[] = $key . ' = ' . (string) $value;
                 }
