@@ -24,7 +24,7 @@ class Router
 			//$route->setPrefixCallback($prefix_callback);
 			$route->setMatchUrl($url_match);
 			$route->setCallback($callback);
-			$route->setMatchType($type_match	);
+			$route->setMatchType($type_match);
 			$route->setRegexParams($regex_params);
 			
 			if (! is_array($methods)) {
@@ -83,7 +83,8 @@ class Router
 				
 				$prefix_callback = $route->getPrefixCallback();
 				if (! empty($prefix_callback) && is_callable($prefix_callback)) {
-					$prefix_callback();
+					$prefix = $route->getPrefix();
+					$prefix_callback($prefix);
 				}
 
 				$callback = $route->getCallback();
