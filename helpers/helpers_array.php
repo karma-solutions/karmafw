@@ -78,6 +78,131 @@ if (! function_exists('arrayToList')) {
 }
 
 
+if (! function_exists('import_xls')) {
+	function import_xls($filepath, $fields=[], $encode_utf8=false) {
+		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filepath);
+		
+		$sheetData = $spreadsheet->getActiveSheet()->toArray();
+		//pre($sheetData, 1);
+
+		$headers = [];
+		if (! empty($fields)) {
+			$headers = $fields;
+		}
+
+		$rows = [];
+		$line_idx = 0;
+		foreach ($sheetData as $input_row) {
+			$line_idx++;
+
+			if ($line_idx <= 1) {
+				// ligne d'entete
+				if (empty($headers)) {
+					foreach ($input_row as $key => $value) {
+						if ($encode_utf8) {
+							$headers[$key] = utf8_encode($value);
+						} else {
+							$headers[$key] = $value;
+						}
+					}
+				}
+
+				continue;
+
+			}else{
+				// lignes de data
+				$row = [];
+				$row_ok = true;
+				$col_idx = 0;
+				foreach ($input_row as $key => $value) {
+					$col_idx++;
+
+					if ($col_idx > count($headers)) {
+						continue;
+					}
+					if (! isset($headers[$key])) {
+						$row_ok = false;
+						//pre($input_row);
+						break;
+					}
+					$header_key = $headers[$key];
+					if ($encode_utf8) {
+						$row[$header_key] = utf8_encode($value);
+						
+					} else {
+						$row[$header_key] = $value;
+					}
+				}
+
+				if ($row_ok) {
+					$rows[] = $row;
+				}
+
+			}
+
+		}
+
+		return $rows;
+	}
+}
+
+
+if (! function_exists('import_csv')) {
+	function import_csv($filepath, $separator=";", $fields=[], $encode_utf8=true) {
+		$rows = [];
+
+		$handle = fopen($filepath, "r");
+
+		$headers = [];
+		if (! empty($fields)) {
+			$headers = $fields;
+		}
+
+		$line_idx = 0;
+		while (($input_row = fgetcsv($handle, 4096, $separator)) !== false) {
+			$line_idx++;
+
+			if ($line_idx <= 1) {
+				// ligne d'entete
+				if (empty($headers)) {
+					foreach ($input_row as $key => $value) {
+						if ($encode_utf8) {
+							$headers[$key] = utf8_encode($value);
+						} else {
+							$headers[$key] = $value;
+						}
+					}
+				}
+
+				continue;
+
+			}else{
+				// lignes de data
+				$row = [];
+				foreach ($input_row as $key => $value) {
+					$header_key = $headers[$key];
+					if ($encode_utf8) {
+						$row[$header_key] = utf8_encode($value);
+						
+					} else {
+						$row[$header_key] = $value;
+					}
+				}
+
+				$rows[] = $row;
+
+			}
+		}
+
+
+
+		fclose($handle);
+
+		return $rows;
+	}
+}
+
+
 if (! function_exists('get_csv')) {
 	function get_csv($arr, $fields=array(), $sep=";") {
 		$str = '';

@@ -183,6 +183,14 @@ if (! function_exists('date_us_to_fr')) {
 	}
 }
 
+if (! function_exists('date_fr_to_us')) {
+	function date_fr_to_us($date_fr) {
+		$date_fr = substr($date_fr, 0, 10);
+		$parts = explode('/', $date_fr);
+		return implode('-', array_reverse($parts));
+	}
+}
+
 
 if (! function_exists('truncate_str')) {
 	function truncate_str($str, $max_length) {

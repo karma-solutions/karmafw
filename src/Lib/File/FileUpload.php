@@ -43,6 +43,10 @@ class FileUpload
 
 		$this->file_size = filesize($this->tmp_path);
 		$this->content_type = $file['type'];
+
+		if (! empty($storage_dir)) {
+			$this->setUploadDir($storage_dir);
+		}
 	}
 
 
