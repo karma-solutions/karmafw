@@ -12,10 +12,12 @@ class Route
 	private $match_url = '';
 	private $match_type = 'exact';
 	private $regex_params = [];
+	private $before_callback = null;
 	private $callback = null;
 	private $prefix = '';
-	private $prefix_callback = null;
-	private $nomatch_patterns = [];
+	private $prefix_match_type = null;
+	private $get_prefix = null;
+	private $matched_prefix = '';
 	private $matched_params = [];
 
 
@@ -53,7 +55,8 @@ class Route
 	// Get route match url
 	public function getMatchUrl()
 	{
-		return $this->prefix . $this->match_url;
+		//return $this->prefix . $this->match_url;
+		return $this->match_url;
 	}
 
 	// Set route match type (exact, startsWith, endsWith, regex, regexStartsWith, regexEndsWith)
@@ -72,6 +75,7 @@ class Route
 	{
 		return $this->regex_params;
 	}
+
 
 	public function setMatchedParams(array $matched_params)
 	{
@@ -107,11 +111,25 @@ class Route
 	}
 
 
+	// Get route before_callback
+	public function setBeforeCallback($before_callback)
+	{
+		$this->before_callback = $before_callback;
+	}
+
+	// Get route before_callback
+	public function getBeforeCallback()
+	{
+		return $this->before_callback;
+	}
+
+
 	// Set route prefix
-	public function setPrefix($prefix=null, $callback=null)
+	public function setPrefix($prefix=null, $match_type=null, $get_prefix=null)
 	{
 		$this->prefix = $prefix;
-		$this->prefix_callback = $callback;
+		$this->prefix_match_type = $match_type;
+		$this->get_prefix = $get_prefix;
 	}
 
 	// Get route prefix
@@ -120,30 +138,22 @@ class Route
 		return $this->prefix;
 	}
 
-	// Set route prefix callback
-	public function setPrefixCallback($callback)
-	{
-		$this->prefix_callback = $callback;
-	}
 
-	// Get route prefix callback
-	public function getPrefixCallback()
+	// Get route get_prefix
+	public function getCallbackGetPrefix()
 	{
-		return $this->prefix_callback;
-	}
-
-
-	// Declare pattern to not match
-	public function notMatch($pattern)
-	{
-		if (! is_array($pattern)) {
-			$pattern = [$pattern];
+		if (empty($this->get_prefix)) {
+			return null;
 		}
-		foreach ($pattern as $p) {
-			$this->nomatch_patterns[] = $p;
-		}
-	}
 
+		$func = $this->get_prefix;
+		if (! is_callable($func)) {
+			//error500("get_prefix is not callable");
+			return null;
+		}
+		//pre($func, 1);
+		return $func();
+	}
 
 
 	// Check if route is matching the request_method and request_uri
@@ -153,35 +163,66 @@ class Route
 
 			$request_uri_short = explode('?', $request_uri)[0];
 
-			// on verifie qu'il n'y a pas un pattern de nomatching
-			if ($this->nomatch_patterns) {
-				foreach ($this->nomatch_patterns as $pattern) {
-					if (preg_match('#' . $pattern . '#', $request_uri_short, $regs)) {
-						return null;
+			$matched_params = [];
+			
+			$prefix = $this->getPrefix();
+			if ($prefix) {
+				if ($this->prefix_match_type == 'regex') {
+					$match_pattern = '#^(' . $prefix . ')#';
+					if (preg_match($match_pattern, $request_uri_short, $regs)) {
+						$this->matched_prefix = $regs[1];
+						$matched_params['prefix'] = $this->matched_prefix;
+						//pre($matched_prefix, 1, 'regex matched_prefix: ');
 					}
+
+				} else if ($this->prefix_match_type == 'array') {
+					foreach ($prefix as $prefix_value) {
+						if (strpos($request_uri_short, $prefix_value) === 0) {
+							$this->matched_prefix = $prefix_value;
+							$matched_params['prefix'] = $this->matched_prefix;
+							//pre($matched_prefix, 1, 'array matched_prefix: ');
+						}
+					}
+
+				} else {
+					if (strpos($request_uri_short, $prefix) === 0) {
+						$this->matched_prefix = $prefix;
+						$matched_params['prefix'] = $this->matched_prefix;
+						//pre($matched_prefix, 1, 'exact matched_prefix: ');
+					}
+
 				}
 			}
+
+
+			if (! empty($this->matched_prefix)) {
+				$request_uri_short = substr($request_uri_short, strlen($this->matched_prefix));
+			}
+			
 
 			$match_url = $this->getMatchUrl();
 			
 			// exact match
 			if ($this->match_type == 'exact') {
 				if ($request_uri_short === $match_url) {
-					return [];
+					$this->setMatchedParams($matched_params);
+					return true;
 				}
 			}
 
 			// startsWith
 			if ($this->match_type == 'startsWith') {
 				if (substr($request_uri_short, 0, strlen($match_url)) === $match_url) {
-					return [];
+					$this->setMatchedParams($matched_params);
+					return true;
 				}
 			}
 
 			// endsWith
 			if ($this->match_type == 'endsWith') {
 				if (substr($request_uri_short, -1 * strlen($match_url)) === $match_url) {
-					return [];
+					$this->setMatchedParams($matched_params);
+					return true;
 				}
 			}
 
@@ -204,8 +245,17 @@ class Route
 					if (! empty($this->regex_params)) {
 						$args = array_combine($this->regex_params, $args);
 					}
+					//pre($args, 1);
 
-					return $args;
+					if (! empty($this->matched_prefix)) {
+						$matched_params = array_merge($matched_params, $args);
+						//$matched_params['prefix'] = $this->matched_prefix;
+					}
+					//pre($matched_params, 1);
+
+
+					$this->setMatchedParams($matched_params);
+					return true;
 				}
 			}
 

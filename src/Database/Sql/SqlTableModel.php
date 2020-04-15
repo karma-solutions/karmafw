@@ -192,8 +192,21 @@ class SqlTableModel
 			$where = [];
 		}
 
-		foreach (static::$primary_key as $key) {
-			if (! isset($pk_where[$key])) {
+		foreach (static::$primary_key as $key_idx => $key) {
+			if (! array_key_exists($key, $pk_where)) {
+				//if (count($pk_where) == count(static::$primary_key) && isset($pk_where[$key_idx])) {
+				if (count($pk_where) == count(static::$primary_key) && array_key_exists($key_idx, $pk_where)) {
+					//pre(static::$primary_key);
+					$pk_where = array_combine(static::$primary_key, $pk_where);
+					//pre($pk_where, 0, 'pk_where updated: ');
+				} else {
+					//pre($key_idx, 0, 'key_idx: ');
+					//pre($pk_where, 0, 'pk_where KO: ');
+				}
+			}
+			if (! array_key_exists($key, $pk_where)) {
+				//exit;
+				//pre(static::$primary_key); pre($pk_where, 1);
 				throw new \Exception("missing value for primary_key " . $key . " in " . get_called_class(), 1);
 			}
 			$value = $pk_where[$key];

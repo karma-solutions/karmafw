@@ -6,41 +6,52 @@ namespace KarmaFW\Routing;
 class Router
 {
 	private static $routes = [];
-	private static $prefixes = [];
 	private static $routed_url = null;
+	private static $config = [];
+
+
+	public static function config($config)
+	{
+		self::$config = $config;
+	}
 
 
 	// Register a route in the router
 	public static function add($methods, $url_match, $callback=null, $type_match='exact', $regex_params=[])
 	{
-		$prefixes = self::$prefixes ?: ['' => null];
+		$route = new Route();
 
-		$routes_group = new RoutesGroup;
+		if (! empty(self::$config['prefix'])) {
+			$route->setPrefix(self::$config['prefix'], 'exact', self::$config['prefix']);
+		
+		} else if (! empty(self::$config['prefix_regex'])) {
+			$get_prefix = empty(self::$config['get_prefix']) ? null : self::$config['get_prefix'];
+			$route->setPrefix(self::$config['prefix_regex'], 'regex', $get_prefix);
 
-		foreach ($prefixes as $prefix => $prefix_callback) {
-			$route = new Route();
-
-			$route->setPrefix($prefix, $prefix_callback);
-			//$route->setPrefixCallback($prefix_callback);
-			$route->setMatchUrl($url_match);
-			$route->setCallback($callback);
-			$route->setMatchType($type_match);
-			$route->setRegexParams($regex_params);
-			
-			if (! is_array($methods)) {
-				$methods = [$methods];
-			}
-			foreach ($methods as $method) {
-				$route->setMethod($method);
-			}
-
-			$routes_group->add($route);
-			self::$routes[] = $route;
+		} else if (! empty(self::$config['prefix_array'])) {
+			$get_prefix = empty(self::$config['get_prefix']) ? null : self::$config['get_prefix'];
+			$route->setPrefix(self::$config['prefix_array'], 'array', $get_prefix);
 		}
 
+		if (! empty(self::$config['before_callback'])) {
+			$route->setBeforeCallback(self::$config['before_callback']);
+		}
 
-		return $routes_group;
-		//return $route;
+		$route->setMatchUrl($url_match);
+		$route->setCallback($callback);
+		$route->setMatchType($type_match);
+		$route->setRegexParams($regex_params);
+		
+		if (! is_array($methods)) {
+			$methods = [$methods];
+		}
+		foreach ($methods as $method) {
+			$route->setMethod($method);
+		}
+
+		self::$routes[] = $route;
+
+		return $route;
 	}
 
 
@@ -74,18 +85,18 @@ class Router
 			$route->setCalledMethod($request_method);
 			$route->setCalledUrl($request_uri);
 
-			$match_params = $route->match($request_method, $request_uri);
+			$match = $route->match($request_method, $request_uri);
 
-			if (! is_null($match_params)) {
+			if ($match) {
 				if ($debug) {
 					echo " => MATCH !<br />" . PHP_EOL;
 				}
-				
-				$prefix_callback = $route->getPrefixCallback();
-				if (! empty($prefix_callback) && is_callable($prefix_callback)) {
-					$prefix = $route->getPrefix();
-					$prefix_callback($prefix);
+
+				$before_callback = $route->getBeforeCallback();
+				if (! empty($before_callback)) {
+					$before_callback($route);
 				}
+
 
 				$callback = $route->getCallback();
 				if (empty($callback)) {
@@ -94,7 +105,7 @@ class Router
 
 				} else if (is_callable($callback)) {
 					self::$routed_url = $route;
-					self::routeRun($route, $callback, $request_method, $request_uri, $match_params);
+					self::routeRun($route, $callback, $request_method, $request_uri);
 
 				} else {
 					// Error: callback not callable
@@ -109,21 +120,21 @@ class Router
 		return false;
 	}
 
-	public static function routeRun($route, $callback, $request_method, $request_uri, $match_params)
+
+	public static function routeRun($route, $callback, $request_method, $request_uri)
 	{
-		$route->setMatchedParams($match_params);
+		$matched_params = $route->getMatchedParams();
 
 		if (gettype($callback) == 'array') {
 			//echo " => ARRAY !<br />" . PHP_EOL;
 			//pre($callback, 1);
 			$class = new $callback[0]($route, $request_method, $request_uri);
-			call_user_func([$class, $callback[1]], $match_params);
+			call_user_func([$class, $callback[1]], $matched_params);
 
 		} else {
 			//echo " => FUNCTION !<br />" . PHP_EOL;
 			//pre($callback, 1);
-			//$callback($route, $request_method, $request_uri);
-			$callback($route, $match_params);
+			$callback($route, $matched_params);
 		}
 
 
@@ -161,19 +172,17 @@ class Router
 		if (empty($route) || $route === true) {
 			return null;
 		}
+		//pre($route, 1);
 
 
-		$prefix = self::$routed_url ? self::$routed_url->getPrefix() : '';
-		if ($prefix) {
-			$route_prefix = $route->getPrefix();
-			$route->setPrefix($prefix);
-		}
+		$get_prefix = $route->getCallbackGetPrefix();
+		//pre($get_prefix, 0, 'get_prefix: ');
 
 		$link = $route->getMatchUrl();
-
-		if ($prefix) {
-			$route->setPrefix($route_prefix);
+		if ($get_prefix) {
+			$link = $get_prefix . $link;
 		}
+		//pre($link, 1, 'link: ');
 
 
 		$link = rtrim($link, '$');
@@ -204,21 +213,8 @@ class Router
 
 	public static function printRoutes()
 	{
-		dump(self::$prefixes);
 		dump(self::$routes);
 		exit;
-	}
-
-
-	public static function prefix($prefix, $callback)
-	{
-		self::$prefixes[$prefix] = $callback;
-	}
-
-
-	public static function clearPrefixes()
-	{
-		self::$prefixes = [];
 	}
 
 
