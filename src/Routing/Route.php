@@ -247,12 +247,8 @@ class Route
 					}
 					//pre($args, 1);
 
-					if (! empty($this->matched_prefix)) {
-						$matched_params = array_merge($matched_params, $args);
-						//$matched_params['prefix'] = $this->matched_prefix;
-					}
+					$matched_params = array_merge($matched_params, $args);
 					//pre($matched_params, 1);
-
 
 					$this->setMatchedParams($matched_params);
 					return true;
