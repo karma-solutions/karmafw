@@ -34,11 +34,36 @@ class SqlTable
 	}
 
 
-	public function listColumns() /* : array */
+	public function exists($force_refresh=false)
 	{
-		$schema = new SqlSchema($this->db);
-		$this->columns = $schema->listTableColumns($table, $column=null);
-		return $this->columns;
+		static $tables = [];
+
+		if (empty($tables[$this->table_name]) || $force_refresh) {
+			$schema = new SqlSchema($this->db);
+			$tables[$this->table_name] = $schema->tableExists($this->table_name);
+		}
+		return $tables[$this->table_name];
+	}
+
+
+	public function listColumns($force_refresh=false)
+	{
+		static $tables = [];
+
+		if (empty($tables[$this->table_name]) || $force_refresh) {
+			$schema = new SqlSchema($this->db);
+			$tables[$this->table_name] = $schema->listTableColumns($this->table_name, $column=null);
+		}
+
+		$this->columns = $tables[$this->table_name];
+		return $tables[$this->table_name];
+	}
+
+
+	public function getEmpty()
+	{
+		$columns = $this->listColumns();
+		return array_map(function ($v) {return '';}, $columns);
 	}
 
 

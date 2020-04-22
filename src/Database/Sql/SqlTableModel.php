@@ -25,6 +25,21 @@ class SqlTableModel
 		}
 	}
 
+	public static function tableExists()
+	{
+		$db = static::getDb();
+		static::checkTable();
+		return $db->getTable(static::$table_name)->exists();
+	}
+
+
+	public static function getEmpty()
+	{
+		$db = static::getDb();
+		static::checkTable();
+		return $db->getTable(static::$table_name)->getEmpty();
+	}
+
 
 	public static function all($where=[], $options=[])
 	{
@@ -54,7 +69,6 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-
 		return $db->getTable(static::$table_name)->select($where, $options);
 	}
 
@@ -63,7 +77,6 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-
 		return $db->getTable(static::$table_name)->selectCount($where, $options);
 	}
 
@@ -71,19 +84,14 @@ class SqlTableModel
 	public static function getAllWithFoundRows($where=null, $options=[])
 	{
 		$db = static::getDb();
-		static::checkTable();
-		
+		static::checkTable();		
 		$tuple = $db->getTable(static::$table_name)->getAllWithFoundRows($where, $options);
-		//list($found_rows, $data) = $tuple;
 		return $tuple;
 	}
 
 
 	public static function getAllPagination($where=null, $nb_per_page=10, $page_idx=1, $options=[])
 	{
-		$db = static::getDb();
-		static::checkTable();
-
 		if (! is_array($options)) {
 			$options = [];
 		}
@@ -188,7 +196,7 @@ class SqlTableModel
 			throw new \Exception("no primary_key defined in " . get_called_class(), 1);
 		}
 
-		if (empty($where)) {
+		if (! is_array($where)) {
 			$where = [];
 		}
 

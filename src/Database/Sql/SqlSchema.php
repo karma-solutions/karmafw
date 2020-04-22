@@ -133,6 +133,25 @@ class SqlSchema
 	}
 
 
+	public function tableExists($table=null, $database=null) /* : array */
+	{
+		$sql = "show tables";
+
+		if (! empty($database)) {
+			$sql .= " from `" . $database . "`";
+		}
+
+		if (! empty($table)) {
+			$sql .= " like '" . str_replace("'", "\\'", $table) . "'";
+		}
+		
+		$rs = $this->db->execute($sql);
+		$tables = $rs->fetchAll();
+
+		return ! empty($tables);
+	}
+
+
 	/* COLUMNS */
 
 	public function listTableColumns($table, $column=null) /* : array */
