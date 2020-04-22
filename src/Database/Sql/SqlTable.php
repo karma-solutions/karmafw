@@ -268,6 +268,47 @@ class SqlTable
 	}
 
 
+	public function getAllPagination($where=null, $nb_per_page=10, $page_idx=1, $options=[])
+	{
+		if (! is_array($options)) {
+			$options = [];
+		}
+
+		if (! empty($options['output'])) {
+			$page_idx = 1;
+			$nb_per_page = null;
+			$offset = 0;
+			unset($options['limit']);
+
+		} else {
+			$page_idx = max(1, intval($page_idx));
+			$nb_per_page = max(1, intval($nb_per_page));
+
+			$offset = ($page_idx - 1) * $nb_per_page;
+			$options['limit'] = $offset . ', ' . $nb_per_page;
+		}
+
+		
+		$result = $this->getAllWithFoundRows($where, $options);
+		$found_rows = $result['found_rows'];
+		$data = $result['data'];
+
+		$pagination = [
+			'page' => $page_idx,
+			'limit' => $nb_per_page,
+			'offset' => $offset,
+			'page_rows' => count($data),
+			'total_rows' => $found_rows,
+			'nb_pages' => empty($nb_per_page) ? null : ceil($found_rows / $nb_per_page),
+		];
+
+		return [
+			'pagination' => $pagination,
+			'data' => $data,
+		];
+	}
+
+
 	public function selectCount($where=null, $options=[])
 	{
 		$options['select'] = 'count(*) as nb';
