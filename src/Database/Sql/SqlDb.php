@@ -266,6 +266,12 @@ class SqlDb
 	}
 
 
+	public function buildSqlWhereSearch($q='', $search_fields=[])
+	{
+		return $this->tools->buildSqlWhereSearch($q, $search_fields);
+	}
+
+
 	public function parseDSN($var)
 	{
 		return $this->tools->parseDSN($var);

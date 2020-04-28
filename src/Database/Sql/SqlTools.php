@@ -213,5 +213,44 @@ class SqlTools
         );
 	}
 
+
+
+    public function buildSqlWhereSearch($q='', $search_fields=[], $min_length=1)
+    {
+        $db = $this->db;
+        
+        $select_sum = "(0";
+        $search_where = "(0";
+
+        $q = trim($q);
+        
+        if ($search_fields && strlen($q) >= $min_length) {
+            $words = explode(" ", $q);
+
+            foreach ($words as $word_idx => $word) {
+                $w = $db->escape($word);
+                $w2 = $db->escape("%" . $word . "%");
+
+                $conditions_or = [];
+                foreach ($search_fields as $field) {
+                    $conditions_or[] = $field . " like " . $w2;
+                }
+
+                $word_condition = "(" . implode(" or ", $conditions_or) . ")";
+                $search_where .= " or " . $word_condition;
+
+                $word_score = max(1, 10 - $word_idx);
+                $select_sum .= " + if(" . $word_condition . ", " . $word_score . ", 0)";
+            }
+        }
+        $search_where .= ")";
+        $select_sum .= ")";
+
+        return [
+            'select' => $select_sum,
+            'where' => $search_where,
+        ];
+    }
+
 }
 
