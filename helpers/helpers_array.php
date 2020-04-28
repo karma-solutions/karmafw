@@ -1,6 +1,7 @@
 <?php
 
 use \KarmaFW\App;
+use \PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheetIOFactory;
 
 
 if (! function_exists('arrayReduceToOneColumn')) {
@@ -80,7 +81,7 @@ if (! function_exists('arrayToList')) {
 
 if (! function_exists('import_xls')) {
 	function import_xls($filepath, $fields=[], $encode_utf8=false) {
-		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filepath);
+		$spreadsheet = PhpSpreadsheetIOFactory::load($filepath);
 		
 		$sheetData = $spreadsheet->getActiveSheet()->toArray();
 		//pre($sheetData, 1);
