@@ -25,6 +25,21 @@ class SqlTableModel
 		}
 	}
 
+	public static function tableExists()
+	{
+		$db = static::getDb();
+		static::checkTable();
+		return $db->getTable(static::$table_name)->exists();
+	}
+
+
+	public static function getEmpty()
+	{
+		$db = static::getDb();
+		static::checkTable();
+		return $db->getTable(static::$table_name)->getEmpty();
+	}
+
 
 	public static function all($where=[], $options=[])
 	{
@@ -54,16 +69,21 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-
 		return $db->getTable(static::$table_name)->select($where, $options);
 	}
 
+
+
+	public static function count($where=[], $options=[])
+	{
+		// Alias of selectCount
+		return self::selectCount($where, $options);
+	}
 
 	public static function selectCount($where=[], $options=[])
 	{
 		$db = static::getDb();
 		static::checkTable();
-
 		return $db->getTable(static::$table_name)->selectCount($where, $options);
 	}
 
@@ -72,9 +92,7 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-		
 		$tuple = $db->getTable(static::$table_name)->getAllWithFoundRows($where, $options);
-		//list($found_rows, $data) = $tuple;
 		return $tuple;
 	}
 
@@ -83,36 +101,9 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-
-		if (! is_array($options)) {
-			$options = [];
-		}
-
-		$page_idx = max(1, intval($page_idx));
-		$nb_per_page = max(1, intval($nb_per_page));
-
-		$offset = ($page_idx - 1) * $nb_per_page;
-		$options['limit'] = $offset . ', ' . $nb_per_page;
-		
-		$result = self::getAllWithFoundRows($where, $options);
-		$found_rows = $result['found_rows'];
-		$data = $result['data'];
-
-		$pagination = [
-			'page' => $page_idx,
-			'limit' => $nb_per_page,
-			'offset' => $offset,
-			'page_rows' => count($data),
-			'total_rows' => $found_rows,
-			'nb_pages' => ceil($found_rows / $nb_per_page),
-		];
-
-		return [
-			'pagination' => $pagination,
-			'data' => $data,
-		];
+		$tuple = $db->getTable(static::$table_name)->getAllPagination($where, $nb_per_page, $page_idx, $options);
+		return $tuple;
 	}
-
 
 
 	public static function one($where=[], $options=[])
@@ -188,7 +179,7 @@ class SqlTableModel
 			throw new \Exception("no primary_key defined in " . get_called_class(), 1);
 		}
 
-		if (empty($where)) {
+		if (! is_array($where)) {
 			$where = [];
 		}
 

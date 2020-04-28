@@ -34,11 +34,36 @@ class SqlTable
 	}
 
 
-	public function listColumns() /* : array */
+	public function exists($force_refresh=false)
 	{
-		$schema = new SqlSchema($this->db);
-		$this->columns = $schema->listTableColumns($table, $column=null);
-		return $this->columns;
+		static $tables = [];
+
+		if (empty($tables[$this->table_name]) || $force_refresh) {
+			$schema = new SqlSchema($this->db);
+			$tables[$this->table_name] = $schema->tableExists($this->table_name);
+		}
+		return $tables[$this->table_name];
+	}
+
+
+	public function listColumns($force_refresh=false)
+	{
+		static $tables = [];
+
+		if (empty($tables[$this->table_name]) || $force_refresh) {
+			$schema = new SqlSchema($this->db);
+			$tables[$this->table_name] = $schema->listTableColumns($this->table_name, $column=null);
+		}
+
+		$this->columns = $tables[$this->table_name];
+		return $tables[$this->table_name];
+	}
+
+
+	public function getEmpty()
+	{
+		$columns = $this->listColumns();
+		return array_map(function ($v) {return '';}, $columns);
 	}
 
 
@@ -240,6 +265,47 @@ class SqlTable
 
 		}
 		return ['found_rows' => $found_rows, 'data' => $data];
+	}
+
+
+	public function getAllPagination($where=null, $nb_per_page=10, $page_idx=1, $options=[])
+	{
+		if (! is_array($options)) {
+			$options = [];
+		}
+
+		if (! empty($options['output'])) {
+			$page_idx = 1;
+			$nb_per_page = null;
+			$offset = 0;
+			unset($options['limit']);
+
+		} else {
+			$page_idx = max(1, intval($page_idx));
+			$nb_per_page = max(1, intval($nb_per_page));
+
+			$offset = ($page_idx - 1) * $nb_per_page;
+			$options['limit'] = $offset . ', ' . $nb_per_page;
+		}
+
+		
+		$result = $this->getAllWithFoundRows($where, $options);
+		$found_rows = $result['found_rows'];
+		$data = $result['data'];
+
+		$pagination = [
+			'page' => $page_idx,
+			'limit' => $nb_per_page,
+			'offset' => $offset,
+			'page_rows' => count($data),
+			'total_rows' => $found_rows,
+			'nb_pages' => empty($nb_per_page) ? null : ceil($found_rows / $nb_per_page),
+		];
+
+		return [
+			'pagination' => $pagination,
+			'data' => $data,
+		];
 	}
 
 
