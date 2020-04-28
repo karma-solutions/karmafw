@@ -104,26 +104,36 @@ class FileUpload
 	}
 
 
-	public function setUploadDir($dir, $create_if_missing=false)
+	public function setUploadDir($dir, $create_if_missing=false, $check_writable=true)
 	{
-		if (is_dir($dir) && is_writable($dir)) {
-			// dossier existe et writable
-
-		} else if (is_dir($dir)) {
-			// dossier existe mais pas writeable
-			return false;
-
-		} else if (! $create_if_missing) {
-			// dossier n'existe pas
-			return false;
+		if (is_dir($dir)) {
+			// dossier existe
+			if ($check_writable) {
+				// check if writable
+				if (! is_writable($dir)) {
+					// not writable
+					return false;
+				}
+			}
 
 		} else {
-			// dossier n'existe pas et on va le creer
-			if (@mkdir($dir)) {
-				// ok
+			// dossier n'existe pas
+			if (! $create_if_missing) {
+				// dossier n'existe pas
+				return false;
+
+			} else if (is_writable(dirname($dir))) {
+				// check if parent is writable
+				// dossier n'existe pas et on va le creer
+				if (@mkdir($dir)) {
+					// ok
+
+				} else {
+					// impossible de créer le dossier
+					return false;
+				}
 
 			} else {
-				// impossible de créer le dossier
 				return false;
 			}
 		}
