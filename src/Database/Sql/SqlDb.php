@@ -138,6 +138,16 @@ class SqlDb
 		return $this->createQuery()->executeSelectAll($sql, $params);
 	}
 
+	public function executeSelectAllWithFoundRows($query, $params=[])
+	{
+		return $this->createQuery()->executeSelectAllWithFoundRows($query, $params);
+	}
+
+	public function executeSelectAllPagination($query, $nb_per_page=10, $page_idx=1, $params=[])
+	{
+		return $this->createQuery()->executeSelectAllPagination($query, $nb_per_page, $page_idx, $params);
+	}
+
 	public function executeSelectOne($sql, $params=[])
 	{
 		return $this->createQuery()->executeSelectOne($sql, $params);

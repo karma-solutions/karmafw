@@ -193,6 +193,52 @@ class SqlQuery
 	}
 
 
+	public function executeSelectAllWithFoundRows($query, $params=[])
+	{
+		if (strpos($query, 'SQL_CALC_FOUND_ROWS') === false) {
+			$query = str_replace("select ", "select SQL_CALC_FOUND_ROWS ", $query);
+		}
+
+		$rs = $this->execute($query, $params);
+		$data = $rs->fetchAll();
+		$found_rows = $rs->getfoundRowsCount();
+
+		return ['found_rows' => $found_rows, 'data' => $data];
+	}
+
+
+	public function executeSelectAllPagination($query, $nb_per_page=10, $page_idx=1, $params=[])
+	{
+		if (true) {
+			$page_idx = max(1, intval($page_idx));
+			$nb_per_page = max(1, intval($nb_per_page));
+
+			$offset = ($page_idx - 1) * $nb_per_page;
+			$limit = $offset . ', ' . $nb_per_page;
+
+			$query .= " limit " . $limit;
+		}
+
+		$result = $this->executeSelectAllWithFoundRows($query, $params);
+		$found_rows = $result['found_rows'];
+		$data = $result['data'];
+
+		$pagination = [
+			'page' => $page_idx,
+			'limit' => $nb_per_page,
+			'offset' => $offset,
+			'page_rows' => count($data),
+			'total_rows' => $found_rows,
+			'nb_pages' => empty($nb_per_page) ? null : ceil($found_rows / $nb_per_page),
+		];
+
+		return [
+			'pagination' => $pagination,
+			'data' => $data,
+		];
+	}
+
+
 	public function executeInsert($query, $params=[])
 	{
 		$this->execute($query, $params);

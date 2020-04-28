@@ -215,7 +215,7 @@ class SqlTools
 
 
 
-    public function buildSqlWhereSearch($q='', $search_fields=[], $min_length=1)
+    public function buildSqlWhereSearch($q='', $search_fields=[], $min_str_length=1, $max_words=10)
     {
         $db = $this->db;
         
@@ -224,27 +224,39 @@ class SqlTools
 
         $q = trim($q);
         
-        if ($search_fields && strlen($q) >= $min_length) {
+        if ($search_fields && strlen($q) >= $min_str_length) {
             $words = explode(" ", $q);
 
             foreach ($words as $word_idx => $word) {
+                $word_idx_score = 100 * max(1, 10 - $word_idx); // au dela de 10 mots, on compte comme le 10e mot
+
                 $w = $db->escape($word);
                 $w2 = $db->escape("%" . $word . "%");
 
                 $conditions_or = [];
-                foreach ($search_fields as $field) {
+                $select_sums = [0];
+                foreach ($search_fields as $term_idx => $field) {
                     $conditions_or[] = $field . " like " . $w2;
+
+                    $term_idx_score = 10 * max(1, 10 - $term_idx); // au dela de 10 fields, on compte comme le 10e field
+                    $select_sums[] = "( if( locate(" . $w . ", " . $field . ") > 0, 1, 0 ) * " . $word_idx_score . " * " . $term_idx_score . " * greatest( 100 - locate(" . $w . ", " . $field . "), 1) )";
                 }
 
                 $word_condition = "(" . implode(" or ", $conditions_or) . ")";
                 $search_where .= " or " . $word_condition;
 
-                $word_score = max(1, 10 - $word_idx);
-                $select_sum .= " + if(" . $word_condition . ", " . $word_score . ", 0)";
+
+                //$select_sum .= " + if(" . $word_condition . ", " . $word_idx_score . ", 0)";
+                $select_sum .= " + (" . implode(" + ", $select_sums) . ")";
+
+                if (! empty($max_words) && $word_idx >= $max_words) {
+                    break; // one ne prend plus en compte les mots au dela de $max_words
+                }
             }
         }
         $search_where .= ")";
         $select_sum .= ")";
+        //pre($select_sum, 1);
 
         return [
             'select' => $select_sum,
