@@ -239,7 +239,7 @@ class SqlTools
                     $conditions_or[] = $field . " like " . $w2;
 
                     $term_idx_score = 10 * max(1, 10 - $term_idx); // au dela de 10 fields, on compte comme le 10e field
-                    $select_sums[] = "( if( locate(" . $w . ", " . $field . ") > 0, 1, 0 ) * " . $word_idx_score . " * " . $term_idx_score . " * greatest( 100 - locate(" . $w . ", " . $field . "), 1) )";
+                    $select_sums[] = "( if( locate(" . $w . ", ifnull(" . $field . ",'') ) > 0, 1, 0 ) * " . $word_idx_score . " * " . $term_idx_score . " * greatest( 100 - locate(" . $w . ", ifnull(" . $field . ", '')), 1) )";
                 }
 
                 $word_condition = "(" . implode(" or ", $conditions_or) . ")";
