@@ -215,12 +215,17 @@ class SqlTools
 
 
 
-    public function buildSqlWhereSearch($q='', $search_fields=[], $min_str_length=1, $max_words=10)
+    public function buildSqlWhereSearch($q='', $search_fields=[], $min_str_length=1, $max_words=10, $all_words_required=false)
     {
         $db = $this->db;
         
         $select_sum = "(0";
-        $search_where = "(0";
+
+        if ($all_words_required) {
+            $search_where = "(1";
+        } else {
+            $search_where = "(0";
+        }
 
         $q = trim($q);
         
@@ -243,7 +248,15 @@ class SqlTools
                 }
 
                 $word_condition = "(" . implode(" or ", $conditions_or) . ")";
-                $search_where .= " or " . $word_condition;
+
+                if ($all_words_required) {
+                    // TODO
+                    $search_where .= " and (" . $word_condition . ")";
+
+                } else {
+                    $search_where .= " or " . $word_condition;
+
+                }
 
 
                 //$select_sum .= " + if(" . $word_condition . ", " . $word_idx_score . ", 0)";
