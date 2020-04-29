@@ -176,18 +176,20 @@ if (! function_exists('getRouteUrl')) {
 
 
 if (! function_exists('date_us_to_fr')) {
-	function date_us_to_fr($date_us) {
+	function date_us_to_fr($date_us, $include_time=false) {
+		$time = ($include_time) ? substr($date_us, 10) : "";
 		$date_us = substr($date_us, 0, 10);
 		$parts = explode('-', $date_us);
-		return implode('/', array_reverse($parts));
+		return implode('/', array_reverse($parts)) . $time;
 	}
 }
 
 if (! function_exists('date_fr_to_us')) {
-	function date_fr_to_us($date_fr) {
+	function date_fr_to_us($date_fr, $include_time=false) {
+		$time = ($include_time) ? substr($date_fr, 10) : "";
 		$date_fr = substr($date_fr, 0, 10);
 		$parts = explode('/', $date_fr);
-		return implode('-', array_reverse($parts));
+		return implode('-', array_reverse($parts)) . $time;
 	}
 }
 
