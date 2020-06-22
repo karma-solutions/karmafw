@@ -89,7 +89,7 @@ class WebApp extends App
 
 		} else if ($route === null) {
 			// route found but callback is not callable
-			self::error404('Warning: route callback is not callable', '404 Not Found');
+			self::error404('Page not Found', 'Warning: route callback is not callable');
 			exit(1);
 
 		} else if ($route === 0) {
@@ -97,7 +97,7 @@ class WebApp extends App
 			if (defined('USE_HOOKS') && USE_HOOKS) {
 				HooksManager::applyHook('app.route.error', []);
 			}
-			self::error404("Warning: route found but no callback defined", '404 Not Found');
+			self::error404('Page not Found', "Warning: route found but no callback defined");
 			exit(1);
 
 		} else if ($route === false) {
@@ -105,7 +105,7 @@ class WebApp extends App
 			if (defined('USE_HOOKS') && USE_HOOKS) {
 				HooksManager::applyHook('app.route.error', []);
 			}
-			self::error404("Warning: no matching route", '404 Not Found');
+			self::error404('Page not Found', "Warning: no matching route");
 			exit(1);
 
 		} else {
@@ -113,14 +113,14 @@ class WebApp extends App
 			if (defined('USE_HOOKS') && USE_HOOKS) {
 				HooksManager::applyHook('app.route.error', []);
 			}
-			self::error404("Warning: cannot route", '404 Not Found');
+			self::error404('Page not Found', "Warning: cannot route");
 			exit(1);
 		}
 
 	}
 
 
-	public static function error($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $content = 'an error has occured', $error_template = 'error.tpl.php')
+	public static function error($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $message = 'an error has occured', $error_template = 'error.tpl.php')
 	{
 		if (! self::$controller) {
 			self::$controller = new WebAppController();
@@ -128,7 +128,7 @@ class WebApp extends App
 		if (self::$controller && $template = self::$controller->getTemplate()) {
 			$template->assign('meta_title', $meta_title);
 			$template->assign('h1', $h1);
-			$template->assign('p', $content);
+			$template->assign('p', $message);
 			$template->assign('http_status', $http_status);
 
 			$template->display($error_template);
@@ -147,8 +147,8 @@ class WebApp extends App
 			if (! empty($h1)) {
 				$output_html .= '<h1>' . $h1 . '</h1>' . PHP_EOL;
 			}
-			if (! empty($content)) {
-				$output_html .= '<p>' . $content . '</p>' . PHP_EOL;
+			if (! empty($message)) {
+				$output_html .= '<p>' . $message . '</p>' . PHP_EOL;
 			}
 			$output_html .= '</body>' . PHP_EOL;
 			$output_html .= '</html>' . PHP_EOL;
@@ -160,41 +160,29 @@ class WebApp extends App
 	}
 
 
-	public static function error400($title = 'Bad request')
+	public static function error400($title = 'Bad request', $message = '')
 	{
-		$meta_title = $title;
-		$h1 = $title;
-		$content = '';
-		return self::error(400, $meta_title, $h1, $content);
+		return self::error(400, $title, $title, $message);
 	}
 
-	public static function error403($title = 'Forbidden')
+	public static function error403($title = 'Forbidden', $message = 'You are not allowed')
 	{
-		$meta_title = $title;
-		$h1 = $title;
-		$content = 'You are not allowed';
-		return self::error(403, $meta_title, $h1, $content);
+		return self::error(403, $title, $title, $message);
 	}
 
-	public static function error404($message = "The page you're looking for doesn't exist.", $title = 'Page not Found')
+	public static function error404($title = 'Page not Found', $message = "The page you're looking for doesn't exist")
 	{
 		return self::error(404, $title, $title, $message);
 	}
 
-	public static function error500($title = 'Internal Server Error')
+	public static function error500($title = 'Internal Server Error', $message = 'An error has occured')
 	{
-		$meta_title = $title;
-		$h1 = $title;
-		$content = 'An error has occured';
-		return $this->error(500, $meta_title, $h1, $content);
+		return $this->error(500, $title, $title, $message);
 	}
 
-	public static function error503($title = 'Service Unavailable')
+	public static function error503($title = 'Service Unavailable', $message = 'The service is unavailable')
 	{
-		$meta_title = $title;
-		$h1 = $title;
-		$content = 'The service is unavailable';
-		return $this->error(503, $meta_title, $h1, $content);
+		return $this->error(503, $title, $title, $message);
 	}
 
 }

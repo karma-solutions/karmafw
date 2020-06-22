@@ -19,12 +19,14 @@ class WebAppController extends AppController
 
 		$this->user_id = session('user_id');
 
+		$this->flash = session('flash');
 		$_SESSION['flash'] = []; // ['success' => 'action done !', 'error' => 'an error occured', 'warning' => 'notice ...']
 
 		if (defined('TPL_DIR')) {
 			$this->template = WebApp::createTemplate();
 
 			$this->template->assign('user_id', $this->user_id);
+			$this->template->assign('flash', $this->flash);
 
 			if (defined('APP_NAME')) {
 				$this->template->assign('meta_title', APP_NAME);
@@ -57,44 +59,34 @@ class WebAppController extends AppController
 
 
 
-	public function error400()
+	public function error($http_status, $meta_title=null, $h1=null, $message=null)
 	{
-		$meta_title = 'Bad request';
-		$h1 = 'Error 400 - Bad request';
-		$content = '';
-		return $this->error(400, $meta_title, $h1, $content);
+		return WebApp::error($http_status, $meta_title, $h1, $message);
 	}
 
-	public function error403()
+	public function error400($title = 'Bad request', $message = '')
 	{
-		$meta_title = 'Forbidden';
-		$h1 = 'Error 403 - Forbidden';
-		$content = 'you are not allowed';
-		return $this->error(403, $meta_title, $h1, $content);
+		return $this->error(400, $title, $title, $message);
 	}
 
-	public function error404()
+	public function error403($title = 'Forbidden', $message = 'you are not allowed')
 	{
-		$meta_title = 'Page not found';
-		$h1 = 'Error 404 - Page not found';
-		$content = "The page you're looking for doesn't exist.";
-		return $this->error(404, $meta_title, $h1, $content);
+		return $this->error(403, $title, $title, $message);
 	}
 
-	public function error500()
+	public function error404($title = 'Page not found', $message = "The page you're looking for doesn't exist")
 	{
-		$meta_title = 'Internal Server Error';
-		$h1 = 'Error 500 - Internal Server Error';
-		$content = 'An error has occured';
-		return $this->error(500, $meta_title, $h1, $content);
+		return $this->error(404, $title, $title, $message);
 	}
 
-	public function error503()
+	public function error500($title = 'Internal Server Error', $message = 'An error has occured')
 	{
-		$meta_title = 'Service Unavailable';
-		$h1 = 'Error 503 Service Unavailable';
-		$content = 'The service is unavailable';
-		return $this->error(503, $meta_title, $h1, $content);
+		return $this->error(500, $title, $title, $message);
+	}
+
+	public function error503($title = 'Service Unavailable', $message = 'The service is unavailable')
+	{
+		return $this->error(503, $title, $title, $message);
 	}
 
 
