@@ -86,6 +86,11 @@ class Route
 		return $this->matched_params;
 	}
 
+	public function getMatchedPrefix()
+	{
+		return $this->matched_prefix;
+	}
+
 	// Get route name
 	public function getName()
 	{
