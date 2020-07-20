@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Routing;
 
+use \KarmaFW\WebApp;
+
 
 class Router
 {
@@ -128,8 +130,9 @@ class Router
 		if (gettype($callback) == 'array') {
 			//echo " => ARRAY !<br />" . PHP_EOL;
 			//pre($callback, 1);
-			$class = new $callback[0]($route, $request_method, $request_uri);
-			call_user_func([$class, $callback[1]], $matched_params);
+			$controller = new $callback[0]($request_uri, $request_method, $route);
+			WebApp::$controller = $controller;
+			call_user_func([$controller, $callback[1]], $matched_params);
 
 		} else {
 			//echo " => FUNCTION !<br />" . PHP_EOL;
