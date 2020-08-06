@@ -120,7 +120,7 @@ class WebApp extends App
 	}
 
 
-	public static function error($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $message = 'an error has occured', $error_template = 'error.tpl.php')
+	public static function error($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $message = 'an error has occured')
 	{
 		if (! self::$controller) {
 			self::$controller = new WebAppController();
@@ -130,6 +130,11 @@ class WebApp extends App
 			$template->assign('h1', $h1);
 			$template->assign('p', $message);
 			$template->assign('http_status', $http_status);
+
+			$error_template = 'error.tpl.php';
+			if (defined('ERROR_TEMPLATE')) {
+				$error_template = ERROR_TEMPLATE;
+			}
 
 			$template->display($error_template);
 
