@@ -11,6 +11,8 @@ class WebAppController extends AppController
 	protected $request_method = null;
 	protected $route = null;
 	protected $template;
+	protected $user_id;
+	protected $flash;
 
 	
 	public function __construct($request_uri=null, $request_method=null, $route=null)
