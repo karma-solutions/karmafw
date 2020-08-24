@@ -177,6 +177,9 @@ if (! function_exists('getRouteUrl')) {
 
 if (! function_exists('date_us_to_fr')) {
 	function date_us_to_fr($date_us, $include_time=false) {
+		if (empty($date_us)) {
+			return null;
+		}
 		$time = ($include_time) ? substr($date_us, 10) : "";
 		$date_us = substr($date_us, 0, 10);
 		$parts = explode('-', $date_us);
@@ -184,8 +187,28 @@ if (! function_exists('date_us_to_fr')) {
 	}
 }
 
+if (! function_exists('date_us2_to_fr')) {
+	function date_us2_to_fr($date_us, $include_time=false) {
+		if (empty($date_us)) {
+			return null;
+		}
+		$time = ($include_time) ? substr($date_us, 10) : "";
+		$date_us = substr($date_us, 0, 10);
+		$parts = explode('/', $date_us);
+		$parts2 = [
+			substr('00' . $parts[1], -2),
+			substr('00' . $parts[0], -2),
+			$parts[2],
+		];
+		return implode('/', $parts2) . $time;
+	}
+}
+
 if (! function_exists('date_fr_to_us')) {
 	function date_fr_to_us($date_fr, $include_time=false) {
+		if (empty($date_fr)) {
+			return null;
+		}
 		$time = ($include_time) ? substr($date_fr, 10) : "";
 		$date_fr = substr($date_fr, 0, 10);
 		$parts = explode('/', $date_fr);
