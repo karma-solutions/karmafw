@@ -243,3 +243,23 @@ if (! function_exists('get_url_path')) {
 	}
 }
 
+
+if (! function_exists('rrmdir')) {
+	function rrmdir($src) {
+		// https://www.php.net/manual/fr/function.rmdir.php
+	    $dir = opendir($src);
+	    while(false !== ( $file = readdir($dir)) ) {
+	        if (( $file != '.' ) && ( $file != '..' )) {
+	            $full = $src . '/' . $file;
+	            if ( is_dir($full) ) {
+	                rrmdir($full);
+	            }
+	            else {
+	                unlink($full);
+	            }
+	        }
+	    }
+	    closedir($dir);
+	    rmdir($src);
+	}
+}
