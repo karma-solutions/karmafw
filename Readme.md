@@ -6,19 +6,17 @@ KarmaFW est un mini framework PHP qui gère le routing, les templates et les con
 
 ## Fonctionnalités
 
-*
 - Routing Web
 - Templates PHP/HTML
 - Connexions SQL
-*
-- Email SMTP
+- Envoi d'emails (SMTP)
 - FileUpload web
-- Paypal, Payplug, Stripe
-- GoogleAuthenticator, SmsAuthenticator
-- HTML to PDF
-- Envoi de SMS
+- Paiements: Paypal, Payplug, Stripe
+- Auth: GoogleAuthenticator, SmsAuthenticator
+- PDF: création de PDF (HTML to PDF)
+- SMS: Envoi de SMS (Free & SmsEnvoi.com)
 - Hooks PHP
-- Bitly
+- Bitly: génération d'url minimifiées Bitly
 
 
 
