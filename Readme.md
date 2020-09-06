@@ -247,7 +247,7 @@ class MyAppController extends WebAppController
 
 		if (! empty($this->user_id)) {
 			$this->user = User::load($this->user_id);
-			$this->template->assign('databases', $databases);
+			$this->template->assign('user', $this->user);
 		}
 	}
 }
@@ -276,7 +276,6 @@ class HomeController extends MyAppController
 		$this->template->assign('title', 'My APP');
 
 		$db = App::getDb();
-		$db->connect();
 
 		$databases = $db->executeSelect('show databases');
 		$this->template->assign('databases', $databases);
