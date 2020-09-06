@@ -50,6 +50,10 @@ $db->createTable('TEST', ['id' => 'int(11) not null auto_increment', 'my_int' =>
 
 ## INSERT ROWS
 
+```
+$test_id = $db->executeInsert("insert into TEST (result) values ('ok')");
+```
+
 ### INSERT ROW FROM ARRAY
 ```
 $test = [
@@ -72,6 +76,10 @@ $db->getTable('TEST')->insert($test);
 
 ## UPDATE ROWS
 ```
+$nb_rows_affected = $db->executeUpdate("update TEST set result = 'ok' where test_id = 1");
+```
+
+```
 $update = ['my_int' => '11111', 'my_text' => 'ok ok'];
 $where = ['id' => 1];
 $db->getTable('TEST')->update($update, $where);
@@ -79,7 +87,23 @@ $db->getTable('TEST')->update($update, $where);
 => return affected_rows
 
 
+## DELETE ROWS
+
+```
+$nb_rows_affected = $db->executeDelete("delete from TEST where test_id = 1");
+```
+
+```
+$where = ['test_id' => 1];
+$db->getTable('TEST')->delete($where);
+```
+
+
 ## FETCH DATA
+
+```
+$rows = $db->executeSelect("select * from TEST");
+```
 
 ### GET 1 ROW
 ```
@@ -92,14 +116,17 @@ $test = $db->getTable('TEST')->one($where, $options);
 
 ### GET MULTIPLE ROWS
 ```
-$test = $db->getTable('TEST')->all($where, $options);
-//$test = $db->getTable('TEST')->getAll($where, $options);
-//$test = $db->getTable('TEST')->selectAll($where, $options);
-//$test = $db->getTable('TEST')->select($where, $options);
+$tests = $db->getTable('TEST')->all($where, $options);
+//$tests = $db->getTable('TEST')->getAll($where, $options);
+//$tests = $db->getTable('TEST')->selectAll($where, $options);
+//$tests = $db->getTable('TEST')->select($where, $options);
 
-$test = $db->getTable('TEST')->getAllWithFoundRows($where, $options);
+$tests_count = $db->getTable('TEST')->count($where, $options);
+//$tests_count = $db->getTable('TEST')->selectCount($where, $options);
 
-$test = $db->getTable('TEST')->getAllPagination($where, $nb_per_page, $page_idx, $options);
+$tuple = $db->getTable('TEST')->getAllWithFoundRows($where, $options);
+
+$tuple = $db->getTable('TEST')->getAllPagination($where, $nb_per_page, $page_idx, $options);
 ```
 => returns array (2 dimensions)
 
@@ -110,26 +137,27 @@ $test = $db->getTable('TEST')->getAllPagination($where, $nb_per_page, $page_idx,
 ## Use the getTable method
 
 ```
-$user = $db->getTable('users')->one($where, $options);
-//$user = $db->getTable('users')->getOne($where, $options);
-//$user = $db->getTable('users')->selectOne($where, $options);
+$test = $db->getTable('tests')->one($where, $options);
+//$test = $db->getTable('tests')->getOne($where, $options);
+//$test = $db->getTable('tests')->selectOne($where, $options);
 
-$users = $db->getTable('users')->all($where, $options);
-//$users = $db->getTable('users')->getAll($where, $options);
-//$users = $db->getTable('users')->selectAll($where, $options);
-//$users = $db->getTable('users')->select($where, $options);
+$tests = $db->getTable('tests')->all($where, $options);
+//$tests = $db->getTable('tests')->getAll($where, $options);
+//$tests = $db->getTable('tests')->selectAll($where, $options);
+//$tests = $db->getTable('tests')->select($where, $options);
 
-$users_count = $db->getTable('users')->count($where, $options);
-//$users_count = $db->getTable('users')->selectCount($where, $options);
+$tests_count = $db->getTable('tests')->count($where, $options);
+//$tests_count = $db->getTable('tests')->selectCount($where, $options);
 
-$tuple = $db->getTable('users')->getAllWithFoundRows($where, $options);
-$tuple = $db->getTable('users')->getAllPagination($where, $nb_per_page, $page_idx, $options);
+$tuple = $db->getTable('tests')->getAllWithFoundRows($where, $options);
+
+$tuple = $db->getTable('tests')->getAllPagination($where, $nb_per_page, $page_idx, $options);
 ```
 
 ```
-$nb_rows_affected = $db->getTable('users')->update($update_data, $where, $options);
-$user_id = $db->getTable('users')->insert($insert_data, $options);
-$nb_rows_affected = $db->getTable('users')->delete($where, $options);
+$nb_rows_affected = $db->getTable('tests')->update($update_data, $where, $options);
+$test_id = $db->getTable('tests')->insert($insert_data, $options);
+$nb_rows_affected = $db->getTable('tests')->delete($where, $options);
 ```
 
 
@@ -138,7 +166,7 @@ $nb_rows_affected = $db->getTable('users')->delete($where, $options);
 ### Requirement: Create model file
 
 ```
-nano src/Models/User.php
+nano src/Models/Test.php
 ```
 
 ```
@@ -152,42 +180,42 @@ use \KarmaFW\Database\Sql\SqlTableModel;
 
 class Utilisateur extends SqlTableModel
 {
-    public static $table_name = 'users';
-    public static $primary_key = ['user_id'];
+    public static $table_name = 'tests';
+    public static $primary_key = ['test_id'];
 }
 ```
 
 Then, use the model object :
 ```
-use \App\Models\User.php
+use \App\Models\Test.php
 
 
-$user = User::load($user_id, $where, $options);
+$test = Test::load($test_id, $where, $options);
 
-$user = User::one($where, $options);
-//$user = User::getOne($where, $options);
-//$user = User::selectOne($where, $options);
+$test = Test::one($where, $options);
+//$test = Test::getOne($where, $options);
+//$test = Test::selectOne($where, $options);
 
-$users = User::all($where, $options);
-//$users = User::getAll($where, $options);
-//$users = User::selectAll($where, $options);
-//$users = User::select($where, $options);
+$tests = Test::all($where, $options);
+//$tests = Test::getAll($where, $options);
+//$tests = Test::selectAll($where, $options);
+//$tests = Test::select($where, $options);
 
-$users_count = User::count($where, $options);
-//$users_count = User::selectCount($where, $options);
+$tests_count = Test::count($where, $options);
+//$tests_count = Test::selectCount($where, $options);
 
-$tuple = User::getAllWithFoundRows($where, $options);
-$tuple = User::getAllPagination($where, $nb_per_page, $page_idx, $options);
+$tuple = Test::getAllWithFoundRows($where, $options);
+$tuple = Test::getAllPagination($where, $nb_per_page, $page_idx, $options);
 ```
 
 ```
-$user_id = User::insert($insert_data, $options);
-User::insertAll($rows_of_data, $options);
-User::insertAll($rows_of_data, ['ignore' => true]);
-User::insertAll($rows_of_data, ['on duplicate key' => 'user_name = values(user_name)']);
+$test_id = Test::insert($insert_data, $options);
+Test::insertAll($rows_of_data, $options);
+Test::insertAll($rows_of_data, ['ignore' => true]);
+Test::insertAll($rows_of_data, ['on duplicate key' => 'test_name = values(test_name)']);
 
-$nb_rows_affected = User::update($update_data, $where, $options);
-$nb_rows_affected = User::delete($where, $options);
+$nb_rows_affected = Test::update($update_data, $where, $options);
+$nb_rows_affected = Test::delete($where, $options);
 ```
 
 
@@ -204,7 +232,7 @@ $db->buildSqlWhere($var);
 ```
 
 ```
-User::getEmpty();
-$db->getTable('users')->getEmpty();
+Test::getEmpty();
+$db->getTable('tests')->getEmpty();
 # Returns an object with all expected keys and empty values
 ```

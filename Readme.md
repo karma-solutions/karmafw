@@ -290,8 +290,7 @@ class HomeController extends MyAppController
 		$db = App::getDb();
 		$db->connect();
 
-		$rs = $db->execute('show databases');
-		$databases = $rs->fetchAll();
+		$databases = $db->executeSelect('show databases');
 		$this->template->assign('databases', $databases);
 
 		$this->template->display('homepage.tpl.php');
