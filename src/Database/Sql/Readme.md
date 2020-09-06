@@ -193,16 +193,16 @@ $nb_rows_affected = User::delete($where, $options);
 
 ```
 $db->escape($var);
-# Escape a string for a SQL query
+# Returns an escaped string of $var
 ```
 
 ```
 $db->buildSqlWhere($var);
-# Build a SQL where clause from an array
+# Builds a SQL where clause from an array
 ```
 
 ```
 User::getEmpty();
 $db->getTable('users')->getEmpty();
-# Return an object with all expected keys and empty values
+# Returns an object with all expected keys and empty values
 ```
