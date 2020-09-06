@@ -3,6 +3,27 @@
 
 KarmaFW est un mini framework PHP qui gère le routing, les templates et les connexions aux bases SQL.
 
+
+## Fonctionnalités
+
+*
+- Routing Web
+- Templates PHP/HTML
+- Connexions SQL
+*
+- Email SMTP
+- FileUpload web
+- Paypal, Payplug, Stripe
+- GoogleAuthenticator, SmsAuthenticator
+- HTML to PDF
+- Envoi de SMS
+- Hooks PHP
+- Bitly
+
+
+
+
+
 ## Configuration
 
 Les paramètres de configuration de l'application se déclarent dans le fichier ./config/config.php
@@ -25,7 +46,7 @@ Les routes se déclarent dans le fichier ./config/routes.php
 Chaque route est attribuée à la méthode d'un controller à renseigner.
 
 
-### Templates
+### [Templates](src/Database/Templates/)
 
 Le chemin d'accès aux fichiers de templates se fait dans la variable de config TPL_DIR.
 ```
@@ -33,7 +54,7 @@ define('TPL_DIR', APP_DIR . '/templates');
 ```
 
 
-### Database
+### [Database SQL](src/Database/Sql/)
 
 Les informations de connexions à MySQL se font dans la variable de config DB_DSN.
 ```
