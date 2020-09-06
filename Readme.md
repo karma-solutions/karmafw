@@ -57,6 +57,7 @@ src
   Models
   	User
   helpers
+  	helpers_myapp.php
 templates
 	homepage.tpl.php
 vendor
@@ -113,7 +114,7 @@ $whoops->prependHandler(new \Whoops\Handler\PrettyPageHandler);
 $whoops->register();
 
 
-// ROUTE
+// [ROUTE](src/Routing/)
 require APP_DIR . '/config/routes.php';
 
 
