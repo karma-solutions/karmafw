@@ -1,7 +1,7 @@
 
 
 
-## Structure d'une [app console](src/)
+## Structure d'une app console
 
 ```
 bin
@@ -30,6 +30,7 @@ nano bin/app_console.php
 define('APP_DIR', realpath(__DIR__ . '/..'));
 define('VENDOR_DIR', realpath(__DIR__ . '/../vendor'));
 
+
 require APP_DIR . '/config/config.php';
 
 
@@ -39,9 +40,7 @@ $loader->setPsr4('MyApp\\', __DIR__ . '/../src');
 
 
 
-
 // APP BOOT
-\KarmaFW\ConsoleApp::registerHelpersDir(APP_DIR . '/src/helpers');
 \KarmaFW\ConsoleApp::boot();
 
 
@@ -50,6 +49,6 @@ $loader->setPsr4('MyApp\\', __DIR__ . '/../src');
 
 
 // APP ROUTE
-\KarmaFW\ConsoleApp::routeFromArgs();
+\KarmaFW\ConsoleApp::routeFromArgs($argv);
 
 ```
