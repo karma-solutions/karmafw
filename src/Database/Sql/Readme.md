@@ -85,6 +85,7 @@ $db->getTable('TEST')->update($update, $where);
 ```
 $test = $db->getTable('TEST')->one($where, $options);
 //$test = $db->getTable('TEST')->getOne($where, $options);
+//$test = $db->getTable('TEST')->selectOne($where, $options);
 ```
 => returns array
 
@@ -92,8 +93,9 @@ $test = $db->getTable('TEST')->one($where, $options);
 ### GET MULTIPLE ROWS
 ```
 $test = $db->getTable('TEST')->all($where, $options);
-//$test = $db->getTable('TEST')->select($where, $options);
 //$test = $db->getTable('TEST')->getAll($where, $options);
+//$test = $db->getTable('TEST')->selectAll($where, $options);
+//$test = $db->getTable('TEST')->select($where, $options);
 
 $test = $db->getTable('TEST')->getAllWithFoundRows($where, $options);
 
