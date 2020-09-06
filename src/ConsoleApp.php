@@ -40,7 +40,23 @@ class ConsoleApp extends App
 
 		$bin_path = array_shift($argv);
 
-		print_r($argv); // TODO: call defined class/method
+		if ( ($command = array_shift($argv)) === null ) {
+			// error: missing command parameter
+			throw new Exception("Command not specified", 1);
+		
+		} else {
+			$scripts_dir = APP_DIR . "/src/scripts";
+			$script_filepath = $scripts_dir . '/' . $command . '.php';
+
+			if (is_file($script_filepath)) {
+				require $script_filepath;
+
+			} else {
+				throw new Exception("Script file not found", 1);
+			}
+
+		}
+
 
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {

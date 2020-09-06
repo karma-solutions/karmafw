@@ -9,6 +9,8 @@ bin
 config
     config.php
 src
+	scripts
+    	my_test_script.php
     Models
     helpers
 vendor
@@ -51,4 +53,11 @@ $loader->setPsr4('MyApp\\', __DIR__ . '/../src');
 // APP ROUTE
 \KarmaFW\ConsoleApp::routeFromArgs($argv);
 
+```
+
+
+## Exécution d'un script
+
+```
+$ php bin/app_console.php my_test_script [arguments]
 ```

@@ -1,4 +1,7 @@
 
+
+Exemple de fichier de routes ( ./config/routes.php )
+
 ```
 use \KarmaFW\Routing\Router;
 
