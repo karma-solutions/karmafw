@@ -171,9 +171,9 @@ $whoops->register();
 require APP_DIR . '/config/routes.php';
 
 
-\KarmaFW\WebApp::registerHelpersDir(APP_DIR . '/src/helpers');
 
 // APP BOOT
+\KarmaFW\WebApp::registerHelpersDir(APP_DIR . '/src/helpers');
 \KarmaFW\WebApp::boot();
 
 

@@ -75,6 +75,36 @@ class Router
 		return self::Add('POST', $url_match, $callback, $type_match, $regex_params);
 	}
 
+	// DELETE method
+	public static function delete($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('DELETE', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// PUT method
+	public static function put($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('PUT', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// HEAD method
+	public static function head($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('HEAD', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// PATCH method
+	public static function patch($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('PATCH', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// OPTIONS method
+	public static function options($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('OPTIONS', $url_match, $callback, $type_match, $regex_params);
+	}
+
 
 	// Lookup the first matching route then execute it 
 	public static function routeByUrl($request_method, $request_uri, $debug = false)

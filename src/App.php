@@ -33,8 +33,8 @@ class App
 
 		// move fw_helpers at the end of the list (to be loaded the last one)
 		if (count(self::$helpers_dirs) > 1) {
-		$fw_helpers = array_shift(self::$helpers_dirs);
-		self::$helpers_dirs[] = $fw_helpers;
+			$fw_helpers = array_shift(self::$helpers_dirs);
+			self::$helpers_dirs[] = $fw_helpers;
 		}
 
 		// include helpers
@@ -70,7 +70,20 @@ class App
 
 	public static function registerHelpersDir($dir)
 	{
-		self::$helpers_dirs[] = $dir;
+		$dir = rtrim($dir, '/');
+		if (! in_array($dir, self::$helpers_dirs)) {
+			self::$helpers_dirs[] = $dir;
+		}
+	}
+
+
+	public static function unregisterHelpersDir($dir)
+	{
+		$dir = rtrim($dir, '/');
+		$k = array_search($dir, self::$helpers_dirs);
+		if ($k !== false) {
+			unset(self::$helpers_dirs[$k]);
+		}
 	}
 
 

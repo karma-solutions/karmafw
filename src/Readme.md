@@ -18,6 +18,11 @@ public static function registerHelpersDir($dir)
 ```
 
 ```
+public static function unregisterHelpersDir($dir)
+# Remove a directory from the helpers directories
+```
+
+```
 public static function loadHelpers($dir)
 # Load all helpers files in a directory
 ```
