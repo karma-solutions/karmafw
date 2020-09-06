@@ -3,9 +3,12 @@
 namespace KarmaFW\Database\Sql;
 
 
+// TODO: a transformer en une classe trait de SqlDb
+
 class SqlSchema
 {
 	protected $db;
+	
 
 	public function __construct($db)
 	{

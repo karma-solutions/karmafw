@@ -13,12 +13,17 @@ class AppController
 
 	public function __construct()
 	{
+
+		if (defined('USE_HOOKS') && USE_HOOKS) {
+			HooksManager::applyHook('appcontroller.before', [$this]);
+		}
+
 		if (defined('DB_DSN')) {
 			$this->db = App::getDb();
 		}
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
-			HooksManager::applyHook('appcontroller__init', [$this]);
+			HooksManager::applyHook('appcontroller.after', [$this]);
 		}
 
 		//echo "DEBUG " . __CLASS__ . ": controller instanced<hr />" . PHP_EOL;

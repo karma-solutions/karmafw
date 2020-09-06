@@ -41,9 +41,12 @@ bin
 config
     config.php
 src
+    scripts
+        my_test_script.php
     Models
     helpers
 vendor
+    karmasolutions/karmafw
 ```
 
 

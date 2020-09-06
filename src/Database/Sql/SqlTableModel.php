@@ -69,7 +69,7 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-		return $db->getTable(static::$table_name)->select($where, $options);
+		return $db->getTable(static::$table_name)->getAll($where, $options);
 	}
 
 

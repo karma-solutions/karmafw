@@ -3,6 +3,7 @@
 namespace KarmaFW\Routing\Controllers;
 
 use \KarmaFW\WebApp;
+use \KarmaFW\Lib\Hooks\HooksManager;
 
 
 class WebAppController extends AppController
@@ -18,6 +19,10 @@ class WebAppController extends AppController
 	public function __construct($request_uri=null, $request_method=null, $route=null)
 	{
 		parent::__construct($request_uri, $request_method, $route);
+
+		if (defined('USE_HOOKS') && USE_HOOKS) {
+			HooksManager::applyHook('webcontroller.before', [$this]);
+		}
 
 		$this->user_id = session('user_id');
 
@@ -35,6 +40,10 @@ class WebAppController extends AppController
 				$this->template->assign('meta_description', APP_NAME);
 				$this->template->assign('h1', APP_NAME);
 			}
+		}
+
+		if (defined('USE_HOOKS') && USE_HOOKS) {
+			HooksManager::applyHook('webcontroller.after', [$this]);
 		}
 	}
 

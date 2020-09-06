@@ -14,6 +14,7 @@ src
     Models
     helpers
 vendor
+    karmasolutions/karmafw
 ```
 
 
@@ -32,14 +33,12 @@ nano bin/app_console.php
 define('APP_DIR', realpath(__DIR__ . '/..'));
 define('VENDOR_DIR', realpath(__DIR__ . '/../vendor'));
 
-
 require APP_DIR . '/config/config.php';
 
 
 // AUTOLOAD
 $loader = require VENDOR_DIR . '/autoload.php';
 $loader->setPsr4('MyApp\\', __DIR__ . '/../src');
-
 
 
 // APP BOOT

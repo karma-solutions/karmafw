@@ -26,7 +26,7 @@ Router::delete('/clients/delete-client', ['App\\Controllers\\ClientController', 
 
 
 // 404
-Router::get('.*', ['App\\Controllers\\ErrorController', 'error404']);
+Router::get('.*', ['App\\Controllers\\ErrorController', 'error404'], 'regex');
 
 ```
 

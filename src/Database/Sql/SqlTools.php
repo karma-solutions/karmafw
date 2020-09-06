@@ -3,6 +3,8 @@
 namespace KarmaFW\Database\Sql;
 
 
+// TODO: a transformer en une classe trait de SqlDb
+
 class SqlTools
 {
     protected $db;
