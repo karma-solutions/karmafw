@@ -1,4 +1,69 @@
 
+# Présentation
+
+KarmaFW est un mini framework PHP qui gère le routing, les templates et les connexions aux bases SQL.
+
+## Configuration
+
+Les paramètres de configuration de l'application se déclarent dans le fichier ./config/config.php
+
+Le nom de l'application est à définir dans la variable APP_NAME.
+```
+define('APP_NAME', "Mon app PHP");
+```
+
+
+### Pré-requis
+
+Composer est nécessaire afin de gérer les autoload des classes PHP.
+
+
+### Routing
+
+Les routes se déclarent dans le fichier ./config/routes.php
+  
+Chaque route est attribuée à la méthode d'un controller à renseigner.
+
+
+### Templates
+
+Le chemin d'accès aux fichiers de templates se fait dans la variable de config TPL_DIR.
+```
+define('TPL_DIR', APP_DIR . '/templates');
+```
+
+
+### Database
+
+Les informations de connexions à MySQL se font dans la variable de config DB_DSN.
+```
+define('DB_DSN', 'mysql://user:password@localhost/db_name');
+```
+
+
+## Structure du projet web
+
+```
+config
+	config.php
+	routes.php
+public
+	index.php
+	.htaccess
+src
+  Controllers
+  	MyAppController
+  	HomeController
+  Models
+  	User
+  helpers
+templates
+	homepage.tpl.php
+vendor
+	karmasolutions/karmafw
+```
+
+
 # Nouveau projet
 
 
@@ -39,7 +104,7 @@ require APP_DIR . '/config/config.php';
 
 // AUTOLOAD
 $loader = require VENDOR_DIR . '/autoload.php';
-$loader->setPsr4('App\\', __DIR__ . '/../src');
+$loader->setPsr4('MyApp\\', __DIR__ . '/../src');
 
 
 // ERRORS HANDLER
@@ -54,8 +119,15 @@ require APP_DIR . '/config/routes.php';
 
 \KarmaFW\App::registerHelpersDir(APP_DIR . '/src/helpers');
 
-// APP BOOT & ROUTE
+// APP BOOT
 \KarmaFW\App::boot();
+
+
+// YOUR INIT CODE HERE
+\KarmaFW\WebApp::getDb()->execute("set names utf8");
+
+
+// APP ROUTE
 \KarmaFW\App::route();
 
 ```
@@ -81,41 +153,72 @@ define('APP_NAME', "MyAPP");
 ```
 <?php
 
-namespace App\config;
+namespace MyApp\config;
 
 use \KarmaFW\Routing\Router;
 
 
 // Homepage
-Router::get('/', ['App\\Controllers\\AppController', 'homepage'])->setName('home');
+Router::get('/', ['MyApp\\Controllers\\HomeController', 'homepage'])->setName('home');
 
 ```
 
-## 5) Homepage controller : src/Controllers/AppController.php
+## 5) Homepage controller : src/Controllers/MyAppController.php
 ```
 <?php
 
-namespace App\Controllers;
+namespace MyApp\Controllers;
 
 use \KarmaFW\App;
-use \KarmaFW\Routing\Controllers\WebController;
+use \KarmaFW\Routing\Controllers\WebAppController;
+use \MyApp\Models\User;
 
 
-class AppController extends WebController
+class MyAppController extends WebAppController
+{
+	protected $db;
+	protected $user;
+
+	public function __construct($request_uri=null, $request_method=null, $route=null)
+	{
+		parent::__construct($request_uri, $request_method, $route);
+
+		$this->db = App::getDb();
+
+		if (! empty($this->user_id)) {
+			$this->user = User::load($this->user_id);
+			$this->template->assign('databases', $databases);
+		}
+	}
+}
+
+```
+
+
+## 6) Homepage controller : src/Controllers/HomeController.php
+```
+<?php
+
+namespace MyApp\Controllers;
+
+use \KarmaFW\App;
+
+
+class HomeController extends MyAppController
 {
 
 	public function homepage()
 	{
+		$this->template->assign('title', 'My APP');
+
 		$db = App::getDb();
 		$db->connect();
 
 		$rs = $db->execute('show databases');
 		$databases = $rs->fetchAll();
+		$this->template->assign('databases', $databases);
 
-		$template = App::createTemplate();
-		$template->assign('title', 'My APP');
-		$template->assign('databases', $databases);
-		$template->display('homepage.tpl.php');
+		$this->template->display('homepage.tpl.php');
 	}
 	
 }
@@ -123,7 +226,7 @@ class AppController extends WebController
 ```
 
 
-## 6) Homepage template : templates/homepage.tpl.php
+## 7) Homepage template : templates/homepage.tpl.php
 ```
 <html>
 <head>
@@ -136,5 +239,33 @@ class AppController extends WebController
 </pre>
 </body>
 </html>
+
+```
+
+
+
+## 8a) Layout : templates/layout.tpl.php
+```
+<html>
+<head>
+	<title>{$title}</title>
+</head>
+<body>
+<h1>hello world</h1>
+
+{$child_content}
+
+</body>
+</html>
+
+```
+
+## 8b) Homepage template avec layout : templates/homepage2.tpl.php
+```
+{layout layout.tpl.php}
+
+<pre>
+<?php print_r($databases); ?>
+</pre>
 
 ```
