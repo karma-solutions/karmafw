@@ -1,3 +1,11 @@
+                                         
+  _  __                          _______        __
+ | |/ /__ _ _ __ _ __ ___   __ _|  ___\ \      / /
+ | ' // _` | '__| '_ ` _ \ / _` | |_   \ \ /\ / / 
+ | . \ (_| | |  | | | | | | (_| |  _|   \ V  V /  
+ |_|\_\__,_|_|  |_| |_| |_|\__,_|_|      \_/\_/   
+                                                                                                 
+
 
 # Présentation
 
@@ -9,20 +17,64 @@ KarmaFW est un mini framework PHP qui gère le routing, les templates et les con
 - Routing Web
 - Templates PHP/HTML
 - Connexions SQL
-- Envoi d'emails (SMTP)
 - FileUpload web
+- Envoi d'emails (SMTP)
 - Paiements: Paypal, Payplug, Stripe
 - Auth: GoogleAuthenticator, SmsAuthenticator
 - PDF: création de PDF (HTML to PDF)
 - SMS: Envoi de SMS (Free & SmsEnvoi.com)
 - Hooks PHP
-- Bitly: génération d'url minimifiées Bitly
+- Bitly: génération d'url bit.ly
 
 
+### Pré-requis
+
+Composer est nécessaire afin de gérer les autoload des classes PHP.
 
 
+## Structure d'une [app console](src/)
 
-## Configuration
+```
+bin
+    app_console.php
+config
+    config.php
+src
+    Models
+    helpers
+vendor
+```
+
+
+## Structure d'une [app web](src/)
+
+```
+config
+    config.php
+    routes.php
+public
+    .htaccess
+    index.php
+    images
+    css
+    js
+    vendor
+src
+  Controllers
+    MyAppController
+    HomeController
+  Models
+    User
+  helpers
+    helpers_myapp.php
+templates
+    homepage.tpl.php
+vendor
+    karmasolutions/karmafw
+```
+
+
+# Configuration
 
 Les paramètres de configuration de l'application se déclarent dans le fichier ./config/config.php
 
@@ -30,12 +82,6 @@ Le nom de l'application est à définir dans la variable APP_NAME.
 ```
 define('APP_NAME', "Mon app PHP");
 ```
-
-
-### Pré-requis
-
-Composer est nécessaire afin de gérer les autoload des classes PHP.
-
 
 ### [Routing](src/Routing/)
 
@@ -60,42 +106,24 @@ define('DB_DSN', 'mysql://user:password@localhost/db_name');
 ```
 
 
-## Structure du projet web
+# Utilisation
+
+
+## Création d'un nouveau projet
 
 ```
-config
-	config.php
-	routes.php
-public
-	index.php
-	.htaccess
-src
-  Controllers
-  	MyAppController
-  	HomeController
-  Models
-  	User
-  helpers
-  	helpers_myapp.php
-templates
-	homepage.tpl.php
-vendor
-	karmasolutions/karmafw
+$ mkdir /var/www/my_app
+$ cd /var/www/my_app
 ```
 
 
-# Nouveau projet
-
-
-## 0) se positionner dans le dossier du projet
-
-## 1) lancer `composer init`
-
-## 2) modifier composer.json
-
+1) Composer
 ```
-# Ajouter ceci dans composer.json
+$ composer init
+```
 
+Ajouter ceci dans composer.json :
+```
 {
     "repositories": [
         {
@@ -111,7 +139,12 @@ vendor
 ```
 
 
-## 3) créer le dossier public et le fichier public/index.php et le remplir avec ceci :
+3) DocumentIndex
+```
+mkdir -p public
+nano public/index.php
+```
+
 ```
 <?php
 
@@ -153,9 +186,14 @@ require APP_DIR . '/config/routes.php';
 ```
 
 
-## 4) créer le dossier config
+4) App config
 
-## 4a) créer le fichier config/config.php et le remplir avec ceci :
+Créer le fichier config/config.php et le remplir avec ceci :
+```
+mkdir -p config
+nano config/config.php
+```
+
 ```
 <?php
 
@@ -169,7 +207,11 @@ define('APP_NAME', "MyAPP");
 
 ```
 
-## 4b) créer le fichier config/routes.php et le remplir avec ceci :
+Créer le fichier config/routes.php et le remplir avec ceci :
+```
+nano config/routes.php
+```
+
 ```
 <?php
 
@@ -183,7 +225,13 @@ Router::get('/', ['MyApp\\Controllers\\HomeController', 'homepage'])->setName('h
 
 ```
 
+
 ## 5) Homepage controller : src/Controllers/MyAppController.php
+```
+mkdir -p src/Controllers
+nano src/Controllers/MyAppController.php
+```
+
 ```
 <?php
 
@@ -217,6 +265,10 @@ class MyAppController extends WebAppController
 
 ## 6) Homepage controller : src/Controllers/HomeController.php
 ```
+nano src/Controllers/HomeController.php
+```
+
+```
 <?php
 
 namespace MyApp\Controllers;
@@ -248,6 +300,11 @@ class HomeController extends MyAppController
 
 ## 7) Homepage template : templates/homepage.tpl.php
 ```
+mkdir -p templates
+nano templates/homepage.tpl.php
+```
+
+```
 <html>
 <head>
 	<title>{$title}</title>
@@ -266,6 +323,10 @@ class HomeController extends MyAppController
 
 ## 8a) Layout : templates/layout.tpl.php
 ```
+nano templates/layout.tpl.php
+```
+
+```
 <html>
 <head>
 	<title>{$title}</title>
@@ -281,6 +342,10 @@ class HomeController extends MyAppController
 ```
 
 ## 8b) Homepage template avec layout : templates/homepage2.tpl.php
+```
+nano templates/homepage2.tpl.php
+```
+
 ```
 {layout layout.tpl.php}
 
