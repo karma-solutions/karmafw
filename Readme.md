@@ -156,27 +156,14 @@ nano public/index.php
 define('APP_DIR', realpath(__DIR__ . '/..'));
 define('VENDOR_DIR', realpath(__DIR__ . '/../vendor'));
 
-require APP_DIR . '/config/config.php';
-
 
 // AUTOLOAD
 $loader = require VENDOR_DIR . '/autoload.php';
 $loader->setPsr4('MyApp\\', __DIR__ . '/../src');
 
 
-// ERRORS HANDLER
-$whoops = new \Whoops\Run;
-$whoops->prependHandler(new \Whoops\Handler\PrettyPageHandler);
-$whoops->register();
-
-
-// ROUTE
-require APP_DIR . '/config/routes.php';
-
-
 
 // APP BOOT
-\KarmaFW\WebApp::registerHelpersDir(APP_DIR . '/src/helpers');
 \KarmaFW\WebApp::boot();
 
 

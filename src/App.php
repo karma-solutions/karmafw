@@ -31,6 +31,10 @@ class App
 			HooksManager::applyHook('app.boot.before', []);
 		}
 
+		// TODO: config à migrer dans un fichier .env et .env.prod et .env.dev et .env.local (à charger dans cet ordre, avec overwrite)
+		require APP_DIR . '/config/config.php';
+
+
 		// move fw_helpers at the end of the list (to be loaded the last one)
 		if (count(self::$helpers_dirs) > 1) {
 			$fw_helpers = array_shift(self::$helpers_dirs);
@@ -60,11 +64,25 @@ class App
 			self::$db = static::getDb();
 		}
 
-		self::$booted = true;
+
+		// ERRORS HANDLER   // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
+		if (defined('ENV') && ENV == 'dev') {
+			$whoops = new \Whoops\Run;
+			$whoops->prependHandler(new \Whoops\Handler\PrettyPageHandler);
+			$whoops->register();
+		}
+
+
+		// LOAD ROUTES
+		require APP_DIR . '/config/routes.php'; // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
+
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
 			HooksManager::applyHook('app.boot.after', []);
 		}
+
+
+		self::$booted = true;
 	}	
 
 
