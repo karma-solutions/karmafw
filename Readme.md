@@ -190,12 +190,13 @@ nano config/config.php
 
 ini_set('display_errors', 1);
 
+define('APP_NAME', "MyAPP");
+
+define('ENV', "dev");
+
 define('TPL_DIR', APP_DIR . '/templates');
 
 define('DB_DSN', 'mysql://root@localhost/myapp');
-
-define('APP_NAME', "MyAPP");
-
 ```
 
 Créer le fichier config/routes.php et le remplir avec ceci :
