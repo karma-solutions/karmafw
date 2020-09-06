@@ -205,4 +205,4 @@ $db->buildSqlWhere($var);
 User::getEmpty();
 $db->getTable('users')->getEmpty();
 # Return an object with all expected keys and empty values
-````
+```
