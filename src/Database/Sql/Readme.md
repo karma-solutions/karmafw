@@ -86,6 +86,86 @@ $test = $db->getTable('TEST')->all($where, $options);
 
 $test = $db->getTable('TEST')->getAllWithFoundRows($where, $options);
 
-$test = $db->getTable('TEST')->getAllPagination($where=null, $nb_per_page=10, $page_idx=1, $options=[]);
+$test = $db->getTable('TEST')->getAllPagination($where, $nb_per_page, $page_idx, $options);
 ```
 => returns array (2 dimensions)
+
+
+# Models
+
+
+## Use the getTable method
+
+```
+$user = $db->getTable('users')->one($where, $options);
+//$user = $db->getTable('users')->getOne($where, $options);
+//$user = $db->getTable('users')->selectOne($where, $options);
+
+$users = $db->getTable('users')->all($where, $options);
+//$users = $db->getTable('users')->getAll($where, $options);
+//$users = $db->getTable('users')->selectAll($where, $options);
+//$users = $db->getTable('users')->select($where, $options);
+
+$users_count = $db->getTable('users')->selectCount($where, $options);
+$tuple = $db->getTable('users')->getAllWithFoundRows($where, $options);
+$tuple = $db->getTable('users')->getAllPagination($where, $nb_per_page, $page_idx, $options);
+```
+
+```
+$nb_rows_affected = $db->getTable('users')->update($update_data, $where, $options);
+$user_id = $db->getTable('users')->insert($insert_data, $options);
+$nb_rows_affected = $db->getTable('users')->delete($where, $options);
+```
+
+
+## Use the model object
+
+### Requirement: Create model file
+
+```
+nano src/Models/User.php
+```
+
+```
+<?php
+
+namespace MyApp\Models;
+
+use \KarmaFW\App;
+use \KarmaFW\Database\Sql\SqlTableModel;
+
+
+class Utilisateur extends SqlTableModel
+{
+    public static $table_name = 'users';
+    public static $primary_key = ['user_id'];
+}
+```
+
+Then, use the model object :
+```
+use \App\Models\User.php
+
+
+$user = User::load($user_id, $where, $options);
+
+$user = User::one($where, $options);
+//$user = User::getOne($where, $options);
+//$user = User::selectOne($where, $options);
+
+$users = User::all($where, $options);
+//$users = User::getAll($where, $options);
+//$users = User::selectAll($where, $options);
+//$users = User::select($where, $options);
+
+$users_count = User::selectCount($where, $options);
+$tuple = User::getAllWithFoundRows($where, $options);
+$tuple = User::getAllPagination($where, $nb_per_page, $page_idx, $options);
+```
+
+```
+$nb_rows_affected = User::update($update_data, $where, $options);
+$user_id = User::insert($insert_data, $options);
+$nb_rows_affected = User::delete($where, $options);
+```
+
