@@ -18,7 +18,7 @@ define('APP_NAME', "Mon app PHP");
 Composer est nécessaire afin de gérer les autoload des classes PHP.
 
 
-### Routing
+### [Routing](src/Routing/)
 
 Les routes se déclarent dans le fichier ./config/routes.php
   
@@ -114,7 +114,7 @@ $whoops->prependHandler(new \Whoops\Handler\PrettyPageHandler);
 $whoops->register();
 
 
-// [ROUTE](src/Routing/)
+// ROUTE
 require APP_DIR . '/config/routes.php';
 
 
