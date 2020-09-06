@@ -33,7 +33,7 @@ KarmaFW est un mini framework PHP qui gère le routing, les templates et les con
 Composer est nécessaire afin de gérer les autoload des classes PHP.
 
 
-## Structure d'une [app console](src/)
+## Structure d'une [app console](src/ConsoleApp.md)
 
 ```
 bin
