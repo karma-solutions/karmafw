@@ -171,10 +171,10 @@ $whoops->register();
 require APP_DIR . '/config/routes.php';
 
 
-\KarmaFW\App::registerHelpersDir(APP_DIR . '/src/helpers');
+\KarmaFW\WebApp::registerHelpersDir(APP_DIR . '/src/helpers');
 
 // APP BOOT
-\KarmaFW\App::boot();
+\KarmaFW\WebApp::boot();
 
 
 // YOUR INIT CODE HERE
@@ -182,7 +182,7 @@ require APP_DIR . '/config/routes.php';
 
 
 // APP ROUTE
-\KarmaFW\App::route();
+\KarmaFW\WebApp::route();
 
 ```
 

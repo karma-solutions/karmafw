@@ -71,19 +71,19 @@ class WebApp extends App
 		// routing: parse l'url puis transfert au controller
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
-			HooksManager::applyHook('app.route.before', []);
+			HooksManager::applyHook('webapp.route.before', []);
 		}
 
 		$route = Router::routeByUrl( $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], false );
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
-			HooksManager::applyHook('app.route.after', [$route]);
+			HooksManager::applyHook('webapp.route.after', [$route]);
 		}
 
 		if ($route) {
 			//echo "success: route ok";
 			if (defined('USE_HOOKS') && USE_HOOKS) {
-				HooksManager::applyHook('app.route.success', [$_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $route]);
+				HooksManager::applyHook('webapp.route.success', [$_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $route]);
 			}
 			exit(0);
 
@@ -95,7 +95,7 @@ class WebApp extends App
 		} else if ($route === 0) {
 			// route found but no callback defined
 			if (defined('USE_HOOKS') && USE_HOOKS) {
-				HooksManager::applyHook('app.route.error', []);
+				HooksManager::applyHook('webapp.route.error', []);
 			}
 			self::error404('Page not Found', "Warning: route found but no callback defined");
 			exit(1);
@@ -103,7 +103,7 @@ class WebApp extends App
 		} else if ($route === false) {
 			// no matching route
 			if (defined('USE_HOOKS') && USE_HOOKS) {
-				HooksManager::applyHook('app.route.error', []);
+				HooksManager::applyHook('webapp.route.error', []);
 			}
 			self::error404('Page not Found', "Warning: no matching route");
 			exit(1);
@@ -111,7 +111,7 @@ class WebApp extends App
 		} else {
 			// other cases
 			if (defined('USE_HOOKS') && USE_HOOKS) {
-				HooksManager::applyHook('app.route.error', []);
+				HooksManager::applyHook('webapp.route.error', []);
 			}
 			self::error404('Page not Found', "Warning: cannot route");
 			exit(1);
