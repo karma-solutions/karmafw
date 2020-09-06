@@ -33,6 +33,11 @@ $db->use('test');
 
 # MANAGE TABLES
 
+## LIST TABLES
+```
+$db->listTables($table_name=null, $database_name=null);
+```
+
 ## CREATE TABLE
 ```
 $db->createTable('TEST', ['id' => 'int(11) not null auto_increment', 'my_int' => 'int(11) null', 'my_text' => "varchar(32) not null default ''"], ['primary key (id)'], true);
@@ -41,9 +46,11 @@ $db->createTable('TEST', ['id' => 'int(11) not null auto_increment', 'my_int' =>
 
 
 
-# INSERT ROWS
+# MANAGE DATA
 
-## INSERT ROW FROM ARRAY
+## INSERT ROWS
+
+### INSERT ROW FROM ARRAY
 ```
 $test = [
     'my_int' => '111',
@@ -53,7 +60,7 @@ $db->getTable('TEST')->insert($test);
 ```
 => returns insert_id
 
-## INSERT ROW FROM OBJECT
+### INSERT ROW FROM OBJECT
 ```
 $test = new \StdClass;
 $test->my_int = '111';
@@ -63,7 +70,7 @@ $db->getTable('TEST')->insert($test);
 => returns insert_id
 
 
-# UPDATE ROWS
+## UPDATE ROWS
 ```
 $update = ['my_int' => '11111', 'my_text' => 'ok ok'];
 $where = ['id' => 1];
@@ -71,14 +78,18 @@ $db->getTable('TEST')->update($update, $where);
 ```
 => return affected_rows
 
-## GET 1 ROW
+
+## FETCH DATA
+
+### GET 1 ROW
 ```
 $test = $db->getTable('TEST')->one($where, $options);
 //$test = $db->getTable('TEST')->getOne($where, $options);
 ```
 => returns array
 
-## GET MULTIPLE ROWS
+
+### GET MULTIPLE ROWS
 ```
 $test = $db->getTable('TEST')->all($where, $options);
 //$test = $db->getTable('TEST')->select($where, $options);
@@ -106,7 +117,9 @@ $users = $db->getTable('users')->all($where, $options);
 //$users = $db->getTable('users')->selectAll($where, $options);
 //$users = $db->getTable('users')->select($where, $options);
 
-$users_count = $db->getTable('users')->selectCount($where, $options);
+$users_count = $db->getTable('users')->count($where, $options);
+//$users_count = $db->getTable('users')->selectCount($where, $options);
+
 $tuple = $db->getTable('users')->getAllWithFoundRows($where, $options);
 $tuple = $db->getTable('users')->getAllPagination($where, $nb_per_page, $page_idx, $options);
 ```
@@ -158,14 +171,38 @@ $users = User::all($where, $options);
 //$users = User::selectAll($where, $options);
 //$users = User::select($where, $options);
 
-$users_count = User::selectCount($where, $options);
+$users_count = User::count($where, $options);
+//$users_count = User::selectCount($where, $options);
+
 $tuple = User::getAllWithFoundRows($where, $options);
 $tuple = User::getAllPagination($where, $nb_per_page, $page_idx, $options);
 ```
 
 ```
-$nb_rows_affected = User::update($update_data, $where, $options);
 $user_id = User::insert($insert_data, $options);
+User::insertAll($rows_of_data, $options);
+User::insertAll($rows_of_data, ['ignore' => true]);
+User::insertAll($rows_of_data, ['on duplicate key' => 'user_name = values(user_name)']);
+
+$nb_rows_affected = User::update($update_data, $where, $options);
 $nb_rows_affected = User::delete($where, $options);
 ```
 
+
+# Tools
+
+```
+$db->escape($var);
+# Escape a string for a SQL query
+```
+
+```
+$db->buildSqlWhere($var);
+# Build a SQL where clause from an array
+```
+
+```
+User::getEmpty();
+$db->getTable('users')->getEmpty();
+# Return an object with all expected keys and empty values
+````
