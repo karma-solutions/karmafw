@@ -22,9 +22,10 @@ public static function loadHelpers($dir)
 # Load all helpers files in a directory
 ```
 
+[SQL db connection](Database/Sql/)
 ```
 public static function getDb($instance_name=null, $dsn=null)
-# Load a [SQL db connection](Database/Sql/)
+# Load a SQL db connection
 ```
 
 ```
@@ -45,9 +46,10 @@ public static function boot()
 ```
 
 
+[PHP/HTML template](Templates/)
 ```
 public static function createTemplate($tpl_path=null, $variables=[], $layout=null, $templates_dirs=null)
-# Create a [PHP/HTML template](Templates/) object
+# Create a PHP/HTML template object
 ```
 
 
