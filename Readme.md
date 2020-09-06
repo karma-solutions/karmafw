@@ -44,7 +44,7 @@ Les routes se déclarent dans le fichier ./config/routes.php
 Chaque route est attribuée à la méthode d'un controller à renseigner.
 
 
-### [Templates](src/Database/Templates/)
+### [Templates](src/Templates/)
 
 Le chemin d'accès aux fichiers de templates se fait dans la variable de config TPL_DIR.
 ```
