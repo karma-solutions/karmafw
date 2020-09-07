@@ -56,6 +56,11 @@ class Router
 		return $route;
 	}
 
+	public static function error404($callback=null)
+	{
+		return self::all('.*', $callback, 'regex');
+	}
+
 
 	// Allow whatever method (GET, POST, HEAD, OPTION, DELETE, PUT, ...)
 	public static function all($url_match, $callback=null, $type_match='exact', $regex_params=[])
