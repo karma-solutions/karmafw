@@ -82,6 +82,11 @@ class WhereQuery
 
 
 
+	public function insert($options=[])
+	{
+		return $this->db->getTable($this->table_name)->insert($this->sets, $options);
+	}
+
 	public function update($options=[])
 	{
 		return $this->db->getTable($this->table_name)->update($this->sets, $this->where, $options);
@@ -101,6 +106,12 @@ class WhereQuery
 		return $this->db->getTable($this->table_name)->all($this->where, $options);
 	}
 
+	public function getAll($options=[])
+	{
+		return $this->get($options);
+	}
+
+
 	public function getOne($options=[])
 	{
 		$select = empty($this->selects) ? '*' : $this->selects;
@@ -110,9 +121,13 @@ class WhereQuery
 		return $this->db->getTable($this->table_name)->one($this->where, $options);
 	}
 
-	public function getAll($options=[])
+	public function getCount($options=[])
 	{
-		return $this->get($options);
+		$select = empty($this->selects) ? '*' : $this->selects;
+		if (empty($options['select'])) {
+			$options['select'] = $select;
+		}
+		return $this->db->getTable($this->table_name)->count($this->where, $options);
 	}
 
 	public function getAllWithFoundRows($options=[])
