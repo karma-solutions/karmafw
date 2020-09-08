@@ -216,6 +216,14 @@ class SqlTableModel
 		return (new WhereQuery(static::$table_name))->where($where);
 	}
 
+	/*
+	public static function select($select=[])
+	{
+		static::checkTable();
+		return (new WhereQuery(static::$table_name))->select($select);
+	}
+	*/
+
 
 	public static function getDefaultItem()
 	{
