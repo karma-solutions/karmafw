@@ -210,6 +210,12 @@ class SqlTableModel
 	}
 
 
+	public static function where($where=[])
+	{
+		static::checkTable();
+		return (new WhereQuery(static::$table_name))->where($where);
+	}
+
 
 	public static function getDefaultItem()
 	{
