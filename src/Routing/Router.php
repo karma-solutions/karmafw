@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Routing;
 
+use \KarmaFW\WebApp;
+
 
 class Router
 {
@@ -54,6 +56,11 @@ class Router
 		return $route;
 	}
 
+	public static function error404($callback=null)
+	{
+		return self::all('.*', $callback, 'regex');
+	}
+
 
 	// Allow whatever method (GET, POST, HEAD, OPTION, DELETE, PUT, ...)
 	public static function all($url_match, $callback=null, $type_match='exact', $regex_params=[])
@@ -71,6 +78,36 @@ class Router
 	public static function post($url_match, $callback=null, $type_match='exact', $regex_params=[])
 	{
 		return self::Add('POST', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// DELETE method
+	public static function delete($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('DELETE', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// PUT method
+	public static function put($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('PUT', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// HEAD method
+	public static function head($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('HEAD', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// PATCH method
+	public static function patch($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('PATCH', $url_match, $callback, $type_match, $regex_params);
+	}
+
+	// OPTIONS method
+	public static function options($url_match, $callback=null, $type_match='exact', $regex_params=[])
+	{
+		return self::Add('OPTIONS', $url_match, $callback, $type_match, $regex_params);
 	}
 
 
@@ -128,8 +165,9 @@ class Router
 		if (gettype($callback) == 'array') {
 			//echo " => ARRAY !<br />" . PHP_EOL;
 			//pre($callback, 1);
-			$class = new $callback[0]($route, $request_method, $request_uri);
-			call_user_func([$class, $callback[1]], $matched_params);
+			$controller = new $callback[0]($request_uri, $request_method, $route);
+			WebApp::$controller = $controller;
+			call_user_func([$controller, $callback[1]], $matched_params);
 
 		} else {
 			//echo " => FUNCTION !<br />" . PHP_EOL;

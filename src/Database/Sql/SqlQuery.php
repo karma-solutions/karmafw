@@ -2,7 +2,7 @@
 
 namespace KarmaFW\Database\Sql;
 
-use KarmaFW\Database\Sql\SqlResultSetError;
+use \KarmaFW\Database\Sql\SqlResultSetError;
 
 
 class SqlQuery

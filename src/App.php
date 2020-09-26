@@ -2,11 +2,10 @@
 
 namespace KarmaFW;
 
-use \KarmaFW\Routing\Router;
-use \KarmaFW\Lib\Hooks\HooksManager;
-use \KarmaFW\Database\Sql\SqlDb;
-use \KarmaFW\Database\Sql\SqlOrmModel;
-use \KarmaFW\Templates\PhpTemplate;
+use KarmaFW\Routing\Router;
+use KarmaFW\Lib\Hooks\HooksManager;
+use KarmaFW\Database\Sql\SqlDb;
+//use \KarmaFW\Database\Sql\SqlOrmModel;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -21,32 +20,25 @@ if (! defined('APP_DIR')) {
 class App
 {
 	protected static $booted = false;
-	protected static $session_user = false; // user connected with a session
-	protected static $helpers_dirs = [FW_SRC_DIR . "/../helpers"];
+	protected static $helpers_dirs = [FW_SRC_DIR . "/helpers", APP_DIR . "/src/helpers"];
+
+	public static $db = null;
+
 
 	public static function boot()
 	{
-		HooksManager::applyHook('app_boot__before', []);
-
-		// start session
-		if (empty(session_id())) {
-			if (defined('SESSION_NAME') && ! empty(SESSION_NAME)) {
-				session_name(SESSION_NAME);
-			}
-
-			if (defined('SESSION_DURATION') && is_numeric(SESSION_DURATION)) {
-				ini_set('session.gc_maxlifetime', SESSION_DURATION);
-				session_set_cookie_params(SESSION_DURATION);
-				// Note: si cron est actif, il faut modifier la valeur de session.gc_maxlifetime dans /etc/php/7.3/apache2/php.ini (voir /etc/cron.d/php)
-			}
-
-			session_start();
+		if (defined('USE_HOOKS') && USE_HOOKS) {
+			HooksManager::applyHook('app.boot.before', []);
 		}
+
+		// TODO: config à migrer dans un fichier .env et .env.prod et .env.dev et .env.local (à charger dans cet ordre, avec overwrite)
+		require APP_DIR . '/config/config.php';
+
 
 		// move fw_helpers at the end of the list (to be loaded the last one)
 		if (count(self::$helpers_dirs) > 1) {
-		$fw_helpers = array_shift(self::$helpers_dirs);
-		self::$helpers_dirs[] = $fw_helpers;
+			$fw_helpers = array_shift(self::$helpers_dirs);
+			self::$helpers_dirs[] = $fw_helpers;
 		}
 
 		// include helpers
@@ -68,15 +60,50 @@ class App
 		class_alias('\\KarmaFW\\Database\\Sql\\SqlTools', 'SqlTools');
 		
 
+		if (defined('DB_DSN')) {
+			self::$db = static::getDb();
+		}
+
+
+		// ERRORS HANDLER   // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
+		if (defined('ENV') && ENV == 'dev') {
+			$whoops = new \Whoops\Run;
+			$whoops->prependHandler(new \Whoops\Handler\PrettyPageHandler);
+			$whoops->register();
+		}
+
+
+		// LOAD ROUTES
+		require APP_DIR . '/config/routes.php'; // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
+
+
+		if (defined('USE_HOOKS') && USE_HOOKS) {
+			HooksManager::applyHook('app.boot.after', []);
+		}
+
+
 		self::$booted = true;
-		HooksManager::applyHook('app_boot__after', []);
 	}	
 
 
 	public static function registerHelpersDir($dir)
 	{
-		self::$helpers_dirs[] = $dir;
+		$dir = rtrim($dir, '/');
+		if (! in_array($dir, self::$helpers_dirs)) {
+			self::$helpers_dirs[] = $dir;
+		}
 	}
+
+
+	public static function unregisterHelpersDir($dir)
+	{
+		$dir = rtrim($dir, '/');
+		$k = array_search($dir, self::$helpers_dirs);
+		if ($k !== false) {
+			unset(self::$helpers_dirs[$k]);
+		}
+	}
+
 
 	protected static function loadHelpers($dir)
 	{
@@ -85,58 +112,6 @@ class App
 		foreach ($helpers as $helper) {
 			require $helper;
 		}
-	}
-
-
-	public static function route()
-	{
-		return self::routeUrl();
-	}
-
-
-	public static function routeUrl()
-	{
-		if (! self::$booted) {
-			self::boot();
-		}
-
-		// routing: parse l'url puis transfert au controller
-
-		HooksManager::applyHook('app_route__before', []);
-
-		$route = Router::routeByUrl( $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], false );
-
-		HooksManager::applyHook('app_route__after', [$route]);
-
-		if ($route) {
-			//echo "success: route ok";
-			exit(0);
-
-		} else if ($route === null) {
-			// route found but callback is not callable
-			HooksManager::applyHook('app_route_404', []);
-			errorHttp(404, 'Warning: route callback is not callable', '404 Not Found');
-			exit(1);
-
-		} else if ($route === 0) {
-			// route found but no callback defined
-			HooksManager::applyHook('app_route_404', []);
-			errorHttp(404, "Warning: route found but no callback defined", '404 Not Found');
-			exit(1);
-
-		} else if ($route === false) {
-			// no matching route
-			HooksManager::applyHook('app_route_404', []);
-			errorHttp(404, "Warning: no matching route", '404 Not Found');
-			exit(1);
-
-		} else {
-			// other cases
-			HooksManager::applyHook('app_route_404', []);
-			errorHttp(404, "Warning: cannot route", '404 Not Found');
-			exit(1);
-		}
-
 	}
 
 
@@ -190,6 +165,10 @@ class App
 		static $last_instance_name = null;
 
 		if (empty($instance_name)) {
+			if (! empty(self::$db)) {
+				return self::$db;
+			}
+
 			$instance_name = 'default';
 
 			//if (! empty($last_instance_name)) {
@@ -210,26 +189,11 @@ class App
 	}
 
 
-	public static function createTemplate($tpl_path=null, $variables=[], $layout=null, $templates_dirs=null)
-	{
-		return new PhpTemplate($tpl_path, $variables, $layout, $templates_dirs);
-	}
-
-
+	/*
 	public static function createOrmItem($table_name, $primary_key_values=[], $db=null)
 	{
 		return new SqlOrmModel($table_name, $primary_key_values, $db);
 	}
-	
-
-	public static function getUser()
-	{
-		return self::$session_user;
-	}
-
-	public static function setUser($user)
-	{
-		self::$session_user = $user;
-	}
+	*/
 
 }

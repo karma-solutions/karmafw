@@ -316,6 +316,13 @@ class SqlTable
 		return empty($row['nb']) ? 0 : $row['nb'];
 	}
 
+
+	public function one($where=null, $options=[])
+	{
+		// Alias of getOne
+		return $this->getOne($where, $options);
+	}
+
 	public function selectOne($where=null, $options=[])
 	{
 		// Alias of getOne

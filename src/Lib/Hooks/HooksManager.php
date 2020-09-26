@@ -2,6 +2,15 @@
 
 namespace KarmaFW\Lib\Hooks;
 
+
+// DEFINE YOUR CUSTOM HOOKS
+/*
+\KarmaFW\Lib\Hooks\HooksManager::addHookAction('webcontroller.init', function ($controller) {
+    echo "webcontroller hooked<hr />";
+});
+*/
+
+
 class HooksManager {
 	// source: https://stackoverflow.com/questions/5931324/what-is-a-hook-in-php
 

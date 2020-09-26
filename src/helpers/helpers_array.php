@@ -82,6 +82,10 @@ if (! function_exists('arrayToList')) {
 if (! function_exists('import_xls')) {
 	function import_xls($filepath, $fields=[], $encode_utf8=false) {
 		$spreadsheet = PhpSpreadsheetIOFactory::load($filepath);
+
+		//$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+		//$reader->setReadDataOnly(true);
+		//$spreadsheet = $reader->load($filepath);
 		
 		$sheetData = $spreadsheet->getActiveSheet()->toArray();
 		//pre($sheetData, 1);

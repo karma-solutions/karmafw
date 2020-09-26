@@ -3,6 +3,8 @@
 namespace KarmaFW\Database\Sql;
 
 
+// TODO: a transformer en une classe trait de SqlDb
+
 class SqlTools
 {
     protected $db;
@@ -233,7 +235,7 @@ class SqlTools
             $words = explode(" ", $q);
 
             foreach ($words as $word_idx => $word) {
-                $word_idx_score = 100 * max(1, 10 - $word_idx); // au dela de 10 mots, on compte comme le 10e mot
+                $word_idx_score = max(1, 10 - $word_idx) * max(1, 10 - $word_idx); // au dela de 10 mots, on compte comme le 10e mot
 
                 $w = $db->escape($word);
                 $w2 = $db->escape("%" . $word . "%");
@@ -243,8 +245,8 @@ class SqlTools
                 foreach ($search_fields as $term_idx => $field) {
                     $conditions_or[] = $field . " like " . $w2;
 
-                    $term_idx_score = 10 * max(1, 10 - $term_idx); // au dela de 10 fields, on compte comme le 10e field
-                    $select_sums[] = "( if( locate(" . $w . ", ifnull(" . $field . ",'') ) > 0, 1, 0 ) * " . $word_idx_score . " * " . $term_idx_score . " * greatest( 100 - locate(" . $w . ", ifnull(" . $field . ", '')), 1) )";
+                    $term_idx_score = max(1, 10 - $term_idx) * max(1, 10 - $term_idx); // au dela de 10 fields, on compte comme le 10e field
+                    $select_sums[] = "( if( locate(" . $w . ", ifnull(" . $field . ",'') ) > 0, 1, 0 ) * (1 / length(" . $field . ")) * " . $word_idx_score . " * " . $term_idx_score . " * greatest( 100 - locate(" . $w . ", ifnull(" . $field . ", '')), 1) )";
                 }
 
                 $word_condition = "(" . implode(" or ", $conditions_or) . ")";

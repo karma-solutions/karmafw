@@ -69,7 +69,7 @@ class SqlTableModel
 	{
 		$db = static::getDb();
 		static::checkTable();
-		return $db->getTable(static::$table_name)->select($where, $options);
+		return $db->getTable(static::$table_name)->getAll($where, $options);
 	}
 
 
@@ -209,6 +209,20 @@ class SqlTableModel
 
 	}
 
+
+	public static function where($where=[])
+	{
+		static::checkTable();
+		return (new WhereQuery(static::$table_name))->where($where);
+	}
+
+	/*
+	public static function select($select=[])
+	{
+		static::checkTable();
+		return (new WhereQuery(static::$table_name))->select($select);
+	}
+	*/
 
 
 	public static function getDefaultItem()
