@@ -62,7 +62,14 @@ class WebApp extends App
 	*/
 
 
+	// deprecated
 	public static function route()
+	{
+		return self::routeUrl();
+	}
+
+
+	public static function routeUrl()
 	{
 		if (! self::$booted) {
 			self::boot();
