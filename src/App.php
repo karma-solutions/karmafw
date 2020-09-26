@@ -2,11 +2,11 @@
 
 namespace KarmaFW;
 
-use KarmaFW\Routing\Router;
-use KarmaFW\Lib\Hooks\HooksManager;
-use KarmaFW\Database\Sql\SqlDb;
+use \KarmaFW\Routing\Router;
+use \KarmaFW\Lib\Hooks\HooksManager;
+use \KarmaFW\Database\Sql\SqlDb;
 use \KarmaFW\Database\Sql\SqlOrmModel;
-use KarmaFW\Templates\PhpTemplate;
+use \KarmaFW\Templates\PhpTemplate;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -90,6 +90,12 @@ class App
 
 	public static function route()
 	{
+		return self::routeUrl();
+	}
+
+
+	public static function routeUrl()
+	{
 		if (! self::$booted) {
 			self::boot();
 		}
@@ -131,6 +137,47 @@ class App
 			exit(1);
 		}
 
+	}
+
+
+	public static function routeCommand($argv)
+	{
+		if (! self::$booted) {
+			self::boot();
+		}
+
+		$arguments = array_slice($argv, 0);
+		$script_name = array_shift($arguments);
+		$command_name = array_shift($arguments);
+		$class_name = implode('', array_map('ucfirst', explode("_", $command_name)));
+
+		if (! empty($class_name)) {
+			$class_user = '\\App\\Commands\\' . $class_name;
+			$class_fw = '\\KarmaFW\\Commands\\' . $class_name;
+
+			if (class_exists($class_user)) {
+				$command = new $class_user;
+				$command->run($arguments);
+				exit(0);
+
+			} else if (class_exists($class_fw)) {
+				$command = new $class_fw;
+				$command->run($arguments);
+				exit(0);
+
+			} else {
+				echo "PHP Console script" . PHP_EOL . PHP_EOL; 
+				echo "Usage: php console.php <action> [arguments]" . PHP_EOL . PHP_EOL;
+				echo "Warning: invalid action" . PHP_EOL;
+			}
+
+		} else {
+			echo "PHP Console script" . PHP_EOL . PHP_EOL; 
+			echo "Usage: php console.php <action> [arguments]" . PHP_EOL . PHP_EOL;
+			echo "Warning: missing action" . PHP_EOL;
+		}
+
+		exit(1);
 	}
 
 
