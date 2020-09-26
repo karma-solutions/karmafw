@@ -183,14 +183,14 @@ class App
 
 			} else {
 				echo "PHP Console script" . PHP_EOL . PHP_EOL; 
-				echo "Usage: php console.php <action> [arguments]" . PHP_EOL . PHP_EOL;
-				echo "Warning: invalid action" . PHP_EOL;
+				echo "Usage: php console.php <command> [arguments]" . PHP_EOL . PHP_EOL;
+				echo "Warning: invalid command" . PHP_EOL;
 			}
 
 		} else {
 			echo "PHP Console script" . PHP_EOL . PHP_EOL; 
-			echo "Usage: php console.php <action> [arguments]" . PHP_EOL . PHP_EOL;
-			echo "Warning: missing action" . PHP_EOL;
+			echo "Usage: php console.php <command> [arguments]" . PHP_EOL . PHP_EOL;
+			echo "Warning: missing command" . PHP_EOL;
 		}
 
 		exit(1);
