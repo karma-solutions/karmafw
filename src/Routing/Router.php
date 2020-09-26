@@ -17,6 +17,25 @@ class Router
 		self::$config = $config;
 	}
 
+	public static function setConfig($key, $value)
+	{
+		self::$config[$key] = $value;
+	}
+	
+	public static function getConfig($key)
+	{
+		return self::$config[$key];
+	}
+	
+	public static function group($config, $callable)
+	{
+		$old_config = self::$config;
+
+		self::$config = $config;
+		$callable();
+		self::$config = $old_config;
+
+	}
 
 	// Register a route in the router
 	public static function add($methods, $url_match, $callback=null, $type_match='exact', $regex_params=[])
@@ -24,13 +43,16 @@ class Router
 		$route = new Route();
 
 		if (! empty(self::$config['prefix'])) {
+			// ex: $prefix == "/fr"
 			$route->setPrefix(self::$config['prefix'], 'exact', self::$config['prefix']);
 		
 		} else if (! empty(self::$config['prefix_regex'])) {
+			// ex: $prefix == "/[a-zA-Z0-9-]+"
 			$get_prefix = empty(self::$config['get_prefix']) ? null : self::$config['get_prefix'];
 			$route->setPrefix(self::$config['prefix_regex'], 'regex', $get_prefix);
 
 		} else if (! empty(self::$config['prefix_array'])) {
+			// ex: $prefix == ["/fr", "/us"]
 			$get_prefix = empty(self::$config['get_prefix']) ? null : self::$config['get_prefix'];
 			$route->setPrefix(self::$config['prefix_array'], 'array', $get_prefix);
 		}
