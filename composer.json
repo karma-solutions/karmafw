@@ -9,7 +9,17 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "phpgangsta/googleauthenticator": "*",
+        "phpmailer/phpmailer": "*",
+        "paypal/rest-api-sdk-php": "*",
+        "stripe/stripe-php": "*",
+        "payplug/payplug-php": "*",
+        "mpdf/mpdf": "*"
+    },
+    "require-dev": {
+        "filp/whoops": "*",
+        "symfony/var-dumper": "*"
     },
     "autoload": {
         "psr-4": {
