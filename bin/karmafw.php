@@ -1,5 +1,8 @@
 <?php
 
+echo "DEPRECATED" . PHP_EOL; exit;
+
+
 function help($exit=false) {
 	echo "Usage: php karmakw.php <action> [options]" . PHP_EOL;
 	echo PHP_EOL;
