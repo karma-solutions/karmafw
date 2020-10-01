@@ -22,7 +22,8 @@ class WebApp extends App
 			HooksManager::applyHook('webapp.boot.before', []);
 		}
 
-		// start session
+
+		// START SESSION
 		if (empty(session_id())) {
 			if (defined('SESSION_NAME') && ! empty(SESSION_NAME)) {
 				session_name(SESSION_NAME);
@@ -36,6 +37,11 @@ class WebApp extends App
 
 			session_start();
 		}
+
+
+		// LOAD ROUTES
+		require APP_DIR . '/config/routes.php'; // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
+
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
 			HooksManager::applyHook('webapp.boot.after', []);

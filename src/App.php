@@ -73,10 +73,6 @@ class App
 		}
 
 
-		// LOAD ROUTES
-		require APP_DIR . '/config/routes.php'; // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
-
-
 		if (defined('USE_HOOKS') && USE_HOOKS) {
 			HooksManager::applyHook('app.boot.after', []);
 		}

@@ -18,7 +18,11 @@ class WebAppController extends AppController
 	
 	public function __construct($request_uri=null, $request_method=null, $route=null)
 	{
-		parent::__construct($request_uri, $request_method, $route);
+		parent::__construct();
+
+		$this->request_uri = $request_uri;
+		$this->request_method = $request_method;
+		$this->route = $route;
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
 			HooksManager::applyHook('webcontroller.before', [$this]);

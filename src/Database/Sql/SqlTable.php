@@ -120,24 +120,39 @@ class SqlTable
 		}
 
 
-		$inserts_sql = implode(', ', $values_array);
-
 		$ignore_sql = empty($options['ignore']) ? '' : 'ignore';
-
 		$on_duplicate_key_updates_sql = empty($options['on_duplicate_key_updates']) ? "" : ("on duplicate key update " . $options['on_duplicate_key_updates']);
-		// TODO: gerer on_duplicate_key_updates comme le where, dans un tableau et non dans un string
 
-		$query = "insert " . $ignore_sql . " into " . $this->table_name . " (" . $fields_sql . ") values " . $inserts_sql . " " . $on_duplicate_key_updates_sql;
 
-		if (! empty($options['debug'])) {
-			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
+		$chunks = [];
+		if (empty($options['chunk'])) {
+			$chunks = [$values_array];
+
+		} else {
+			$chunks = array_chunk($values_array, $options['chunk']);
 		}
 
-		if (! empty($options['dry'])) {
-			return true;
+		$ok = false;
+
+		foreach ($chunks as $chunk) {
+			$inserts_sql = implode(', ', $chunk);
+
+			// TODO: gerer on_duplicate_key_updates comme le where, dans un tableau et non dans un string
+
+			$query = "insert " . $ignore_sql . " into " . $this->table_name . " (" . $fields_sql . ") values " . $inserts_sql . " " . $on_duplicate_key_updates_sql;
+
+			if (! empty($options['debug'])) {
+				echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";
+			}
+
+			if (isset($options['dry'])) {
+				$ok = $options['dry'];
+			} else {
+				$ok = $this->db->createQuery()->executeInsertAll($query);
+			}
 		}
 
-		return $this->db->createQuery()->executeInsertAll($query);
+		return $ok;
 	}
 
 
