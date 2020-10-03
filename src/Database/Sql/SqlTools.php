@@ -230,23 +230,34 @@ class SqlTools
         }
 
         $q = trim($q);
+
+        $pow_pos_word = 0.5;             // correspond à l'index du mot parmi tous les mots de la recherche
+        $pow_pos_field = 0.5;            // correspond à l'index du champ (SQL) de recherche parmi tous les champs de recherche
+        $pow_pos_match = 0.5;            // correspond à la position strpos de la chaine recherchée trouvée dans un des champs de recherche
+        $pow_length_field_value = 0.3;   // correspond à la taille (du texte) de la valeur du champ dans lequel on a trouvé le match
+
+        $coef_pos_word = 1;
+        $coef_pos_field = 1;
+        $coef_pos_match = 1;
+        $coef_length_field_value = 1;
         
         if ($search_fields && strlen($q) >= $min_str_length) {
             $words = explode(" ", $q);
 
             foreach ($words as $word_idx => $word) {
-                $word_idx_score = max(1, 10 - $word_idx) * max(1, 10 - $word_idx); // au dela de 10 mots, on compte comme le 10e mot
+                $word_idx_score = pow(max(1, 10 - $word_idx) * $coef_pos_word, $pow_pos_word); // au dela de 10 mots, on compte comme le 10e mot
 
                 $w = $db->escape($word);
                 $w2 = $db->escape("%" . $word . "%");
 
                 $conditions_or = [];
                 $select_sums = [0];
-                foreach ($search_fields as $term_idx => $field) {
+                foreach ($search_fields as $field_idx => $field) {
                     $conditions_or[] = $field . " like " . $w2;
 
-                    $term_idx_score = max(1, 10 - $term_idx) * max(1, 10 - $term_idx); // au dela de 10 fields, on compte comme le 10e field
-                    $select_sums[] = "( if( locate(" . $w . ", ifnull(" . $field . ",'') ) > 0, 1, 0 ) * (1 / length(" . $field . ")) * " . $word_idx_score . " * " . $term_idx_score . " * greatest( 100 - locate(" . $w . ", ifnull(" . $field . ", '')), 1) )";
+                    $field_idx_score = pow(max(1, 10 - $field_idx) * $coef_pos_field, $pow_pos_field); // au dela de 10 fields, on compte comme le 10e field
+                    $select_sums[] = "( if( locate(" . $w . ", ifnull(" . $field . ",'') ) > 0, 1, 0 ) * pow(1 / length(" . $field . ") * " . $coef_length_field_value . ", " . floatval($pow_length_field_value) . ") * " . $word_idx_score . " * " . $field_idx_score . " * pow(greatest( 100 - locate(" . $w . ", ifnull(" . $field . ", '')), 1) * " . floatval($coef_pos_match) . ", " . floatval($pow_pos_match) . ") )";
+                    //$select_sums[] = "( if( locate(" . $w . ", ifnull(" . $field . ",'') ) > 0, 1, 0 ) * (1 / length(" . $field . ")) * " . $word_idx_score . " * " . $field_idx_score . "  )";
                 }
 
                 $word_condition = "(" . implode(" or ", $conditions_or) . ")";

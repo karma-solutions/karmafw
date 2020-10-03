@@ -23,6 +23,7 @@ class App
 	protected static $helpers_dirs = [FW_SRC_DIR . "/helpers", APP_DIR . "/src/helpers"];
 
 	public static $db = null;
+	public static $data = [];
 
 
 	public static function boot()
@@ -88,6 +89,22 @@ class App
 		if (! in_array($dir, self::$helpers_dirs)) {
 			self::$helpers_dirs[] = $dir;
 		}
+	}
+
+	
+	public static function setData($key, $value=null)
+	{
+		self::$data[$key] = $value;
+	}
+
+	public static function getData($key, $default_value=null)
+	{
+		return array_key_exists($key, self::$data) ? self::$data[$key] : $default_value;
+	}
+
+	public static function hasData($key)
+	{
+		return array_key_exists($key, self::$data);
 	}
 
 
