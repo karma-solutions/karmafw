@@ -9,15 +9,15 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
         "phpgangsta/googleauthenticator": "*",
         "phpmailer/phpmailer": "*",
         "paypal/rest-api-sdk-php": "*",
         "stripe/stripe-php": "*",
         "payplug/payplug-php": "*",
-        "mpdf/mpdf": "*"
-    },
-    "require-dev": {
+        "mpdf/mpdf": "*",
         "filp/whoops": "*",
         "symfony/var-dumper": "*"
     },
