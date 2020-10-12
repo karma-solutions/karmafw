@@ -40,7 +40,9 @@ class WebApp extends App
 
 
 		// LOAD ROUTES
-		require APP_DIR . '/config/routes.php'; // NOTE => a déplacer dans \KarmaFW\WebApp::boot() ??
+		if (is_file(APP_DIR . '/config/routes.php')) {
+			require APP_DIR . '/config/routes.php';
+		}
 
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {

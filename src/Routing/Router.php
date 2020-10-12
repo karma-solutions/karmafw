@@ -3,6 +3,10 @@
 namespace KarmaFW\Routing;
 
 use \KarmaFW\WebApp;
+use \KarmaFW\App\Request;
+use \KarmaFW\App\Response;
+use \KarmaFW\App\ResponseError;
+use \KarmaFW\App\ResponseError404;
 
 
 class Router
@@ -134,7 +138,7 @@ class Router
 
 
 	// Lookup the first matching route then execute it 
-	public static function routeByUrl($request_method, $request_uri, $debug = false)
+	public static function routeByUrl($request_method, $request_uri, $debug = false, $response = null)
 	{
 		foreach (self::$routes as $route) {
 			if ($debug) {
@@ -164,7 +168,7 @@ class Router
 
 				} else if (is_callable($callback)) {
 					self::$routed_url = $route;
-					self::routeRun($route, $callback, $request_method, $request_uri);
+					self::routeRun($route, $callback, $request_method, $request_uri, $response);
 
 				} else {
 					// Error: callback not callable
@@ -179,26 +183,102 @@ class Router
 		return false;
 	}
 
-
-	public static function routeRun($route, $callback, $request_method, $request_uri)
+	public static function routeRun($route, $callback, $request_method, $request_uri, $response=null)
 	{
 		$matched_params = $route->getMatchedParams();
 
 		if (gettype($callback) == 'array') {
 			//echo " => ARRAY !<br />" . PHP_EOL;
 			//pre($callback, 1);
-			$controller = new $callback[0]($request_uri, $request_method, $route);
+			$controller = new $callback[0]($request_uri, $request_method, $route, $response);
 			WebApp::$controller = $controller;
 			call_user_func([$controller, $callback[1]], $matched_params);
 
 		} else {
 			//echo " => FUNCTION !<br />" . PHP_EOL;
 			//pre($callback, 1);
-			$callback($request_uri, $request_method, $route, $matched_params);
+			$callback($request_uri, $request_method, $route, $matched_params, $response);
 		}
 
 
 		return true;
+	}
+
+
+	public static function routeRequest(Request $request, Response $response)
+	{
+		$request_method = $request->getMethod();
+		$request_uri = $request->getUrl();
+
+		foreach (self::$routes as $route) {
+			$route->setCalledMethod($request_method);
+			$route->setCalledUrl($request_uri);
+
+			$match = $route->match($request_method, $request_uri);
+
+			if ($match) {
+				$before_callback = $route->getBeforeCallback();
+				if (! empty($before_callback)) {
+					$before_callback($route);
+				}
+
+				$callback = $route->getCallback();
+				if (empty($callback)) {
+					// route found but no callback defined
+					//return 0;
+					return new ResponseError404("<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>");
+
+				} else if (is_callable($callback)) {
+					// OK !
+					self::$routed_url = $route;
+					$response = self::requestRouteRun($route, $callback, $request, $response);
+					return $response;
+
+				} else {
+					// route found but callback is not callable
+					//return null;
+					return new ResponseError404("<h1>Page not Found</h1><p>Warning: route callback is not callable</p>");
+				}
+
+			}
+
+		}
+
+		// no matching route
+		//return false;
+		return new ResponseError404("<h1>Page not Found</h1><p>Warning: no matching route</p>");
+	}
+
+
+	public static function requestRouteRun(Route $route, callable $callback, Request $request, Response $response)
+	{
+		$matched_params = $route->getMatchedParams();
+
+		if (gettype($callback) == 'array') {
+			//echo " => ARRAY !<br />" . PHP_EOL;
+			//pre($callback, 1);
+			$controller = new $callback[0]($request, $response);
+			WebApp::$controller = $controller;
+
+			$route_response = call_user_func([$controller, $callback[1]], $matched_params);
+
+		} else {
+			//echo " => FUNCTION !<br />" . PHP_EOL;
+			//pre($callback, 1);
+			$route_response = $callback($request, $response, $matched_params);
+		}
+
+		if ($route_response instanceof Response) {
+			$response = $route_response;
+
+		} else if ($route_response) {
+			return new ResponseError(500, "<h1>Server Error</h1><p>Error: \$response is not a Response</p>");
+
+		} else {
+			//return new ResponseError(500, "<h1>Server Error</h1><p>Error: \$response is empty</p>");
+		}
+
+		return $response;
 	}
 
 

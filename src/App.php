@@ -2,10 +2,14 @@
 
 namespace KarmaFW;
 
-use KarmaFW\Routing\Router;
-use KarmaFW\Lib\Hooks\HooksManager;
-use KarmaFW\Database\Sql\SqlDb;
+use \KarmaFW\Routing\Router;
+use \KarmaFW\Lib\Hooks\HooksManager;
+use \KarmaFW\Database\Sql\SqlDb;
 //use \KarmaFW\Database\Sql\SqlOrmModel;
+
+use \KarmaFW\App\Request;
+use \KarmaFW\App\Response;
+use \KarmaFW\App\Pipe;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -25,6 +29,28 @@ class App
 	public static $db = null;
 	public static $data = [];
 
+	protected static $instance = null;
+	protected $middlewares;
+
+
+	public function __construct($middlewares=[])
+	{
+		$this->middlewares = $middlewares;
+		self::$instance = $this;
+	}
+
+
+	public function handle($request)
+	{
+		$response = new Response;
+		$pipe = new Pipe($this->middlewares);
+
+		$response = $pipe->next($request, $response);
+		return $response;
+	}
+
+
+	/* #### */
 
 	public static function boot()
 	{
@@ -33,7 +59,29 @@ class App
 		}
 
 		// TODO: config à migrer dans un fichier .env et .env.prod et .env.dev et .env.local (à charger dans cet ordre, avec overwrite)
-		require APP_DIR . '/config/config.php';
+		if (is_file(APP_DIR . '/config/config.php')) {
+			require APP_DIR . '/config/config.php';
+		}
+
+		if (! defined('APP_NAME')) {
+			define('APP_NAME', "PHP Application");
+		}
+
+		if (! defined('TPL_DIR')) {
+			//define('TPL_DIR', APP_DIR . '/templates');
+		}
+
+		if (! defined('ENV')) {
+			define('ENV', 'prod');
+		}
+
+		if (! defined('DB_DSN')) {
+			//define('DB_DSN', 'mysql://root@localhost/my_app');
+		}
+
+		if (! defined('ERROR_TEMPLATE')) {
+			//define('ERROR_TEMPLATE', "page_error.tpl.php");
+		}
 
 
 		// move fw_helpers at the end of the list (to be loaded the last one)
@@ -169,6 +217,7 @@ class App
 	*/
 
 
+	/*
 	public static function routeCommand($argv)
 	{
 		if (! self::$booted) {
@@ -208,5 +257,6 @@ class App
 
 		exit(1);
 	}
+	*/
 
 }
