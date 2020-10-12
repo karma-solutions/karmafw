@@ -194,7 +194,7 @@ class Router
 		} else {
 			//echo " => FUNCTION !<br />" . PHP_EOL;
 			//pre($callback, 1);
-			$callback($route, $matched_params);
+			$callback($request_uri, $request_method, $route, $matched_params);
 		}
 
 
