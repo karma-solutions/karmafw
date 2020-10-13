@@ -34,7 +34,8 @@ class ErrorHandler
             }
 
             //throw $e;
-            return new ResponseError(500, $content);        }
+            return new ResponseError(500, $content);
+        }
 
         return $response;
     }
