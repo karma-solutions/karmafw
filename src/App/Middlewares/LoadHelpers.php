@@ -9,8 +9,8 @@ use \KarmaFW\App\Response;
 class LoadHelpers
 {
 	protected $helpers_dirs = [
-		FW_SRC_DIR . "/helpers",
 		APP_DIR . "/src/helpers",
+		FW_SRC_DIR . "/helpers",
 	];
 	
 	

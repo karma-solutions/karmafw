@@ -14,6 +14,12 @@ class ErrorHandler
         //set_error_handler(['ErrorHandler', 'display']);
         //set_exception_handler(['ExceptionHandler', 'display']);
 
+        if (false) {
+            $whoops = new \Whoops\Run;
+            $whoops->prependHandler(new \Whoops\Handler\PrettyPageHandler);
+            $whoops->register();
+        }
+
         try {
             $response = $next($request, $response);
 

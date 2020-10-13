@@ -24,7 +24,7 @@ if (! defined('APP_DIR')) {
 class App
 {
 	protected static $booted = false;
-	protected static $helpers_dirs = [FW_SRC_DIR . "/helpers", APP_DIR . "/src/helpers"];
+	protected static $helpers_dirs = [APP_DIR . "/src/helpers", FW_SRC_DIR . "/helpers"];
 
 	public static $db = null;
 	public static $data = [];
@@ -37,15 +37,82 @@ class App
 	{
 		$this->middlewares = $middlewares;
 		self::$instance = $this;
+
+		try {
+			$this->configure();
+
+			self::loadHelpersDirs();
+
+		} catch (\Exception $e) {
+			header("HTTP/1.0 500 Internal Server Error");
+			echo "<h1>Server error</h1>";
+
+			if (ENV === 'dev') {
+				echo "<pre>";
+				print_r($e);
+				echo "</pre>";
+			}
+			exit;
+		}
+		
+	}
+
+
+	public function configure()
+	{
+		if (is_file(APP_DIR . '/config/config.php')) {
+			require APP_DIR . '/config/config.php';
+		}
+
+
+		if (! defined('APP_NAME')) {
+			define('APP_NAME', "PHP Application");
+		}
+
+		if (! defined('TPL_DIR')) {
+			//define('TPL_DIR', APP_DIR . '/templates');
+		}
+
+		if (! defined('ENV')) {
+			define('ENV', 'prod');
+		}
+
+		if (! defined('DB_DSN')) {
+			//define('DB_DSN', 'mysql://root@localhost/my_app');
+		}
+
+		if (! defined('ERROR_TEMPLATE')) {
+			//define('ERROR_TEMPLATE', "page_error.tpl.php");
+		}
+
+
+		if (defined('DB_DSN')) {
+			self::$db = static::getDb();
+		}
+
 	}
 
 
 	public function handle($request)
 	{
-		$response = new Response;
-		$pipe = new Pipe($this->middlewares);
+		try {
+			$response = new Response;
+			$pipe = new Pipe($this->middlewares);
 
-		$response = $pipe->next($request, $response);
+			$response = $pipe->next($request, $response);
+
+		} catch (\Exception $e) {
+			header("HTTP/1.0 500 Internal Server Error");
+			echo "<h1>Server error</h1>";
+
+			if (ENV === 'dev') {
+				echo "<pre>";
+				print_r($e);
+				echo "</pre>";
+			}
+			exit;
+		}
+
 		return $response;
 	}
 
@@ -166,13 +233,26 @@ class App
 	}
 
 
+	protected static function loadHelpersDirs()
+	{
+		//echo 'avant';
+		if (is_array(self::$helpers_dirs)) {
+			foreach (self::$helpers_dirs as $helpers_dir) {
+				self::loadHelpers($helpers_dir);
+			}
+		}
+		//pre('apres');
+	}
+
 	protected static function loadHelpers($dir)
 	{
 		$helpers = glob($dir . '/helpers_*.php');
 
 		foreach ($helpers as $helper) {
+			//echo '<li>'.$helper.'</li>';
 			require $helper;
 		}
+
 	}
 
 
