@@ -6,14 +6,15 @@ use \KarmaFW\Routing\Controllers\WebAppController;
 use \KarmaFW\App\Middlewares\MinimifierJs;
 use \KarmaFW\App\Middlewares\MinimifierCss;
 
+use \KarmaFW\App\ResponseRedirect;
+use \KarmaFW\App\ResponseError404;
+
 
 class MinimifierController extends WebAppController
 {
 	
 	public function minimifier_js($arguments=[])
 	{
-		//pre($arguments, 1);
-
 		$file_url = $arguments['file_url'];
 
 		$document_root = APP_DIR . '/public';
@@ -32,27 +33,16 @@ class MinimifierController extends WebAppController
 
 			if ($file_path != realpath($file_path) || substr($file_path, -3) != '.js') {
 				// file path invalid or not a js file
-				redirect($file_url);
-				/*
-				header('HTTP/1.1 404 Not Found');
-				echo "ERROR 404";
-				exit;
-				*/
+				return new ResponseError404;
+				//return new ResponseRedirect($file_url);
 			}
 
 			if (! is_file($file_path)) {
 				// file not found
-				redirect($file_url);
-				/*
-				header('HTTP/1.1 404 Not Found');
-				echo "ERROR 404";
-				exit;
-				*/
+				return new ResponseError404;
+				//return new ResponseRedirect($file_url);
 
 			} else {
-				header('Content-type: text/javascript');
-
-				//if (ENV == 'dev' && ! (defined('MINIMIFY_JS') && MINIMIFY_JS ) ) {
 				if (false) {
 					// NO minimification
 					readfile($file_path);
@@ -60,20 +50,33 @@ class MinimifierController extends WebAppController
 				} else {
 					// minimification
 					$content = file_get_contents($file_path);
-					$content = MinimifierJs::minify_js($content);
-					echo $content;
+					$this->response->setContent($content);
+		            $content_length = $this->response->getContentLength();
+
+					$content_minimified = MinimifierJs::minify_js($content);
+					$this->response->setContent($content_minimified);
+		            $content_minimified_length = $this->response->getContentLength();
+					
+					$this->response->addHeader('Content-Type', 'text/javascript');
+
+		            // add information headers
+		            $this->response->addHeader('X-CSS-Unminimified-Content-Length', $content_length);
+		            $this->response->addHeader('X-CSS-Minimified-Content-Length', $content_minimified_length);
 
 					// TODO: gerer cache-expire, expires, ...
 				}
 			}
+
+		} else {
+			// Error document root not found
+			return new ResponseError404;
+			//return new ResponseRedirect($file_url);
 		}
 	}
 
 	
 	public function minimifier_css($arguments=[])
 	{
-		//pre($arguments, 1);
-
 		$file_url = $arguments['file_url'];
 
 		$document_root = APP_DIR . '/public';
@@ -92,26 +95,16 @@ class MinimifierController extends WebAppController
 
 			if ($file_path != realpath($file_path) || substr($file_path, -4) != '.css') {
 				// file path invalid or not a css file
-				redirect($file_url);
-				/*
-				header('HTTP/1.1 404 Not Found');
-				echo "ERROR 404";
-				exit;
-				*/
+				return new ResponseError404;
+				//return new ResponseRedirect($file_url);
 			}
 
 			if (! is_file($file_path)) {
 				// file not found
-				redirect($file_url);
-				/*
-				header('HTTP/1.1 404 Not Found');
-				echo "ERROR 404";
-				exit;
-				*/
+				return new ResponseError404;
+				//return new ResponseRedirect($file_url);
 
 			} else {
-				header('Content-type: text/css');
-
 				if (false) {
 					// NO minimification
 					readfile($file_path);
@@ -119,8 +112,18 @@ class MinimifierController extends WebAppController
 				} else {
 					// minimification
 					$content = file_get_contents($file_path);
-					$content = MinimifierCss::minify_css($content);
-					echo $content;
+					$this->response->setContent($content);
+		            $content_length = $this->response->getContentLength();
+
+					$content_minimified = MinimifierCss::minify_css($content);
+					$this->response->setContent($content_minimified);
+		            $content_minimified_length = $this->response->getContentLength();
+					
+					$this->response->addHeader('Content-Type', 'text/css');
+
+		            // add information headers
+		            $this->response->addHeader('X-CSS-Unminimified-Content-Length', $content_length);
+		            $this->response->addHeader('X-CSS-Minimified-Content-Length', $content_minimified_length);
 
 					// TODO: gerer cache-expire, expires, ...
 				}
@@ -128,15 +131,9 @@ class MinimifierController extends WebAppController
 
 		} else {
 			// Error document root not found
-			redirect($file_url);
+			return new ResponseError404;
+			//return new ResponseRedirect($file_url);
 		}
-	}
-
-	protected function redirectToUrl($url)
-	{
-		$continue_url = "";
-		redirect($continue_url);
-		//return new ResponseRedirect($continue_url, 302);
 	}
 
 }

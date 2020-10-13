@@ -13,8 +13,6 @@ class MinimifierJs
     {
         $response = $next($request, $response);
 
-        // TODO: reperer les balises <script src=...> dans le dom, récupérer le css correspondant, le minimifier et le lui créer un id de minification
-
         return $response;
     }
 

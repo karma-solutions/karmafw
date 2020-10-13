@@ -13,8 +13,6 @@ class MinimifierCss
     {
         $response = $next($request, $response);
 
-        // TODO: reperer les balises <link href=...> dans le dom, récupérer le css correspondant, le minimifier et le lui créer un id de minification
-
         return $response;
     }
 

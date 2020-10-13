@@ -8,6 +8,9 @@ use \KarmaFW\Lib\Hooks\HooksManager;
 
 class WebAppController extends AppController
 {
+	protected $request;
+	protected $response;
+	
 	protected $request_uri = null;
 	protected $request_method = null;
 	protected $route = null;
@@ -19,6 +22,9 @@ class WebAppController extends AppController
 	public function __construct($request, $response, $route=null)
 	{
 		parent::__construct();
+
+		$this->request = $request;
+		$this->response = $response;
 
 		$this->request_uri = $request->SERVER['REQUEST_URI'];
 		$this->request_method = $request->SERVER['REQUEST_METHOD'];

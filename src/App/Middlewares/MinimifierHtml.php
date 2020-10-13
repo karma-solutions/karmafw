@@ -8,28 +8,81 @@ use \KarmaFW\App\Response;
 
 class MinimifierHtml
 {
+    protected $minimify_html;
+    protected $minimify_external_js;
+    protected $minimify_external_css;
+
     
+    public function __construct($minimify_html=true, $minimify_external_js=true, $minimify_external_css=true)
+    {
+        $this->minimify_html = $minimify_html;
+        $this->minimify_external_js = $minimify_external_js;
+        $this->minimify_external_css = $minimify_external_css;
+    }
+
+
     public function __invoke(Request $request, Response $response, callable $next)
     {
         $response = $next($request, $response);
 
-        if (false) {
-            // modify css link files
-            $content = $response->getContent();
-            preg_match_all('#<link [^>]+"([^>]).css"#', $content, $regs);
-            pre($regs, 1);
-            $js_files = $regs[1];
+        
+        $content_type = $response->getContentType();
+        $content_type_short = explode(';', $content_type)[0];
+
+        if ($content_type_short !== 'text/html') {
+            return $response;
         }
 
-        // minimify html
-        $initial_content_length = $response->getContentLength();
-        $content_minimified = self::minify_html($response->getContent());
-        $response->setContent($content_minimified);
-        $final_content_length = $response->getContentLength();
 
-        // add information headers
-        $response->addHeader('X-Unminimified-Content-Length', $initial_content_length);
-        $response->addHeader('X-Minimified-Content-Length', $final_content_length);
+        if ($this->minimify_external_js || $this->minimify_external_css) {
+            // modification à la volée des liens CSS & JS
+            $content = $response->getContent();
+
+            if ($this->minimify_external_css) {
+                // modify CSS link files in HTML content
+                preg_match_all('#<link[^>]+"(/assets/css/[^">]+.css)"[^>]*>#', $content, $regs);
+                $css_files = $regs[1];
+                $suffix = '.phpmin.css';
+                
+                foreach ($css_files as $css_file) {
+                    if (substr($css_file, -8) != '.min.css' && substr($css_file, -11) != '.phpmin.css') {
+                        $replacement = '\1' . $css_file . $suffix . '\2';
+                        $content = preg_replace('#(<link [^>]+")' . preg_quote($css_file) . '("[^>]*>)#', $replacement, $content);
+                    }
+                }
+            }
+
+            if ($this->minimify_external_js) {
+                // modify JS link files in HTML content
+                preg_match_all('#<script[^>]+"(/assets/js/[^">]+.js)"[^>]*>#', $content, $regs);
+                $js_files = $regs[1];
+                $suffix = '.phpmin.js';
+                
+                foreach ($js_files as $js_file) {
+                    if (substr($js_file, -7) != '.min.js' && substr($js_file, -10) != '.phpmin.js') {
+                        $replacement = '\1' . $js_file . $suffix . '\2';
+                        $content = preg_replace('#(<script[^>]+")' . preg_quote($js_file) . '("[^>]*>)#', $replacement, $content);
+                    }
+                }
+            }
+
+            $response->setContent($content);
+        }
+
+
+        if ($this->minimify_html) {
+            // minimify HTML
+            $content = $response->getContent();
+            $content_length = $response->getContentLength();
+
+            $content_minimified = self::minify_html($content);
+            $response->setContent($content_minimified);
+            $content_minimified_length = $response->getContentLength();
+
+            // add information headers
+            $response->addHeader('X-HTML-Unminimified-Content-Length', $content_length);
+            $response->addHeader('X-HTML-Minimified-Content-Length', $content_minimified_length);
+        }
 
         return $response;
     }

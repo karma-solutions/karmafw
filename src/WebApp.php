@@ -154,7 +154,7 @@ class WebApp extends App
 			$template->display($error_template);
 
 		} else {
-			//header("HTTP/1.0 " . $error_code . " " . $title);
+			//header("HTTP/1.0 " . $http_status . " " . $meta_title);
 
 			$output_html = '';
 			$output_html .= '<html>' . PHP_EOL;
@@ -176,7 +176,7 @@ class WebApp extends App
 			echo $output_html;
 		}
 
-		exit;
+		//exit;
 	}
 
 
