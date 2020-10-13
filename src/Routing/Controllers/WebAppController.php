@@ -16,12 +16,12 @@ class WebAppController extends AppController
 	protected $flash;
 
 	
-	public function __construct($request_uri=null, $request_method=null, $route=null)
+	public function __construct($request, $response, $route=null)
 	{
 		parent::__construct();
 
-		$this->request_uri = $request_uri;
-		$this->request_method = $request_method;
+		$this->request_uri = $request->SERVER['REQUEST_URI'];
+		$this->request_method = $request->SERVER['REQUEST_METHOD'];
 		$this->route = $route;
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
