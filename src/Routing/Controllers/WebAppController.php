@@ -3,6 +3,8 @@
 namespace KarmaFW\Routing\Controllers;
 
 use \KarmaFW\WebApp;
+use \KarmaFW\App\Request;
+use \KarmaFW\App\Response;
 use \KarmaFW\Lib\Hooks\HooksManager;
 
 
