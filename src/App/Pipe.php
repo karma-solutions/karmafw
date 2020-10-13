@@ -13,9 +13,10 @@ class Pipe
         $this->services = $services;
     }
 
-    public function run()
+
+    public function process(Request $request, Response $response)
     {
-        
+        return $this->next($request, $response);
     }
 
     public function next(Request $request, Response $response)
