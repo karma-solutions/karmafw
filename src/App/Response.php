@@ -88,6 +88,11 @@ class Response
 		$this->content_type = $content_type;
 	}
 
+	public function getBody()
+	{
+		return $this->getContent(); 
+	}
+
 	public function getContent()
 	{
 		return $this->content;
@@ -147,12 +152,8 @@ class Response
 		}
 
 		if (! empty($this->status)) {
-			// TODO
-
 			$status_name = empty($this->status_name) ? "Unknown http status" : $this->status_name;
-
 			header('HTTP/1.0 ' . $this->status . ' ' . $status_name);
-
 			$this->headers['X-Status'] = $this->status . ' ' . $status_name;
 		}
 

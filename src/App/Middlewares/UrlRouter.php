@@ -4,6 +4,7 @@ namespace KarmaFW\App\Middlewares;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
+use \KarmaFW\App\ResponseError;
 use \KarmaFW\App\ResponseError404;
 use \KarmaFW\App\ResponseRedirect;
 use \KarmaFW\App\ResponseFile;
@@ -38,8 +39,16 @@ class UrlRouter
 			$response = $next($request, $response);
 
 		} catch (\Throwable $e) {
-			echo "UrlRouter CATCHED EXCEPTION" . PHP_EOL; // TODO
-			print_r($e);
+			$content = null;
+
+			if (ENV == 'dev') {
+				$title = "UrlRouter CATCHED EXCEPTION";
+				$message = '<pre>' . print_r($e, true) . '</pre>';
+				$content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+			}
+
+			//throw $e;			
+			return new ResponseError(500, $content);
 		}
 
 		return $response;

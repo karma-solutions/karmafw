@@ -9,7 +9,9 @@ use \KarmaFW\Database\Sql\SqlDb;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
+use \KarmaFW\App\ResponseError;
 use \KarmaFW\App\Pipe;
+use \KarmaFW\App\Container;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -34,11 +36,13 @@ class App
 
 	protected static $instance = null;
 	protected $middlewares;
+	protected $container;
 
 
 	public function __construct($middlewares=[])
 	{
 		$this->middlewares = $middlewares;
+		$this->container = new Container;
 		self::$instance = $this;
 
 		try {
@@ -77,7 +81,8 @@ class App
 		}
 
 		if (! defined('ENV')) {
-			define('ENV', 'prod');
+			$env = defined('ENVIRONMENT') ? ENVIRONMENT : 'prod';
+			define('ENV', $env);
 		}
 
 		if (! defined('DB_DSN')) {
@@ -105,15 +110,16 @@ class App
 			$response = $pipe->next($request, $response);
 
 		} catch (\Exception $e) {
-			header("HTTP/1.0 500 Internal Server Error");
-			echo "<h1>Server error</h1>";
+            $content = null;
 
-			if (ENV === 'dev') {
-				echo "<pre>";
-				print_r($e);
-				echo "</pre>";
-			}
-			exit;
+            if (ENV == 'dev') {
+                $title = "App CATCHED EXCEPTION";
+                $message = '<pre>' . print_r($e, true) . '</pre>';
+                $content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+            }
+
+            //throw $e;
+            return new ResponseError(500, $content); 
 		}
 
 		return $response;
@@ -212,16 +218,35 @@ class App
 	}
 
 	
+	public function get($key, $default_value=null)
+	{
+		return isset($this->container[$key]) ? $this->container[$key] : $default_value;
+	}
+
+	public function set($key, $value)
+	{
+		$this->container[$key] = $value;
+	}
+
+    public function has($name)
+    {
+        return isset($this->container[$name]);
+    }
+
+
+    // DEPRECATED
 	public static function setData($key, $value=null)
 	{
 		self::$data[$key] = $value;
 	}
 
+	// DEPRECATED
 	public static function getData($key, $default_value=null)
 	{
 		return array_key_exists($key, self::$data) ? self::$data[$key] : $default_value;
 	}
 
+	// DEPRECATED
 	public static function hasData($key)
 	{
 		return array_key_exists($key, self::$data);
@@ -256,6 +281,15 @@ class App
 			require $helper;
 		}
 
+	}
+
+
+	public static function getApp()
+	{
+		if (isset(self::$instance)) {
+			return self::$instance;
+		}
+		throw new Exception("App is not instancied", 1);
 	}
 
 
