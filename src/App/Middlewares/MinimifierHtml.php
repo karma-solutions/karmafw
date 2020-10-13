@@ -13,13 +13,21 @@ class MinimifierHtml
     {
         $response = $next($request, $response);
 
-        $initial_content_length = $response->getContentLength();
+        if (false) {
+            // modify css link files
+            $content = $response->getContent();
+            preg_match_all('#<link [^>]+"([^>]).css"#', $content, $regs);
+            pre($regs, 1);
+            $js_files = $regs[1];
+        }
 
+        // minimify html
+        $initial_content_length = $response->getContentLength();
         $content_minimified = self::minify_html($response->getContent());
         $response->setContent($content_minimified);
-        
         $final_content_length = $response->getContentLength();
 
+        // add information headers
         $response->addHeader('X-Unminimified-Content-Length', $initial_content_length);
         $response->addHeader('X-Minimified-Content-Length', $final_content_length);
 
