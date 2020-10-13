@@ -24,7 +24,10 @@ if (! defined('APP_DIR')) {
 class App
 {
 	protected static $booted = false;
-	protected static $helpers_dirs = [APP_DIR . "/src/helpers", FW_SRC_DIR . "/helpers"];
+	protected static $helpers_dirs = [
+		APP_DIR . "/src/helpers",
+		FW_SRC_DIR . "/helpers",
+	];
 
 	public static $db = null;
 	public static $data = [];
@@ -152,10 +155,12 @@ class App
 
 
 		// move fw_helpers at the end of the list (to be loaded the last one)
+		/*
 		if (count(self::$helpers_dirs) > 1) {
 			$fw_helpers = array_shift(self::$helpers_dirs);
 			self::$helpers_dirs[] = $fw_helpers;
 		}
+		*/
 
 		// include helpers
 		foreach (self::$helpers_dirs as $helpers_dir) {
