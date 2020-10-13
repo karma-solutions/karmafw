@@ -9,6 +9,7 @@ use \KarmaFW\Database\Sql\SqlDb;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
+use \KarmaFW\App\ResponseError;
 use \KarmaFW\App\Pipe;
 use \KarmaFW\App\Container;
 
@@ -80,7 +81,8 @@ class App
 		}
 
 		if (! defined('ENV')) {
-			define('ENV', 'prod');
+			$env = defined('ENVIRONMENT') ? ENVIRONMENT : 'prod';
+			define('ENV', $env);
 		}
 
 		if (! defined('DB_DSN')) {
@@ -108,15 +110,16 @@ class App
 			$response = $pipe->next($request, $response);
 
 		} catch (\Exception $e) {
-			header("HTTP/1.0 500 Internal Server Error");
-			echo "<h1>Server error</h1>";
+            $content = null;
 
-			if (ENV === 'dev') {
-				echo "<pre>";
-				print_r($e);
-				echo "</pre>";
-			}
-			exit;
+            if (ENV == 'dev') {
+                $title = "App CATCHED EXCEPTION";
+                $message = '<pre>' . print_r($e, true) . '</pre>';
+                $content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+            }
+
+            //throw $e;
+            return new ResponseError(500, $content); 
 		}
 
 		return $response;

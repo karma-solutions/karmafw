@@ -2,6 +2,13 @@
 
 namespace KarmaFW\App;
 
+//use \KarmaFW\App\Request;
+//use \KarmaFW\App\Response;
+
+
+// https://mnapoli.fr/presentations/forumphp-middlewares/
+// https://github.com/oscarotero/psr7-middlewares
+
 
 class Pipe
 {
