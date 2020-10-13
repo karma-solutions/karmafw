@@ -12,7 +12,7 @@ class Response
 	protected $content_type = '';
 	protected $headers_sent = false;
 
-	public const http_status_codes = [
+	/* public */ const http_status_codes = [
 		100 => 'Continue',
 		101 => 'Switching Protocols',
 		102 => 'Processing',
