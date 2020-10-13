@@ -31,7 +31,6 @@ $app = new App([
     //new KarmaMiddlewares\ForceHttps,
     //new KarmaMiddlewares\GzipEncoding,
     //new KarmaMiddlewares\MaintenanceMode,
-    new KarmaMiddlewares\LoadHelpers,
     new KarmaMiddlewares\SessionHandler,
     //'handle404',
     //'Authentification',

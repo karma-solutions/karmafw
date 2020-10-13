@@ -23,9 +23,13 @@ class CommandRouter
 	{
 		$arguments = array_slice($this->argv, 0);
 		$script_name = array_shift($arguments);
-		$command_name = array_shift($arguments);
-		$class_name = implode('', array_map('ucfirst', explode("_", $command_name)));
 
+		$command_name = array_shift($arguments);
+		if (in_array($command_name, ['-h', '--help', '-help'])) {
+			$command_name = 'help';
+		}
+		
+		$class_name = implode('', array_map('ucfirst', explode("_", $command_name)));
 
 		if (! empty($class_name)) {
 			$class_user = '\\App\\Commands\\' . $class_name;
@@ -36,8 +40,20 @@ class CommandRouter
 				$command = new $class_user($request, $response);
 				$command->execute($arguments);
 
+			} else if (class_exists($class_user . "Command")) {
+				// User command
+				$class_user .= "Command";
+				$command = new $class_user($request, $response);
+				$command->execute($arguments);
+
 			} else if (class_exists($class_fw)) {
 				// Framework command
+				$command = new $class_fw($request, $response);
+				$command->execute($arguments);
+
+			} else if (class_exists($class_fw . "Command")) {
+				// Framework command
+				$class_fw .= "Command";
 				$command = new $class_fw($request, $response);
 				$command->execute($arguments);
 

@@ -54,7 +54,7 @@ class App
 			}
 			exit;
 		}
-		
+
 	}
 
 
@@ -235,13 +235,11 @@ class App
 
 	protected static function loadHelpersDirs()
 	{
-		//echo 'avant';
 		if (is_array(self::$helpers_dirs)) {
 			foreach (self::$helpers_dirs as $helpers_dir) {
 				self::loadHelpers($helpers_dir);
 			}
 		}
-		//pre('apres');
 	}
 
 	protected static function loadHelpers($dir)
