@@ -14,7 +14,8 @@ class ResponseError extends Response
 		parent::__construct($content, $content_type);
 
 		if (is_null($content)) {
-			$this->content = '<h1>' . $this->status_name . '</h1>';
+			$this->content  = '<title>' . $this->status . " " . $this->status_name . '</title>';
+			$this->content .= '<h1>' . $this->status . " " . $this->status_name . '</h1>';
 		}
 
 		$this->setStatus($status);

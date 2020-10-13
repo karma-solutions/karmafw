@@ -13,30 +13,25 @@ class ResponseRedirect extends Response
 	{
 		parent::__construct('', null); // $content, $content_type
 
-		$this->setStatus($status)
+		$this->setStatus($status);
 		$this->url = $url;
 	}
 
+
 	public function sendHeaders()
 	{
-		if ($this->headers_sent) {
-			error_log("Warning: headers already sent");
+		if ($this->headers_sent || headers_sent()) {
+			//error_log("Warning: headers already sent");
+			$this->content = '<meta http-equiv="refresh" content="0;URL=' . htmlspecialchars($this->url) . '">';
+			//$this->content = '<script>window.location.href = "' . $this->url . '";</script>';
 			return;
 		}
+
+		$this->content = '';
 
 		$this->headers['Location'] = $this->url;
 
 		parent::sendHeaders();
 	}
-
-	public function send()
-	{
-		if ($this->headers_sent) {
-			// Warning: redirect may not work
-		}
-
-		$this->sendHeaders();
-	}
-
 
 }

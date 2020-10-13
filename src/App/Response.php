@@ -137,7 +137,12 @@ class Response
 	public function sendHeaders()
 	{
 		if ($this->headers_sent) {
+			//error_log("Warning: headers already sent");
+			return;
+
+		} else if (headers_sent()) {
 			error_log("Warning: headers already sent");
+			$this->headers_sent = true;
 			return;
 		}
 
@@ -147,20 +152,22 @@ class Response
 			$status_name = empty($this->status_name) ? "Unknown http status" : $this->status_name;
 
 			header('HTTP/1.0 ' . $this->status . ' ' . $status_name);
-			$this->headers['Status'] = 'HTTP/1.0 ' . $this->status . ' ' . $status_name;
 
-			$this->headers['X-Status'] = $this->status;
+			$this->headers['X-Status'] = $this->status . ' ' . $status_name;
 		}
 
 		if (empty($this->headers['Content-Type']) && ! empty($this->content_type)) {
 			$this->headers['Content-Type'] = $this->content_type;
 		}
+
 		if (empty($this->headers['Content-Length'])) {
 			$this->headers['Content-Length'] = $this->getContentLength();
 		}
+
 		foreach ($this->headers as $k => $v) {
 			header($k . ": " . $v);
 		}
+
 		$this->headers_sent = true;
 	}
 
