@@ -4,24 +4,32 @@ namespace KarmaFW\App\Middlewares;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
+use \KarmaFW\App\ResponseRedirect;
 
 
 class ForceHttps
 {
-	
+	protected $redirect_status = 302;
+	protected $redirect_domains = []; // example.com, www.example.com, example.fr, www.example.fr
+
+
+	public function __construct($redirect_status=302, $redirect_domains=[])
+	{
+		$this->redirect_status = $redirect_status;
+		$this->redirect_domains = $redirect_domains;
+	}
+
+
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
-		/*
-		print_r($request); throw new Exception("DEBUG ME", 1);
-		
+		if (! $request->isSecure()) {
+			
+			if (empty($this->redirect_domains) || in_array($request->SERVER['SERVER_NAME'], $this->redirect_domains)) {
+				$redirect_url = 'https://' . $request->SERVER['SERVER_NAME'] . $request->SERVER['REQUEST_URI'];
+				return new ResponseRedirect($redirect_url, $this->redirect_status);
+			}
 
-		$is_ssl = false; // TODO
-		if (! $is_ssl) {
-			$redirect_url = 'https://' . $request->SERVER['SERVER_NAME'] . $request->SERVER['REQUEST_URI'] . (empty($request->SERVER['QUERY_STRING']) ? '' : ('?' . $request->SERVER['QUERY_STRING']));
-			$status = 302;
-			return new ResponseRedirect($redirect_url, $status);
 		}
-		*/
 
 		return $next($request, $response);
 	}

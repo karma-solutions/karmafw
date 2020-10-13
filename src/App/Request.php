@@ -7,6 +7,7 @@ class Request
 {
 	protected $url = null;
 	protected $method = null;
+	protected $client_ip = null;
 	public $GET = null;
 	public $POST = null;
 	public $COOKIE = null;
@@ -20,14 +21,29 @@ class Request
 	{
 		$this->url = $url;
 		$this->method = $method;
+
+		//print_r($_SERVER); exit;
 	}
 
 
 	public static function createFromArgv()
 	{
 		// TODO
-		//$request = new self($url, $method);
-		//return $request;
+		$request = new self(null, null);
+
+
+		$request->GET = isset($_GET) ? $_GET : [];
+		$request->POST = isset($_POST) ? $_POST : [];
+		$request->COOKIE = isset($_COOKIE) ? $_COOKIE : [];
+		$request->SESSION = isset($_SESSION) ? $_SESSION : [];
+		$request->ENV = isset($_ENV) ? $_ENV : [];
+		$request->FILES = isset($_FILES) ? $_FILES : [];
+		$request->SERVER = isset($_SERVER) ? $_SERVER : [];
+
+		$client_ip = null;
+		$request->setClientIp($client_ip);
+		
+		return $request;
 	}
 
 
@@ -55,6 +71,24 @@ class Request
 		$request->FILES = isset($_FILES) ? $_FILES : [];
 		$request->SERVER = isset($_SERVER) ? $_SERVER : [];
 
+
+		// Set Server name (if behind a proxy)
+		if (! empty($request->SERVER['HTTP_X_FORWARDED_HOST'])) {
+			// if "ProxyPreserveHost On" is not set in apache
+			$request->SERVER['HTTP_HOST']   = $request->SERVER['HTTP_X_FORWARDED_HOST'];
+			$request->SERVER['SERVER_NAME'] = $request->SERVER['HTTP_X_FORWARDED_HOST'];
+		}
+
+		// Set Client IP
+		$client_ip = null;
+		if (! empty($request->SERVER['REMOTE_ADDR'])) {
+			$client_ip = $request->SERVER['REMOTE_ADDR'];
+		}
+		if (! empty($request->SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$client_ip = $request->SERVER['HTTP_X_FORWARDED_FOR'];
+		}
+		$request->setClientIp($client_ip);
+
 		return $request;
 	}
 
@@ -67,6 +101,24 @@ class Request
 	public function getMethod()
 	{
 		return $this->method;
+	}
+
+	public function getClientIp()
+	{
+		return $this->client_ip;
+	}
+
+	public function setClientIp($client_ip)
+	{
+		$this->client_ip = $client_ip;
+	}
+
+	public function isSecure()
+	{
+		return (! empty($this->SERVER['HTTPS']) && $this->SERVER['HTTPS'] == 'On')
+		    || (! empty($this->SERVER['REQUEST_SCHEME']) && $this->SERVER['REQUEST_SCHEME'] == 'https')
+		    || (! empty($this->SERVER['HTTP_X_FORWARDED_HTTPS']) && $this->SERVER['HTTP_X_FORWARDED_HTTPS'] == 'On')
+		    || (! empty($this->SERVER['HTTP_X_FORWARDED_SCHEME']) && $this->SERVER['HTTP_X_FORWARDED_SCHEME'] == 'https');
 	}
 
 	/*
