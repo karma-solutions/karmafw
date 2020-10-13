@@ -3,6 +3,8 @@
 namespace KarmaFW\Routing\Controllers;
 
 use \KarmaFW\App;
+use \KarmaFW\App\Request;
+use \KarmaFW\App\Response;
 use \KarmaFW\Lib\Hooks\HooksManager;
 
 
@@ -11,7 +13,7 @@ class AppController
 	protected $db = null;
 
 
-	public function __construct()
+	public function __construct(Request $request, Response $response)
 	{
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {

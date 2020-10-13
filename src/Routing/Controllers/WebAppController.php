@@ -3,6 +3,8 @@
 namespace KarmaFW\Routing\Controllers;
 
 use \KarmaFW\WebApp;
+use \KarmaFW\App\Request;
+use \KarmaFW\App\Response;
 use \KarmaFW\Lib\Hooks\HooksManager;
 
 
@@ -19,9 +21,9 @@ class WebAppController extends AppController
 	protected $flash;
 
 	
-	public function __construct($request, $response, $route=null)
+	public function __construct(Request $request, Response $response, $route=null)
 	{
-		parent::__construct();
+		parent::__construct($request, $response);
 
 		$this->request = $request;
 		$this->response = $response;
