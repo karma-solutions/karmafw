@@ -10,6 +10,7 @@ use \KarmaFW\Database\Sql\SqlDb;
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
 use \KarmaFW\App\Pipe;
+use \KarmaFW\App\Container;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -34,11 +35,13 @@ class App
 
 	protected static $instance = null;
 	protected $middlewares;
+	protected $container;
 
 
 	public function __construct($middlewares=[])
 	{
 		$this->middlewares = $middlewares;
+		$this->container = new Container;
 		self::$instance = $this;
 
 		try {
@@ -212,16 +215,35 @@ class App
 	}
 
 	
+	public function get($key, $default_value=null)
+	{
+		return isset($this->container[$key]) ? $this->container[$key] : $default_value;
+	}
+
+	public function set($key, $value)
+	{
+		$this->container[$key] = $value;
+	}
+
+    public function has($name)
+    {
+        return isset($this->container[$name]);
+    }
+
+
+    // DEPRECATED
 	public static function setData($key, $value=null)
 	{
 		self::$data[$key] = $value;
 	}
 
+	// DEPRECATED
 	public static function getData($key, $default_value=null)
 	{
 		return array_key_exists($key, self::$data) ? self::$data[$key] : $default_value;
 	}
 
+	// DEPRECATED
 	public static function hasData($key)
 	{
 		return array_key_exists($key, self::$data);
@@ -256,6 +278,15 @@ class App
 			require $helper;
 		}
 
+	}
+
+
+	public static function getApp()
+	{
+		if (isset(self::$instance)) {
+			return self::$instance;
+		}
+		throw new Exception("App is not instancied", 1);
 	}
 
 
