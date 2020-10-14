@@ -217,6 +217,8 @@ class Router
 			$match = $route->match($request_method, $request_uri);
 
 			if ($match) {
+				$request->setRoute($route);
+
 				$before_callback = $route->getBeforeCallback();
 				if (! empty($before_callback)) {
 					$before_callback($route);

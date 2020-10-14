@@ -21,7 +21,7 @@ class WebAppController extends AppController
 	protected $flash;
 
 	
-	public function __construct(Request $request, Response $response, $route=null)
+	public function __construct(Request $request, Response $response)
 	{
 		parent::__construct($request, $response);
 
@@ -30,7 +30,8 @@ class WebAppController extends AppController
 
 		$this->request_uri = $request->SERVER['REQUEST_URI'];
 		$this->request_method = $request->SERVER['REQUEST_METHOD'];
-		$this->route = $route;
+		$this->route = $request->getRoute();
+		
 
 		if (defined('USE_HOOKS') && USE_HOOKS) {
 			HooksManager::applyHook('webcontroller.before', [$this]);

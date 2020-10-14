@@ -74,7 +74,7 @@ class Response
 	{
 		$this->status = $status;
 
-		$status_name = isset(self::http_status_codes[$status]) ? self::http_status_codes[$status] : "Unknown status";
+		$status_name = ! empty(self::http_status_codes[$status]) ? self::http_status_codes[$status] : "Unknown status";
 		$this->status_name = $status_name;
 	}
 

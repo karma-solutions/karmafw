@@ -2,12 +2,15 @@
 
 namespace KarmaFW\App;
 
+use \KarmaFW\Routing\Route;
+
 
 class Request
 {
 	protected $url = null;
 	protected $method = null;
 	protected $client_ip = null;
+	protected $route = null;
 	public $GET = null;
 	public $POST = null;
 	public $COOKIE = null;
@@ -17,7 +20,7 @@ class Request
 	public $SERVER = null;
 
 
-	public function __construct($url, $method)
+	public function __construct($url=null, $method=null)
 	{
 		$this->url = $url;
 		$this->method = $method;
@@ -111,6 +114,16 @@ class Request
 	public function setClientIp($client_ip)
 	{
 		$this->client_ip = $client_ip;
+	}
+
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	public function setRoute(Route $route)
+	{
+		$this->route = $route;
 	}
 
 	public function isSecure()
