@@ -95,7 +95,8 @@ class App
 
 
 		if (defined('DB_DSN')) {
-			self::$db = static::getDb();
+			self::$db = static::getDb('default', DB_DSN);
+			//self::$db->execute("set names utf8");
 		}
 
 	}
