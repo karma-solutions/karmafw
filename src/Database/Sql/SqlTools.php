@@ -30,40 +30,49 @@ class SqlTools
                 'user' => '',
                 'passwd' => '',
                 'db' => '',
+                'charset' => '',
             ];
         }
 
-        $parts0 = explode(':', $dsn);
-        $driver = $parts0[0];
 
-        $parts1 = explode('/', $dsn);
-        $user_passwd_host_port = $parts1[2];
-        $db = ! empty($parts1[3]) ? $parts1[3] : null;
+        $parts0 = explode('?', $dsn);
+        $dsn_url = $parts0[0];
+        $querystring = isset($parts0[1]) ? $parts0[1] : '';
+        parse_str($querystring, $GET);
+        $charset = isset($GET['charset']) ? $GET['charset'] : '';
 
-        $parts2 = explode('@', $user_passwd_host_port);
-        if (count($parts2) > 1) {
+
+        $parts1 = explode(':', $dsn_url);
+        $driver = $parts1[0];
+
+        $parts2 = explode('/', $dsn_url);
+        $user_passwd_host_port = $parts2[2];
+        $db = ! empty($parts2[3]) ? $parts2[3] : null;
+
+        $parts3 = explode('@', $user_passwd_host_port);
+        if (count($parts3) > 1) {
             // USER (AND OPTIONNALY PASSWORD) IS DEFINED
             // mysql://user@host/database
             // mysql://user@host:port/database
             // mysql://user:password@host/database
             // mysql://user:password@host:port/database
-            $user_password = $parts2[0];
-            $host_port = $parts2[1];
+            $user_password = $parts3[0];
+            $host_port = $parts3[1];
         } else {
             // USER AND PASSWORD ARE NOT DEFINED
             // mysql://host/database
             // mysql://host:port/database
             $user_password = '';
-            $host_port = $parts2[0];
+            $host_port = $parts3[0];
         }
 
-        $parts3 = explode(':', $host_port);
-        $host = $parts3[0];
-        if (count($parts3) > 1) {
+        $parts4 = explode(':', $host_port);
+        $host = $parts4[0];
+        if (count($parts4) > 1) {
             // HOST AND PORT ARE DEFINED
             // mysql://user@host:port/database
             // mysql://user:password@host:port/database
-            $port = $parts3[1];
+            $port = $parts4[1];
         } else {
             // HOST IS DEFINED. PORT IS NOT DEFINED
             // mysql://user@host/database
@@ -71,13 +80,13 @@ class SqlTools
             $port = 3306;
         }
 
-        $parts4 = explode(':', $user_password);
-        $user = $parts4[0];
-        if (count($parts4) > 1) {
+        $parts5 = explode(':', $user_password);
+        $user = $parts5[0];
+        if (count($parts5) > 1) {
             // USER AND PASSWORD ARE DEFINED
             // mysql://user:password@host/database
             // mysql://user:password@host:port/database
-            $passwd = $parts4[1];
+            $passwd = $parts5[1];
         } else {
             // USER IS DEFINED. PASSWORD IS NOT DEFINED
             // mysql://user@host/database
@@ -92,6 +101,7 @@ class SqlTools
             'user' => $user,
             'passwd' => $passwd,
             'db' => $db,
+            'charset' => $charset,
         ];
     }
 

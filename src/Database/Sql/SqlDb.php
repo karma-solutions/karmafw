@@ -32,6 +32,11 @@ class SqlDb
 
 		$this->driver = new $driver_class($this, $credentials);
 
+		if (! empty($credentials['charset'])) {
+			$charset = $credentials['charset'];
+			$this->execute("set names " . $charset);
+		}
+
 	}
 
 
