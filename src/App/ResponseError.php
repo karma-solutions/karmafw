@@ -3,19 +3,19 @@
 namespace KarmaFW\App;
 
 
-class ResponseError extends Response
+class ResponseError extends ResponseText
 {
 	protected $status = 500;
-	protected $status_name = 'Server Error';
+	protected $reasonPhrase = 'Server Error';
 
 
-	public function __construct($status=500, $content=null, $content_type='text/html')
+	public function __construct($status=500, $body=null, $content_type='text/html')
 	{
-		parent::__construct($content, $content_type);
+		parent::__construct($body, $status, $content_type);
 
-		if (is_null($content)) {
-			$this->content  = '<title>' . $this->status . " " . $this->status_name . '</title>';
-			$this->content .= '<h1>' . $this->status . " " . $this->status_name . '</h1>';
+		if (is_null($body)) {
+			$this->body  = '<title>' . $this->status . " " . $this->reasonPhrase . '</title>';
+			$this->body .= '<h1>' . $this->status . " " . $this->reasonPhrase . '</h1>';
 		}
 
 		$this->setStatus($status);

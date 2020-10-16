@@ -2,15 +2,18 @@
 
 namespace KarmaFW\App;
 
+// TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Response
+
 
 class Response
 {
 	protected $headers = [];
-	protected $content = '';
+	protected $body = '';
 	protected $status = 200;
-	protected $status_name = 'OK';
+	protected $reasonPhrase = 'OK';
 	protected $content_type = '';
 	protected $headers_sent = false;
+	protected $protocol = null;
 
 	/* public */ const http_status_codes = [
 		100 => 'Continue',
@@ -54,28 +57,34 @@ class Response
 	];
 
 
-	public function __construct($content='', $content_type='text/html')
+	public function __construct($status=200, array $headers=[], $body=null, $version='1.1', $reason=null) // Psr7
 	{
-		$this->content = $content;
-		$this->content_type = $content_type;
+		$this->body = $body;
+		$this->setStatus($status);
+		$this->setheaders($headers);
+
+        $this->protocol = $version;
 	}
+	//public ResponseText::__construct($body=null, $content_type='text/plain', $status=200) { return Response($status, ['Content-Type' => $content_type], $body); }
+	//public ResponseHtml::__construct($body=null, $status=200) { return ResponseText($body, 'html', $status); }
+
 
 	public function getStatus()
 	{
 		return $this->status;
 	}
 
-	public function getStatusName()
+	public function getReasonPhrase()
 	{
-		return $this->status_name;
+		return $this->reasonPhrase;
 	}
 
 	public function setStatus($status=200)
 	{
 		$this->status = $status;
 
-		$status_name = ! empty(self::http_status_codes[$status]) ? self::http_status_codes[$status] : "Unknown status";
-		$this->status_name = $status_name;
+		$reasonPhrase = ! empty(self::http_status_codes[$status]) ? self::http_status_codes[$status] : "Unknown status";
+		$this->reasonPhrase = $reasonPhrase;
 	}
 
 	public function getContentType()
@@ -88,34 +97,41 @@ class Response
 		$this->content_type = $content_type;
 	}
 
-	public function getBody()
-	{
-		return $this->getContent(); 
-	}
-
 	public function getContent()
 	{
-		return $this->content;
+		// DEPRECATED
+		return $this->getBody(); 
+	}
+
+	public function getBody()
+	{
+		return $this->body;
 	}
 
 	public function getContentLength()
 	{
-		return strlen($this->content);
+		return strlen($this->body);
 	}
 
-	public function setContent($content)
+	public function setContent($body)
 	{
-		$this->content = $content;
+		// DEPRECATED
+		return $this->setBody($body);
 	}
 
-	public function append($content)
+	public function setBody($body)
 	{
-		$this->content .= $content;
+		$this->body = $body;
 	}
 
-	public function prepend($content)
+	public function append($body)
 	{
-		$this->content = $content . $this->content;
+		$this->body .= $body;
+	}
+
+	public function prepend($body)
+	{
+		$this->body = $body . $this->body;
 	}
 
 	public function getHeaders()
@@ -152,9 +168,9 @@ class Response
 		}
 
 		if (! empty($this->status)) {
-			$status_name = empty($this->status_name) ? "Unknown http status" : $this->status_name;
-			header('HTTP/1.0 ' . $this->status . ' ' . $status_name);
-			$this->headers['X-Status'] = $this->status . ' ' . $status_name;
+			$reasonPhrase = empty($this->reasonPhrase) ? "Unknown http status" : $this->reasonPhrase;
+			header('HTTP/1.0 ' . $this->status . ' ' . $reasonPhrase);
+			$this->headers['X-Status'] = $this->status . ' ' . $reasonPhrase;
 		}
 
 		if (empty($this->headers['Content-Type']) && ! empty($this->content_type)) {
@@ -181,8 +197,8 @@ class Response
 			$this->sendHeaders();
 		}
 
-		if (strlen($this->content) > 0) {
-			echo $this->content;
+		if (strlen($this->body) > 0) {
+			echo $this->body;
 		}
 	}
 

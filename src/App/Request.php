@@ -4,13 +4,17 @@ namespace KarmaFW\App;
 
 use \KarmaFW\Routing\Route;
 
+// TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Request
 
 class Request
 {
-	protected $url = null;
 	protected $method = null;
+	protected $url = null;
+	protected $protocol = null;
+
 	protected $client_ip = null;
 	protected $route = null;
+
 	public $GET = null;
 	public $POST = null;
 	public $COOKIE = null;
@@ -20,10 +24,13 @@ class Request
 	public $SERVER = null;
 
 
-	public function __construct($url=null, $method=null)
+	//public function __construct($url=null, $method=null)
+	public function __construct($method, $url, array $headers=[], $body=null, $version='1.1')
 	{
 		$this->url = $url;
-		$this->method = $method;
+		$this->method = strtoupper($method);
+		$this->protocol = $version;
+		//$this->setHeaders($headers);
 
 		//print_r($_SERVER); exit;
 	}
@@ -52,10 +59,14 @@ class Request
 
 	public static function createFromGlobals()
 	{
-		$url = isset($_SERVER['REQUEST_URI']) ? explode("?", $_SERVER['REQUEST_URI'])[0] : null;
 		$method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null;
+		
+		//$url = isset($_SERVER['REQUEST_URI']) ? explode("?", $_SERVER['REQUEST_URI'])[0] : null;
+		$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
 
-		$request = new self($url, $method);
+
+		$request = new self($method, $url);
+
 		/*
 		$request->setGet(isset($_GET) ? $_GET : []);
 		$request->setPost(isset($_POST) ? $_POST : []);
