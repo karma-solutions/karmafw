@@ -11,9 +11,8 @@ class ResponseRedirect extends Response
 
 	public function __construct($url, $status=302)
 	{
-		parent::__construct('', null); // $content, $content_type
+		parent::__construct($status);
 
-		$this->setStatus($status);
 		$this->url = $url;
 	}
 

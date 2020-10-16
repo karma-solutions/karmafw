@@ -39,16 +39,29 @@ class UrlRouter
 			$response = $next($request, $response);
 
 		} catch (\Throwable $e) {
+			$code = $e->getCode();
+			$error_message = $e->getMessage();
+
+			//throw $e;
 			$content = null;
 
 			if (ENV == 'dev') {
-				$title = "UrlRouter CATCHED EXCEPTION";
-				$message = '<pre>' . print_r($e, true) . '</pre>';
-				$content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+				//$title = "UrlRouter CATCHED EXCEPTION";
+				//$message = '<pre>' . print_r($e, true) . '</pre>';
+				//$content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+				//$error_message .= PHP_EOL . '<pre>' . print_r($e, true) . '</pre>';
 			}
 
-			//throw $e;			
-			return new ResponseError(500, $content);
+			if (in_array($code, [301, 302, 310])) {
+				$url = $error_message;
+				return new ResponseRedirect($url, $code);
+			}
+
+			if ($code == 404) {
+				return new ResponseError404($error_message);
+			}
+
+			return new ResponseError(500, $error_message);
 		}
 
 		return $response;

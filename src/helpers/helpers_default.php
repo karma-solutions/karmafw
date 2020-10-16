@@ -54,6 +54,7 @@ if (! function_exists('redirect')) {
 			exit;
 		}
 		header('Location: ' . $url, true, $http_code);
+		throw new \Exception($url, $http_code);
 		exit;
 	}
 }

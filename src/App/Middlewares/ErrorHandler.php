@@ -5,6 +5,7 @@ namespace KarmaFW\App\Middlewares;
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
 use \KarmaFW\App\ResponseError;
+use \KarmaFW\App\ResponseError404;
 
 
 class ErrorHandler
@@ -25,15 +26,22 @@ class ErrorHandler
             $response = $next($request, $response);
 
         } catch (\Throwable $e) {
+            $code = $e->getCode();
+            $error_message = $e->getMessage();
+            
+            //throw $e;
             $content = null;
 
             if (ENV == 'dev') {
-                $title = "ErrorHandler CATCHED EXCEPTION";
-                $message = '<pre>' . print_r($e, true) . '</pre>';
-                $content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+                //$title = "ErrorHandler CATCHED EXCEPTION";
+                //$message = '<pre>' . print_r($e, true) . '</pre>';
+                //$content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
             }
 
-            //throw $e;
+            if ($code == 404) {
+                return new ResponseError404($error_message);
+            }
+
             return new ResponseError(500, $content);
         }
 
