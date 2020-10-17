@@ -2,9 +2,8 @@
 
 namespace KarmaFW\App\Middlewares;
 
-use \KarmaFW\App\Request;
-use \KarmaFW\App\Response;
-use \KarmaFW\App\ResponseRedirect;
+use \KarmaFW\Http\Request;
+use \KarmaFW\Http\Response;
 
 
 class RedirectToDomain

@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\App;
+namespace KarmaFW\Http;
 
 use \KarmaFW\Routing\Route;
 

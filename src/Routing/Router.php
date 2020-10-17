@@ -3,8 +3,8 @@
 namespace KarmaFW\Routing;
 
 use \KarmaFW\WebApp;
-use \KarmaFW\App\Request;
-use \KarmaFW\App\Response;
+use \KarmaFW\Http\Request;
+use \KarmaFW\Http\Response;
 
 
 class Router

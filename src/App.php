@@ -2,25 +2,9 @@
 
 namespace KarmaFW;
 
-use \KarmaFW\Routing\Router;
 use \KarmaFW\Lib\Hooks\HooksManager;
 use \KarmaFW\Database\Sql\SqlDb;
 //use \KarmaFW\Database\Sql\SqlOrmModel;
-
-use \KarmaFW\App\Request;
-use \KarmaFW\App\Response;
-use \KarmaFW\App\Pipe;
-use \KarmaFW\App\Container;
-
-
-define('FW_SRC_DIR', __DIR__);
-define('FW_DIR', __DIR__ . "/..");
-
-if (! defined('APP_DIR')) {
-	echo "ERROR: Please, define APP_DIR" . PHP_EOL;
-	exit(1);
-}
-
 
 class App
 {
@@ -33,107 +17,21 @@ class App
 	public static $db = null;
 	public static $data = [];
 
-	protected static $instance = null;
-	protected $middlewares;
-	protected $container;
-
-
-	public function __construct($middlewares=[])
-	{
-		$this->middlewares = $middlewares;
-		$this->container = new Container;
-		self::$instance = $this;
-
-		try {
-			$this->configure();
-
-			self::loadHelpersDirs();
-
-		} catch (\Exception $e) {
-			header("HTTP/1.0 500 Internal Server Error");
-			echo "<h1>Server error</h1>";
-
-			if (ENV === 'dev') {
-				echo "<pre>";
-				print_r($e);
-				echo "</pre>";
-			}
-			exit;
-		}
-
-	}
-
-
-	public function configure()
-	{
-		if (is_file(APP_DIR . '/config/config.php')) {
-			require APP_DIR . '/config/config.php';
-		}
-
-
-		if (! defined('APP_NAME')) {
-			define('APP_NAME', "PHP Application");
-		}
-
-		if (! defined('TPL_DIR')) {
-			//define('TPL_DIR', APP_DIR . '/templates');
-		}
-
-		if (! defined('ENV')) {
-			$env = defined('ENVIRONMENT') ? ENVIRONMENT : 'prod';
-			define('ENV', $env);
-		}
-
-		if (! defined('DB_DSN')) {
-			//define('DB_DSN', 'mysql://root@localhost/my_app');
-		}
-
-		if (! defined('ERROR_TEMPLATE')) {
-			//define('ERROR_TEMPLATE', "page_error.tpl.php");
-		}
-
-
-		if (defined('DB_DSN')) {
-			self::$db = static::getDb('default', DB_DSN);
-			//self::$db->execute("set names utf8");
-		}
-
-	}
-
-
-	public function handle($request)
-	{
-		try {
-			$response = new Response(200, [], null);
-			$pipe = new Pipe($this->middlewares);
-
-			$response = $pipe->next($request, $response);
-
-		} catch (\Exception $e) {
-            $error_code = $e->getCode();
-            $error_message = $e->getMessage();
-
-            error_log("[App] Error " . $error_code . " : " . $error_message);
-
-            $content = null;
-            if (ENV == 'dev') {
-                $title = "App CATCHED EXCEPTION CODE " . $error_code;
-                $message = '<pre>' . print_r($e, true) . '</pre>';
-                $content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>' . $error_message . '</h2><p>' . $message . '</p>';
-            }
-
-            //throw $e;
-            $response->setStatus(500)->setHtml($content);
-		}
-
-		return $response;
-	}
-
 
 	/* #### */
 
 	public static function boot()
 	{
+
+		define('FW_SRC_DIR', __DIR__);
+		define('FW_DIR', __DIR__ . "/..");
+
+		if (! defined('APP_DIR')) {
+			echo "ERROR: Please, define APP_DIR" . PHP_EOL;
+			exit(1);
+		}
+
+
 		if (defined('USE_HOOKS') && USE_HOOKS) {
 			HooksManager::applyHook('app.boot.before', []);
 		}
@@ -222,35 +120,17 @@ class App
 	}
 
 	
-	public function get($key, $default_value=null)
-	{
-		return isset($this->container[$key]) ? $this->container[$key] : $default_value;
-	}
 
-	public function set($key, $value)
-	{
-		$this->container[$key] = $value;
-	}
-
-    public function has($name)
-    {
-        return isset($this->container[$name]);
-    }
-
-
-    // DEPRECATED
-	public static function setData($key, $value=null)
+    public static function setData($key, $value=null)
 	{
 		self::$data[$key] = $value;
 	}
 
-	// DEPRECATED
 	public static function getData($key, $default_value=null)
 	{
 		return array_key_exists($key, self::$data) ? self::$data[$key] : $default_value;
 	}
 
-	// DEPRECATED
 	public static function hasData($key)
 	{
 		return array_key_exists($key, self::$data);
@@ -276,12 +156,11 @@ class App
 		}
 	}
 
-	protected static function loadHelpers($dir)
+	public static function loadHelpers($dir)
 	{
 		$helpers = glob($dir . '/helpers_*.php');
 
 		foreach ($helpers as $helper) {
-			//echo '<li>'.$helper.'</li>';
 			require $helper;
 		}
 
@@ -293,14 +172,6 @@ class App
 		return (php_sapi_name() == 'cli');
 	}
 
-
-	public static function getApp()
-	{
-		if (isset(self::$instance)) {
-			return self::$instance;
-		}
-		throw new Exception("App is not instancied", 1);
-	}
 
 
 	public static function getDb($instance_name=null, $dsn=null)

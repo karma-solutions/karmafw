@@ -1,8 +1,11 @@
 <?php
 
-namespace KarmaFW\App;
+namespace KarmaFW\Http;
 
 use KarmaFW\App;
+
+
+throw new \Exception("DEPRECATED", 1);
 
 
 class ResponseFile extends Response
