@@ -64,7 +64,7 @@ class UrlRouter
 				if (empty($error_message)) {
 					$error_message = '<title>Not Found</title><h1>Not Found</h1><p>Page not Found</p>';
 				}
-				return $response->setStatus($error_code)->setHtml($error_message);
+				return $response->setHtml($error_message, $error_code);
 			}
 
 
@@ -91,7 +91,7 @@ class UrlRouter
 
 
 			// else => error 500
-			$response->setStatus(500)->setHtml($response_content);
+			$response->setHtml($response_content, 500);
 		}
 
 		return $response;
