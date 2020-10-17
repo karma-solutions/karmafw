@@ -28,7 +28,6 @@ class MinimifierHtml
         
         $content_type = $response->getContentType();
         $content_type_short = explode(';', $content_type)[0];
-//pre($response->getContentType(), 1, 'content_type:');
 
         if ($content_type_short !== 'text/html') {
             return $response;

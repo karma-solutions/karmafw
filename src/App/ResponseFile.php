@@ -12,7 +12,7 @@ class ResponseFile extends Response
 
 	public function __construct($file_path, $status=200)
 	{
-		parent::__construct('', $status);
+		parent::__construct($status);
 
 		$this->file_path = $file_path;
 	}
