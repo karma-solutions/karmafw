@@ -6,8 +6,6 @@ use \KarmaFW\Routing\Controllers\WebAppController;
 use \KarmaFW\App\Middlewares\MinimifierJs;
 use \KarmaFW\App\Middlewares\MinimifierCss;
 
-use \KarmaFW\App\ResponseRedirect;
-
 
 class MinimifierController extends WebAppController
 {
@@ -32,14 +30,12 @@ class MinimifierController extends WebAppController
 
 			if ($file_path != realpath($file_path) || substr($file_path, -3) != '.js') {
 				// file path invalid or not a js file
-				return $this->response->setStatus(404)->setHtml('');
-				//return new ResponseRedirect($file_url);
+				return $this->response->error404("Invalid file");
 			}
 
 			if (! is_file($file_path)) {
 				// file not found
-				return $this->response->setStatus(404)->setHtml('');
-				//return new ResponseRedirect($file_url);
+				return $this->response->error404("File not found");
 
 			} else {
 				if (false) {
@@ -68,8 +64,7 @@ class MinimifierController extends WebAppController
 
 		} else {
 			// Error document root not found
-			return $this->response->setStatus(404)->setHtml('');
-			//return new ResponseRedirect($file_url);
+			return $this->response->error404("Root not found");
 		}
 	}
 
@@ -94,14 +89,12 @@ class MinimifierController extends WebAppController
 
 			if ($file_path != realpath($file_path) || substr($file_path, -4) != '.css') {
 				// file path invalid or not a css file
-				return $this->response->setStatus(404)->setHtml('');
-				//return new ResponseRedirect($file_url);
+				return $this->response->error404("Invalid file");
 			}
 
 			if (! is_file($file_path)) {
 				// file not found
-				return $this->response->setStatus(404)->setHtml('');
-				//return new ResponseRedirect($file_url);
+				return $this->response->error404("File not found");
 
 			} else {
 				if (false) {
@@ -130,8 +123,7 @@ class MinimifierController extends WebAppController
 
 		} else {
 			// Error document root not found
-			return $this->response->setStatus(404)->setHtml('');
-			//return new ResponseRedirect($file_url);
+			return $this->response->error404("Root not found");
 		}
 	}
 

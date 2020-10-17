@@ -37,12 +37,13 @@ class ErrorHandler
             $error_code = $e->getCode();
             $error_message = $e->getMessage();
 
-
+            /*
             $is_response = is_a($e, Response::class);
             if ($is_response) {
                 // exception is in reality a Response
                 return $e;
             }
+            */
 
             /*
             if ($error_code == 404) {

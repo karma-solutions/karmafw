@@ -11,13 +11,15 @@ class MinimifierHtml
     protected $minimify_html;
     protected $minimify_external_js;
     protected $minimify_external_css;
+    protected $content_types;
 
     
-    public function __construct($minimify_html=true, $minimify_external_js=true, $minimify_external_css=true)
+    public function __construct($minimify_html=true, $minimify_external_js=true, $minimify_external_css=true, $content_types=['text/html'])
     {
         $this->minimify_html = $minimify_html;
         $this->minimify_external_js = $minimify_external_js;
         $this->minimify_external_css = $minimify_external_css;
+        $this->content_types = $content_types;
     }
 
 
@@ -29,7 +31,9 @@ class MinimifierHtml
         $content_type = $response->getContentType();
         $content_type_short = explode(';', $content_type)[0];
 
-        if ($content_type_short !== 'text/html') {
+
+        if (! empty($this->content_types) && ! in_array($content_type_short, $this->content_types)) {
+            // restriction to the selected content_types
             return $response;
         }
 

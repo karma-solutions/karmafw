@@ -26,7 +26,8 @@ class ForceHttps
 			
 			if (empty($this->redirect_domains) || in_array($request->SERVER['SERVER_NAME'], $this->redirect_domains)) {
 				$redirect_url = 'https://' . $request->SERVER['SERVER_NAME'] . $request->SERVER['REQUEST_URI'];
-				return new ResponseRedirect($redirect_url, $this->redirect_status);
+				
+				return $response->redirect($redirect_url, $this->redirect_status);
 			}
 
 		}

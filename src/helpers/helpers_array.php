@@ -253,7 +253,7 @@ if (! function_exists('exportToCsvFile')) {
 	function exportToCsvFile($rows, $export_filename=null, $fields=null) {
 		$csv_content = get_csv($rows, $fields);
 
-		/*
+		
 		if (! empty($export_filename)) {
 			// download file
 			header('Content-Type: text/csv');
@@ -267,9 +267,9 @@ if (! function_exists('exportToCsvFile')) {
 
 		echo $csv_content;
 		exit;
-		*/
+		
 
-
+		/*
 		if (! empty($export_filename)) {
 			$content_type = 'text/csv';
 			$headers = [
@@ -284,6 +284,8 @@ if (! function_exists('exportToCsvFile')) {
 		}
 
 		throw new ResponseText($csv_content, 200, $content_type, $headers);
+		*/
+
 	}
 }
 

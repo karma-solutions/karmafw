@@ -7,7 +7,7 @@ use KarmaFW\App;
 // TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Response
 
 
-class Response extends \Exception
+class Response /* extends \Exception */
 {
 	protected $headers = [];
 	protected $body = '';
@@ -18,6 +18,9 @@ class Response extends \Exception
 	protected $protocol = null;
 	protected $template_path = null;
 	protected $template_data = [];
+	protected $redirect_url = null;
+	protected $download_file_name = null;
+	protected $download_file_path = null;
 
 
 	/* public */ const http_status_codes = [
@@ -178,8 +181,14 @@ class Response extends \Exception
 				->setStatus($status);
 	}
 
-	public function setCsv($body, $status=200, $content_type='text/csv')
+	public function setCsv($body, $download_file_name=null, $status=200, $content_type='text/csv')
 	{
+		if (is_array($body)) {
+			// transform array to csv
+			$body = get_csv($body);
+		}
+		$this->download_file_name = $download_file_name;
+
 		return $this->setBody($body)
 				->setContentType($content_type)
 				->setStatus($status);
@@ -244,11 +253,53 @@ class Response extends \Exception
 			return;
 		}
 
+		if ($this->status === 200 && empty($this->body)) {
+			// No content
+			$this->setStatus(204);
+		}
+
 		if (! empty($this->status)) {
 			$reasonPhrase = empty($this->reasonPhrase) ? "Unknown http status" : trim($this->reasonPhrase);
 			$this->headers['X-Status'] = $this->status . ' ' . $reasonPhrase;
 			
 			header('HTTP/1.0 ' . $this->status . ' ' . $reasonPhrase);
+		}
+
+
+		if ($this->download_file_name) {
+			// Download
+
+			$content_type = $this->getContentType();
+
+			if ($this->download_file_path) {
+				// DOWNLOAD A LOCAL FILE
+
+				if (! is_file($this->download_file_path)) {
+					// File not found
+					return $this->setHtml("File not found", 404);
+
+				} else {
+					// File exists
+					if (empty($content_type)) {
+						$content_type = mime_content_type($this->download_file_path);
+					}
+
+					$this->headers['Content-Length'] = filesize($this->download_file_path);
+				}
+
+			} else {
+				// DOWNLOAD A VIRTUAL FILE
+
+			}
+
+
+			if (empty($content_type)) {
+				$content_type = "application/octet-stream";
+			}
+			$this->setContentType($content_type);
+
+			$this->headers['Content-Transfer-Encoding'] = "Binary";
+			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
 		}
 
 		if (empty($this->headers['Content-Type']) && ! empty($this->content_type)) {
@@ -277,9 +328,59 @@ class Response extends \Exception
 			$this->sendHeaders();
 		}
 
+		if ($this->download_file_name) {
+			// Download
+
+			if ($this->download_file_path) {
+				// Download a local file
+				if (is_file($this->download_file_path)) {
+					readfile($this->download_file_path);
+
+				} else {
+					// 404
+					echo "Error 404: file not found";
+				}
+
+			} else {
+				// Download a virtual file
+
+			}
+
+		} else {
+			// Echo HTML
+		}
+
+
+		// Echo HTML or Virtual file
 		if (strlen($this->body) > 0) {
 			echo $this->body;
+
+		} else {
+			// No content
+			// TODO: renvoyer code 204 ?
 		}
+
+		return $this;
+	}
+
+
+	public function redirect($redirect_url, $status=302)
+	{
+		$this->redirect_url = $redirect_url;
+
+		$this->addHeader('Location', $redirect_url)
+			->setStatus($status)
+			->setBody('');
+
+		return $this;
+	}
+
+
+	public function error404($body='', $content_type='text/html')
+	{
+		$this->setStatus(404)
+			->setContentType($content_type)
+			->setBody($body);
 
 		return $this;
 	}

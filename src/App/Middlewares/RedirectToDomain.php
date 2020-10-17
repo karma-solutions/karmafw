@@ -26,7 +26,8 @@ class RedirectToDomain
 
 			if (empty($this->redirect_domains) || in_array($this->target_domain, $this->redirect_domains)) {
 				$redirect_url = 'https://' . $this->target_domain . $request->SERVER['REQUEST_URI'];
-				return new ResponseRedirect($redirect_url, $this->redirect_status);
+				
+				return $response->redirect($redirect_url, $this->redirect_status);
 			}
 
 		}

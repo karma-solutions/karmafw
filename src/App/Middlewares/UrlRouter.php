@@ -48,16 +48,19 @@ class UrlRouter
 			$error_code = $e->getCode();
 			$error_message = $e->getMessage();
 
+			/*
 			$is_response = is_a($e, Response::class);
 			if ($is_response) {
 				// exception is in reality a Response
 				return $e;
 			}
+			*/
 
 			if (in_array($error_code, [301, 302, 310])) {
 				// if $error_code is a redirection
 				$url = $error_message;
-				return new ResponseRedirect($url, $error_code);
+				//return new ResponseRedirect($url, $error_code);
+				return $response->redirect($url, $error_code);
 			}
 
 			// ERROR 404
