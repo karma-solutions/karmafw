@@ -2,12 +2,11 @@
 
 namespace KarmaFW\Http;
 
-use KarmaFW\App;
-
-// TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Response
+use \KarmaFW\App\Tools;
 
 
-class Response /* extends \Exception */
+
+class Response
 {
 	protected $headers = [];
 	protected $body = '';
@@ -239,7 +238,7 @@ class Response /* extends \Exception */
 
 	public function sendHeaders()
 	{
-		if (App::isCli()) {
+		if (Tools::isCli()) {
 			return;
 		}
 
