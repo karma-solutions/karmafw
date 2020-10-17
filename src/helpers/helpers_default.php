@@ -1,5 +1,6 @@
 <?php
 
+use \KarmaFW\App\ResponseError;
 use \KarmaFW\Routing\Router;
 
 
@@ -39,10 +40,23 @@ if (! function_exists('ifEmpty')) {
 
 if (! function_exists('errorHttp')) {
 	function errorHttp($error_code, $message='An error has occured', $title='Error') {
+		/*
 		header("HTTP/1.0 " . $error_code . " " . $title);
 		echo '<h1>' . $title . '</h1>';
 		echo '<p>' . $message . '</p>';
 		exit;
+		*/
+		$content = '<html>';
+		$content .= '<head>';
+		$content .= '<title>' . $title . '</title>';
+		$content .= '</head>';
+		$content .= '<body>';
+		$content .= '<h1>' . $title . '</h1>';
+		$content .= '<p>' . $message . '</p>';
+		$content .= '</body>';
+		$content .= '</html>';
+
+		return new ResponseError($error_code, $content);
 	}
 }
 
@@ -53,9 +67,9 @@ if (! function_exists('redirect')) {
 			echo 'continue to <a href="' . $url . '">' . $url . '</a>';
 			exit;
 		}
-		header('Location: ' . $url, true, $http_code);
 		throw new \Exception($url, $http_code);
-		exit;
+		//exit;
+		//header('Location: ' . $url, true, $http_code);
 	}
 }
 

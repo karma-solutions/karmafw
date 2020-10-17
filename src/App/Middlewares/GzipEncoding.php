@@ -11,8 +11,18 @@ class GzipEncoding
 	
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
+		$response = $next($request, $response);
 
-		return $next($request, $response);
+		$content = (string) gzencode($response->getBody());
+
+		if (strlen($content) > 1000) {
+			$response->setBody($content);
+
+			$response->addHeader('Content-Encoding', 'gzip');
+			$response->addHeader('X-Encoding', 'gzip');
+		}
+
+		return $response;
 	}
 
 }

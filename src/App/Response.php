@@ -2,10 +2,12 @@
 
 namespace KarmaFW\App;
 
+use KarmaFW\App;
+
 // TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Response
 
 
-class Response
+class Response extends \Exception
 {
 	protected $headers = [];
 	protected $body = '';
@@ -14,6 +16,9 @@ class Response
 	protected $content_type = '';
 	protected $headers_sent = false;
 	protected $protocol = null;
+	protected $template_path = null;
+	protected $template_data = [];
+
 
 	/* public */ const http_status_codes = [
 		100 => 'Continue',
@@ -97,6 +102,26 @@ class Response
 		$this->content_type = $content_type;
 	}
 
+	public function getTemplatePath()
+	{
+		return $this->template_path;
+	}
+
+	public function setTemplatePath($template_path)
+	{
+		$this->template_path = $template_path;
+	}
+
+	public function getTemplateData()
+	{
+		return $this->template_data;
+	}
+
+	public function setTemplateData($template_data)
+	{
+		$this->template_data = $template_data;
+	}
+
 	public function getContent()
 	{
 		// DEPRECATED
@@ -144,6 +169,14 @@ class Response
 		//return $this->headers = $headers;
 		$this->headers = [];
 		foreach ($headers as $k => $v) {
+			if (is_numeric($k)) {
+				if (strpos($v, ':') === false) {
+					continue;
+				}
+				$parts = explode(':', $v);
+				$k = trim($parts[0]);
+				$v = trim($parts[1]);
+			}
 			$this->addHeader($k, $v);
 		}
 	}
@@ -157,6 +190,10 @@ class Response
 
 	public function sendHeaders()
 	{
+		if (App::isCli()) {
+			return;
+		}
+
 		if ($this->headers_sent) {
 			//error_log("Warning: headers already sent");
 			return;

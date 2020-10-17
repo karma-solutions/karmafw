@@ -1,6 +1,7 @@
 <?php
 
 use \KarmaFW\App;
+use \KarmaFW\App\ResponseText;
 use \PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheetIOFactory;
 
 
@@ -251,7 +252,8 @@ if (! function_exists('get_csv')) {
 if (! function_exists('exportToCsvFile')) {
 	function exportToCsvFile($rows, $export_filename=null, $fields=null) {
 		$csv_content = get_csv($rows, $fields);
-		
+
+		/*
 		if (! empty($export_filename)) {
 			// download file
 			header('Content-Type: text/csv');
@@ -265,6 +267,23 @@ if (! function_exists('exportToCsvFile')) {
 
 		echo $csv_content;
 		exit;
+		*/
+
+
+		if (! empty($export_filename)) {
+			$content_type = 'text/csv';
+			$headers = [
+				'Content-Disposition: attachment;filename=' . basename($export_filename),
+				"Pragma: no-cache",
+				"Expires: 0"
+			];
+
+		} else {
+			$headers = [];
+			$content_type = 'text/plain';
+		}
+
+		throw new ResponseText($csv_content, 200, $content_type, $headers);
 	}
 }
 

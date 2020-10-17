@@ -285,6 +285,12 @@ class App
 	}
 
 
+	public static function isCli()
+	{
+		return (php_sapi_name() == 'cli');
+	}
+
+
 	public static function getApp()
 	{
 		if (isset(self::$instance)) {

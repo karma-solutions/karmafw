@@ -14,8 +14,12 @@ class ResponseError extends ResponseText
 		parent::__construct($body, $status, $content_type);
 
 		if (is_null($body)) {
-			$this->body  = '<title>' . $this->status . " " . $this->reasonPhrase . '</title>';
+			$this->body = '<html>';
+			$this->body .= '<head><title>' . $this->status . " " . $this->reasonPhrase . '</title></head>';
+			$this->body .= '<body>';
 			$this->body .= '<h1>' . $this->status . " " . $this->reasonPhrase . '</h1>';
+			$this->body .= '</body>';
+			$this->body .= '</html>';
 		}
 
 		$this->setStatus($status);

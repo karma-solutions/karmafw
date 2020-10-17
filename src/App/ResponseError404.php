@@ -9,9 +9,9 @@ class ResponseError404 extends ResponseError
 	protected $status_name = 'Not Found';
 
 
-	public function __construct($content=null, $content_type='text/html')
+	public function __construct($body=null, $content_type='text/html')
 	{
-		parent::__construct($this->status, $content, $content_type);
+		parent::__construct($this->status, $body, $content_type);
 	}
 
 }

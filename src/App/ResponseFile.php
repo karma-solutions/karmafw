@@ -2,6 +2,8 @@
 
 namespace KarmaFW\App;
 
+use KarmaFW\App;
+
 
 class ResponseFile extends Response
 {
@@ -18,6 +20,10 @@ class ResponseFile extends Response
 
 	public function sendHeaders()
 	{
+		if (App::isCli()) {
+			return;
+		}
+
 		if ($this->headers_sent) {
 			// Warning: headers already sent
 			//error_log("Warning: headers already sent");
