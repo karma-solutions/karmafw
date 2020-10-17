@@ -122,7 +122,7 @@ class Kernel
             }
 
             //throw $e;
-            $response->setStatus(500)->setHtml($content);
+            $response->setHtml($content, 500);
 		}
 
 		return $response;
