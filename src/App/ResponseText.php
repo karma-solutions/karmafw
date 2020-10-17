@@ -2,16 +2,17 @@
 
 namespace KarmaFW\App;
 
+throw new \Exception("DEPRECATED", 1);
 
-class ResponseText extends Response
+
+class ResponseHtml extends ResponseThrowable
 {
 
-	public function __construct($body=null, $status=200, $content_type='text/plain', $headers=[])
+	public function __construct($body=null, $status=200, $headers=[], $content_type='text/plain')
 	{
-		//$headers['Content-Type'] = $content_type;
 		parent::__construct($status, $headers, $body);
 
-		$this->content_type = $content_type;
+		$this->setContentType($content_type);
 	}
 
 }

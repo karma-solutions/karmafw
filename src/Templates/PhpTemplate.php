@@ -100,7 +100,7 @@ class PhpTemplate
 	}
 
 
-	public function fetch($tpl, $extra_vars=[], $layout=null, $options=[])
+	public function fetch($tpl=null, $extra_vars=[], $layout=null, $options=[])
 	{
 		$tpl_dirs = [];
 
@@ -241,7 +241,7 @@ class PhpTemplate
 		}
 	}
 
-	public function display($tpl, $extra_vars=[], $layout=null, $options=[])
+	public function display($tpl=null, $extra_vars=[], $layout=null, $options=[])
 	{
 		echo $this->fetch($tpl, $extra_vars, $layout, $options);
 	}
@@ -255,6 +255,17 @@ class PhpTemplate
 	public function setVariable($var_name, $var_value)
 	{
 		$this->variables[$var_name] = $var_value;
+	}
+
+	public function getTplPath()
+	{
+		return $this->tpl_path;
+	}
+
+	public function setTplPath($tpl_path)
+	{
+		$this->tpl_path = $tpl_path;
+		return $this;
 	}
 
 	public function assign($var_name, $var_value=null)

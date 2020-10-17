@@ -4,8 +4,6 @@ namespace KarmaFW\App\Middlewares;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
-use \KarmaFW\App\ResponseError;
-use \KarmaFW\App\ResponseError404;
 
 
 class ErrorHandler
@@ -36,24 +34,34 @@ class ErrorHandler
             $response = $next($request, $response);
 
         } catch (\Throwable $e) {
-            $code = $e->getCode();
+            $error_code = $e->getCode();
             $error_message = $e->getMessage();
 
+
+            $is_response = is_a($e, Response::class);
+            if ($is_response) {
+                // exception is in reality a Response
+                return $e;
+            }
+
             /*
-            if ($code == 404) {
-                return new ResponseError404($error_message);
+            if ($error_code == 404) {
+                // case moved to UrlRouter
+                $response->setStatus(404)->setHtml($error_message);
             }
             */
 
             if (! $this->use_internal_handler) {
                 throw $e;
             }
+
+            $http_code = (500 <= $error_code && $error_code <= 599) ? $error_code : 500;
             
-            error_log("[UrlRouter] Error 500 : " . $error_message);
+            error_log("[UrlRouter] Error " . $error_code . " : " . $error_message);
 
 
             if (ENV == 'dev') {
-                $title = "ErrorHandler CATCHED EXCEPTION";
+                $title = "ErrorHandler CATCHED EXCEPTION CODE " . $error_code;
                 $message = '<pre>' . print_r($e, true) . '</pre>';
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>' . $error_message . '</h2><p>' . $message . '</p>';
 
@@ -63,7 +71,7 @@ class ErrorHandler
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
             }
 
-            return new ResponseError(500, $response_content);
+            $response->setStatus($http_code)->setHtml($response_content);
         }
 
         return $response;

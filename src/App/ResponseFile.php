@@ -10,9 +10,9 @@ class ResponseFile extends Response
 	protected $file_path;
 
 
-	public function __construct($file_path)
+	public function __construct($file_path, $status=200)
 	{
-		parent::__construct('', null);
+		parent::__construct('', $status);
 
 		$this->file_path = $file_path;
 	}
@@ -32,16 +32,23 @@ class ResponseFile extends Response
 
 		if (! is_file($this->file_path)) {
 			// File not found
-			$this->headers['Content-Length'] = 0;
+			$this->setStatus(404);
+			$this->setContentType('text/html'); // or application/json
+			//$this->headers['Content-Length'] = 0;
+			// TODO: return $this->fork( ResponseError404 );
 
 		} else {
-			$content_type = mime_content_type($this->file_path);
+			$content_type = $this->getContentType();
+			if (empty($content_type)) {
+				$content_type = mime_content_type($this->file_path);
+			}
 			if (empty($content_type)) {
 				$content_type = "application/octet-stream";
 			}
 
 			$this->headers['Content-Length'] = filesize($this->file_path);
-			$this->headers['Content-Type'] = $content_type;
+			//$this->headers['Content-Type'] = $content_type;
+			$this->setContentType($content_type);
 			$this->headers['Content-Transfer-Encoding'] = "Binary";
 			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->file_path) . '"';
 		}

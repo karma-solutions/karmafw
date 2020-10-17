@@ -62,21 +62,30 @@ class Response extends \Exception
 	];
 
 
-	public function __construct($status=200, array $headers=[], $body=null, $version='1.1', $reason=null) // Psr7
+	public function __construct($status=200, array $headers=[], $body=null, $version='1.1', $reason=null)
 	{
 		$this->body = $body;
 		$this->setStatus($status);
-		$this->setheaders($headers);
+		$this->setHeaders($headers);
 
         $this->protocol = $version;
 	}
-	//public ResponseText::__construct($body=null, $content_type='text/plain', $status=200) { return Response($status, ['Content-Type' => $content_type], $body); }
-	//public ResponseHtml::__construct($body=null, $status=200) { return ResponseText($body, 'html', $status); }
 
 
 	public function getStatus()
 	{
 		return $this->status;
+	}
+
+	public function getProtocol()
+	{
+		return $this->protocol;
+	}
+
+	public function setProtocol($protocol)
+	{
+		$this->protocol = $protocol;
+		return $this;
 	}
 
 	public function getReasonPhrase()
@@ -90,6 +99,8 @@ class Response extends \Exception
 
 		$reasonPhrase = ! empty(self::http_status_codes[$status]) ? self::http_status_codes[$status] : "Unknown status";
 		$this->reasonPhrase = $reasonPhrase;
+
+		return $this;
 	}
 
 	public function getContentType()
@@ -100,6 +111,7 @@ class Response extends \Exception
 	public function setContentType($content_type)
 	{
 		$this->content_type = $content_type;
+		return $this;
 	}
 
 	public function getTemplatePath()
@@ -110,6 +122,7 @@ class Response extends \Exception
 	public function setTemplatePath($template_path)
 	{
 		$this->template_path = $template_path;
+		return $this;
 	}
 
 	public function getTemplateData()
@@ -120,6 +133,7 @@ class Response extends \Exception
 	public function setTemplateData($template_data)
 	{
 		$this->template_data = $template_data;
+		return $this;
 	}
 
 	public function getContent()
@@ -138,25 +152,49 @@ class Response extends \Exception
 		return strlen($this->body);
 	}
 
+	public function setBody($body)
+	{
+		$this->body = $body;
+		return $this;
+	}
+
 	public function setContent($body)
 	{
 		// DEPRECATED
 		return $this->setBody($body);
 	}
 
-	public function setBody($body)
+	public function setHtml($body, $status=200, $content_type='text/html')
 	{
-		$this->body = $body;
+		return $this->setBody($body)
+				->setContentType($content_type)
+				->setStatus($status);
+	}
+	
+	public function setJson($body, $status=200, $content_type='application/json')
+	{
+		return $this->setBody($body)
+				->setContentType($content_type)
+				->setStatus($status);
+	}
+
+	public function setCsv($body, $status=200, $content_type='text/csv')
+	{
+		return $this->setBody($body)
+				->setContentType($content_type)
+				->setStatus($status);
 	}
 
 	public function append($body)
 	{
 		$this->body .= $body;
+		return $this;
 	}
 
 	public function prepend($body)
 	{
 		$this->body = $body . $this->body;
+		return $this;
 	}
 
 	public function getHeaders()
@@ -164,7 +202,7 @@ class Response extends \Exception
 		return $this->headers;
 	}
 
-	public function setheaders($headers)
+	public function setHeaders($headers)
 	{
 		//return $this->headers = $headers;
 		$this->headers = [];
@@ -179,12 +217,14 @@ class Response extends \Exception
 			}
 			$this->addHeader($k, $v);
 		}
+		return $this;
 	}
 
 	public function addHeader($key, $value)
 	{
 		$key = ucwords(strtolower($key), " -\t\r\n\f\v");
 		$this->headers[$key] = $value;
+		return $this;
 	}
 
 
@@ -205,9 +245,10 @@ class Response extends \Exception
 		}
 
 		if (! empty($this->status)) {
-			$reasonPhrase = empty($this->reasonPhrase) ? "Unknown http status" : $this->reasonPhrase;
-			header('HTTP/1.0 ' . $this->status . ' ' . $reasonPhrase);
+			$reasonPhrase = empty($this->reasonPhrase) ? "Unknown http status" : trim($this->reasonPhrase);
 			$this->headers['X-Status'] = $this->status . ' ' . $reasonPhrase;
+			
+			header('HTTP/1.0 ' . $this->status . ' ' . $reasonPhrase);
 		}
 
 		if (empty($this->headers['Content-Type']) && ! empty($this->content_type)) {
@@ -223,6 +264,8 @@ class Response extends \Exception
 		}
 
 		$this->headers_sent = true;
+
+		return $this;
 	}
 
 
@@ -237,6 +280,8 @@ class Response extends \Exception
 		if (strlen($this->body) > 0) {
 			echo $this->body;
 		}
+
+		return $this;
 	}
 
 }

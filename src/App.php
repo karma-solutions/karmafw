@@ -9,7 +9,6 @@ use \KarmaFW\Database\Sql\SqlDb;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
-use \KarmaFW\App\ResponseError;
 use \KarmaFW\App\Pipe;
 use \KarmaFW\App\Container;
 
@@ -105,22 +104,26 @@ class App
 	public function handle($request)
 	{
 		try {
-			$response = new Response;
+			$response = new Response(200, [], null);
 			$pipe = new Pipe($this->middlewares);
 
 			$response = $pipe->next($request, $response);
 
 		} catch (\Exception $e) {
-            $content = null;
+            $error_code = $e->getCode();
+            $error_message = $e->getMessage();
 
+            error_log("[App] Error " . $error_code . " : " . $error_message);
+
+            $content = null;
             if (ENV == 'dev') {
-                $title = "App CATCHED EXCEPTION";
+                $title = "App CATCHED EXCEPTION CODE " . $error_code;
                 $message = '<pre>' . print_r($e, true) . '</pre>';
-                $content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
+                $content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>' . $error_message . '</h2><p>' . $message . '</p>';
             }
 
             //throw $e;
-            return new ResponseError(500, $content); 
+            $response->setStatus(500)->setHtml($content);
 		}
 
 		return $response;

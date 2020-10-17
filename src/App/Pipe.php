@@ -15,7 +15,7 @@ class Pipe
     protected $services = [];
 
 
-    public function __construct($services=[])
+    public function __construct(array $services=[])
     {
         $this->services = $services;
     }

@@ -7,7 +7,6 @@ use \KarmaFW\App\Middlewares\MinimifierJs;
 use \KarmaFW\App\Middlewares\MinimifierCss;
 
 use \KarmaFW\App\ResponseRedirect;
-use \KarmaFW\App\ResponseError404;
 
 
 class MinimifierController extends WebAppController
@@ -33,13 +32,13 @@ class MinimifierController extends WebAppController
 
 			if ($file_path != realpath($file_path) || substr($file_path, -3) != '.js') {
 				// file path invalid or not a js file
-				return new ResponseError404;
+				return $this->response->setStatus(404)->setHtml('');
 				//return new ResponseRedirect($file_url);
 			}
 
 			if (! is_file($file_path)) {
 				// file not found
-				return new ResponseError404;
+				return $this->response->setStatus(404)->setHtml('');
 				//return new ResponseRedirect($file_url);
 
 			} else {
@@ -69,7 +68,7 @@ class MinimifierController extends WebAppController
 
 		} else {
 			// Error document root not found
-			return new ResponseError404;
+			return $this->response->setStatus(404)->setHtml('');
 			//return new ResponseRedirect($file_url);
 		}
 	}
@@ -95,13 +94,13 @@ class MinimifierController extends WebAppController
 
 			if ($file_path != realpath($file_path) || substr($file_path, -4) != '.css') {
 				// file path invalid or not a css file
-				return new ResponseError404;
+				return $this->response->setStatus(404)->setHtml('');
 				//return new ResponseRedirect($file_url);
 			}
 
 			if (! is_file($file_path)) {
 				// file not found
-				return new ResponseError404;
+				return $this->response->setStatus(404)->setHtml('');
 				//return new ResponseRedirect($file_url);
 
 			} else {
@@ -131,7 +130,7 @@ class MinimifierController extends WebAppController
 
 		} else {
 			// Error document root not found
-			return new ResponseError404;
+			return $this->response->setStatus(404)->setHtml('');
 			//return new ResponseRedirect($file_url);
 		}
 	}

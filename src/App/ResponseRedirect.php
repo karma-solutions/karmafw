@@ -5,6 +5,9 @@ namespace KarmaFW\App;
 use KarmaFW\App;
 
 
+throw new \Exception("DEPRECATED", 1);
+
+
 class ResponseRedirect extends Response
 {
 	protected $redirect_url = null;

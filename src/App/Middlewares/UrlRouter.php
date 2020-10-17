@@ -4,8 +4,6 @@ namespace KarmaFW\App\Middlewares;
 
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
-use \KarmaFW\App\ResponseError;
-use \KarmaFW\App\ResponseError404;
 use \KarmaFW\App\ResponseRedirect;
 use \KarmaFW\App\ResponseFile;
 use \KarmaFW\Routing\Router;
@@ -47,28 +45,28 @@ class UrlRouter
 			$response = $next($request, $response);
 
 		} catch (\Throwable $e) {
-			$code = $e->getCode();
+			$error_code = $e->getCode();
 			$error_message = $e->getMessage();
-			$is_response = is_a($e, Response::class);
 
+			$is_response = is_a($e, Response::class);
 			if ($is_response) {
 				// exception is in reality a Response
 				return $e;
 			}
 
-			if (in_array($code, [301, 302, 310])) {
-				// if $code is a redirection
+			if (in_array($error_code, [301, 302, 310])) {
+				// if $error_code is a redirection
 				$url = $error_message;
-				return new ResponseRedirect($url, $code);
+				return new ResponseRedirect($url, $error_code);
 			}
 
 			// ERROR 404
-			if ($code == 404) {
-				// if $code is a 404 page not found
+			if ($error_code == 404) {
+				// if $error_code is a 404 page not found
 				if (empty($error_message)) {
 					$error_message = '<title>Not Found</title><h1>Not Found</h1>';
 				}
-				return new ResponseError404($error_message);
+				return $response->setStatus(404)->setHtml($error_message);
 			}
 
 
@@ -83,7 +81,7 @@ class UrlRouter
 
 
             if (ENV == 'dev') {
-                $title = "UrlRouter CATCHED EXCEPTION";
+                $title = "UrlRouter CATCHED EXCEPTION CODE " . $error_code;
                 $message = '<pre>' . print_r($e, true) . '</pre>';
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>' . $error_message . '</h2><p>' . $message . '</p>';
 
@@ -95,7 +93,7 @@ class UrlRouter
 
 
 			// else => error 500
-			return new ResponseError(500, $response_content);
+			$response->setStatus(500)->setHtml($response_content);
 		}
 
 		return $response;

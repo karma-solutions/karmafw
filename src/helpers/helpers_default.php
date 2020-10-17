@@ -1,30 +1,39 @@
 <?php
 
-use \KarmaFW\App\ResponseError;
+use \KarmaFW\App\Response;
 use \KarmaFW\Routing\Router;
 
 
 if (! function_exists('pre')) {
 	function pre($var, $exit = false, $prefix = '') {
-		echo "<pre>";
+		$out = '';
+
+		$out .= "<pre>";
 		if (!empty($prefix)) {
-			echo $prefix;
+			$out .= $prefix;
 		}
 		if (is_null($var)) {
-			echo "NULL";
+			$out .= "NULL";
 		} else if ($var === true) {
-			echo "TRUE";
+			$out .= "TRUE";
 		} else if ($var === false) {
-			echo "FALSE";
+			$out .= "FALSE";
 		} else if (is_string($var)) {
-			echo '"' . $var . '"';
+			$out .= '"' . $var . '"';
 		} else {
-			print_r($var);
+			$out .= print_r($var, true);
 		}
-		echo "</pre>";
+		$out .= "</pre>";
+
 
 		if ($exit) {
-			exit;
+			//exit; 
+
+			//throw new ResponseHtml($out, 503);
+			throw new \Exception($out, 503);
+
+		} else {
+			echo $out;
 		}
 	}
 }
@@ -56,7 +65,7 @@ if (! function_exists('errorHttp')) {
 		$content .= '</body>';
 		$content .= '</html>';
 
-		return new ResponseError($error_code, $content);
+		throw new \Exception($content, $error_code);
 	}
 }
 

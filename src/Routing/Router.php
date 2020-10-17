@@ -5,8 +5,6 @@ namespace KarmaFW\Routing;
 use \KarmaFW\WebApp;
 use \KarmaFW\App\Request;
 use \KarmaFW\App\Response;
-use \KarmaFW\App\ResponseError;
-use \KarmaFW\App\ResponseError404;
 
 
 class Router
@@ -228,7 +226,7 @@ class Router
 				if (empty($callback)) {
 					// route found but no callback defined
 					//return 0;
-					return new ResponseError404("<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>");
+					return $response->setStatus(404)->setHtml('<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>');
 
 				} else if (is_callable($callback)) {
 					// OK !
@@ -239,7 +237,7 @@ class Router
 				} else {
 					// route found but callback is not callable
 					//return null;
-					return new ResponseError404("<h1>Page not Found</h1><p>Warning: route callback is not callable</p>");
+					return $response->setStatus(404)->setHtml('<h1>Page not Found</h1><p>Warning: route callback is not callable</p>');
 				}
 
 			}
@@ -248,7 +246,7 @@ class Router
 
 		// no matching route
 		//return false;
-		return new ResponseError404("<h1>Page not Found</h1><p>Warning: no matching route</p>");
+		return $response->setStatus(404)->setHtml('<h1>Page not Found</h1><p>Warning: no matching route</p>');
 	}
 
 
@@ -274,10 +272,10 @@ class Router
 			$response = $route_response;
 
 		} else if ($route_response) {
-			return new ResponseError(500, "<h1>Server Error</h1><p>Error: \$response is not a Response</p>");
+			return $response->setStatus(404)->setHtml('<h1>Server Error</h1><p>Error: \$response is not a Response</p>');
 
 		} else {
-			//return new ResponseError(500, "<h1>Server Error</h1><p>Error: \$response is empty</p>");
+			return $response->setStatus(404)->setHtml('<h1>Server Error</h1><p>Error: \$response is empty</p>');
 		}
 
 		return $response;
