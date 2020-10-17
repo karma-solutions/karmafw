@@ -38,14 +38,6 @@ class ErrorHandler
             $error_message = $e->getMessage();
 
             /*
-            $is_response = is_a($e, Response::class);
-            if ($is_response) {
-                // exception is in reality a Response
-                return $e;
-            }
-            */
-
-            /*
             if ($error_code == 404) {
                 // case moved to UrlRouter
                 $response->setStatus(404)->setHtml($error_message);

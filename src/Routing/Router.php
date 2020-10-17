@@ -272,10 +272,10 @@ class Router
 			$response = $route_response;
 
 		} else if ($route_response) {
-			return $response->setStatus(404)->setHtml('<h1>Server Error</h1><p>Error: \$response is not a Response</p>');
+			return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is not a Response</p></body></html>', 404);
 
 		} else {
-			return $response->setStatus(404)->setHtml('<h1>Server Error</h1><p>Error: \$response is empty</p>');
+			return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
 		}
 
 		return $response;

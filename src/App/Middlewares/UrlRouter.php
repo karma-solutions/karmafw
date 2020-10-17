@@ -21,6 +21,9 @@ class UrlRouter
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
 		// LOAD ROUTES
+		if (is_file(FW_DIR . '/config/routes.php')) {
+			require FW_DIR . '/config/routes.php';
+		}
 		if (is_file(APP_DIR . '/config/routes.php')) {
 			require APP_DIR . '/config/routes.php';
 		}
@@ -46,14 +49,8 @@ class UrlRouter
 			$error_code = $e->getCode();
 			$error_message = $e->getMessage();
 
-			/*
-			$is_response = is_a($e, Response::class);
-			if ($is_response) {
-				// exception is in reality a Response
-				return $e;
-			}
-			*/
 
+			// REDIRECTION
 			if (in_array($error_code, [301, 302, 310])) {
 				// if $error_code is a redirection
 				$url = $error_message;
@@ -62,12 +59,12 @@ class UrlRouter
 			}
 
 			// ERROR 404
-			if ($error_code == 404) {
+			if (in_array($error_code, [404, 410])) {
 				// if $error_code is a 404 page not found
 				if (empty($error_message)) {
-					$error_message = '<title>Not Found</title><h1>Not Found</h1>';
+					$error_message = '<title>Not Found</title><h1>Not Found</h1><p>Page not Found</p>';
 				}
-				return $response->setStatus(404)->setHtml($error_message);
+				return $response->setStatus($error_code)->setHtml($error_message);
 			}
 
 

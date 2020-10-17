@@ -45,11 +45,11 @@ class MinimifierController extends WebAppController
 				} else {
 					// minimification
 					$content = file_get_contents($file_path);
-					$this->response->setContent($content);
+					$this->response->setBody($content);
 		            $content_length = $this->response->getContentLength();
 
 					$content_minimified = MinimifierJs::minify_js($content);
-					$this->response->setContent($content_minimified);
+					$this->response->setBody($content_minimified);
 		            $content_minimified_length = $this->response->getContentLength();
 					
 					$this->response->addHeader('Content-Type', 'text/javascript');
@@ -59,8 +59,10 @@ class MinimifierController extends WebAppController
 		            $this->response->addHeader('X-CSS-Minimified-Content-Length', $content_minimified_length);
 
 					// TODO: gerer cache-expire, expires, ...
+					return $this->response;
 				}
 			}
+			//echo "ok"; exit;
 
 		} else {
 			// Error document root not found
@@ -104,11 +106,11 @@ class MinimifierController extends WebAppController
 				} else {
 					// minimification
 					$content = file_get_contents($file_path);
-					$this->response->setContent($content);
+					$this->response->setBody($content);
 		            $content_length = $this->response->getContentLength();
 
 					$content_minimified = MinimifierCss::minify_css($content);
-					$this->response->setContent($content_minimified);
+					$this->response->setBody($content_minimified);
 		            $content_minimified_length = $this->response->getContentLength();
 					
 					$this->response->addHeader('Content-Type', 'text/css');
@@ -118,6 +120,7 @@ class MinimifierController extends WebAppController
 		            $this->response->addHeader('X-CSS-Minimified-Content-Length', $content_minimified_length);
 
 					// TODO: gerer cache-expire, expires, ...
+					return $this->response;
 				}
 			}
 

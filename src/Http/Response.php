@@ -5,7 +5,6 @@ namespace KarmaFW\Http;
 use \KarmaFW\App\Tools;
 
 
-
 class Response
 {
 	protected $headers = [];
