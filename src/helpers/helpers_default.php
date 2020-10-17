@@ -29,7 +29,6 @@ if (! function_exists('pre')) {
 		if ($exit) {
 			//exit; 
 
-			//throw new ResponseHtml($out, 503);
 			throw new \Exception($out, 503);
 
 		} else {
