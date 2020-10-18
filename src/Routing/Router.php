@@ -277,7 +277,7 @@ class Router
 
 		} else {
 			if (! $response->getContentLength()) {
-				return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
+				//return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
 			}
 		}
 
