@@ -34,14 +34,19 @@ class UrlRouter
 
 			ob_start();
 			
-			$response = Router::routeRequest($request, $response);
+			$route_response = Router::routeRequest($request, $response);
 
 			// en principe le contenu de la reponse est dans $response->content
 			// mais si il y a eu des "echo", ils sont capturés par le ob_start puis insérés au début de $response->content
 
 			$content = ob_get_contents();
 			ob_end_clean();
-			$response->prepend($content);
+//var_dump($response); 
+			if (! empty($route_response) && is_a($route_response, Response::class)) {
+				$response = $route_response;
+			}
+
+			$response->prepend($content); // on ajoute ici le texte capturé pendant l'execution de la route
 
 			$response = $next($request, $response);
 

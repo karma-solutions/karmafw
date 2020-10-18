@@ -82,6 +82,7 @@ class Router
 
 	public static function error404($callback=null)
 	{
+		// todo: faire en sorte qu'elle soit executée en dernier
 		return self::all('.*', $callback, 'regex');
 	}
 
@@ -226,7 +227,7 @@ class Router
 				if (empty($callback)) {
 					// route found but no callback defined
 					//return 0;
-					return $response->setStatus(404)->setHtml('<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>');
+					return $response->setHtml('<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>', 404);
 
 				} else if (is_callable($callback)) {
 					// OK !
@@ -237,7 +238,7 @@ class Router
 				} else {
 					// route found but callback is not callable
 					//return null;
-					return $response->setStatus(404)->setHtml('<h1>Page not Found</h1><p>Warning: route callback is not callable</p>');
+					return $response->setHtml('<h1>Page not Found</h1><p>Warning: route callback is not callable</p>', 404);
 				}
 
 			}
@@ -246,7 +247,7 @@ class Router
 
 		// no matching route
 		//return false;
-		return $response->setStatus(404)->setHtml('<h1>Page not Found</h1><p>Warning: no matching route</p>');
+		return $response->setHtml('<h1>Page not Found</h1><p>Warning: no matching route</p>', 404);
 	}
 
 
@@ -268,14 +269,16 @@ class Router
 			$route_response = $callback($request, $response, $matched_params);
 		}
 
-		if ($route_response instanceof Response) {
+		if (is_object($route_response) && get_class($route_response) === Response::class) {
 			$response = $route_response;
 
 		} else if ($route_response) {
 			return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is not a Response</p></body></html>', 404);
 
 		} else {
-			return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
+			if (! $response->getContentLength()) {
+				return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
+			}
 		}
 
 		return $response;

@@ -83,9 +83,47 @@ class WebAppController extends AppController
 
 
 
-	public function error($http_status, $meta_title=null, $h1=null, $message=null)
+	public function error($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $message = 'an error has occured')
 	{
-		return WebApp::error($http_status, $meta_title, $h1, $message);
+		if ($template = $this->getTemplate()) {
+			$template->assign('meta_title', $meta_title);
+			$template->assign('h1', $h1);
+			$template->assign('p', $message);
+			$template->assign('http_status', $http_status);
+
+			$error_template = 'error.tpl.php';
+			if (defined('ERROR_TEMPLATE')) {
+				$error_template = ERROR_TEMPLATE;
+			}
+
+			//$template->display($error_template);
+			return $this->response->setHtml( $template->fetch($error_template) , $http_status);
+
+		} else {
+			//header("HTTP/1.0 " . $http_status . " " . $meta_title);
+
+			$output_html = '';
+			$output_html .= '<html>' . PHP_EOL;
+			$output_html .= '<head>' . PHP_EOL;
+			if (! empty($meta_title)) {
+				$output_html .= '<title>' . $meta_title . '</title>' . PHP_EOL;
+			}
+			$output_html .= '</head>' . PHP_EOL;
+			$output_html .= '<body>' . PHP_EOL;
+			if (! empty($h1)) {
+				$output_html .= '<h1>' . $h1 . '</h1>' . PHP_EOL;
+			}
+			if (! empty($message)) {
+				$output_html .= '<p>' . $message . '</p>' . PHP_EOL;
+			}
+			$output_html .= '</body>' . PHP_EOL;
+			$output_html .= '</html>' . PHP_EOL;
+
+			//echo $output_html;
+
+			return $this->response->setHtml($output_html, $http_status);
+		}
+
 	}
 
 	public function error400($title = 'Bad request', $message = '')

@@ -150,7 +150,8 @@ class Response
 
 	public function getContentLength()
 	{
-		return strlen($this->body);
+		return empty($this->body) ? 0 : strlen($this->body);
+		//return empty($this->body) || ! is_string($this->body) ? 0 : strlen($this->body);
 	}
 
 	public function setBody($body)
