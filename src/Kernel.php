@@ -55,7 +55,7 @@ class Kernel
 
 	}
 
-
+	
 	public function configure()
 	{
 		if (is_file(APP_DIR . '/config/config.php')) {
@@ -98,9 +98,28 @@ class Kernel
 
 
 
+	public function run()
+	{
+		// 1) Read input
+		if (Tools::isCli()) {
+			$request = Request::createFromArgv();
+
+		} else {
+			$request = Request::createFromGlobals();
+		}
+
+		// 2) Process App workflow/pipe and return a $response
+		$response = $this->handle($request);
+
+		// 3) Send $response->content to the client (browser or stdout)
+		return $response->send();
+	}
+
+
+
 	/* MAIN APP PROCESS */
 
-	public function handle(Request $request)
+	public function handle(Request $request=null)
 	{
 		try {
 			$response = new Response(200, [], null);
