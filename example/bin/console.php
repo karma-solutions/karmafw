@@ -11,9 +11,9 @@ $loader = require VENDOR_DIR . '/autoload.php';
 $loader->setPsr4('App\\', APP_DIR . '/src');
 
 
-use \KarmaFW\App;
-use \KarmaFW\App\Request;
-use \KarmaFW\App\Response;
+use \KarmaFW\Kernel;
+use \KarmaFW\Http\Request;
+use \KarmaFW\Http\Response;
 use \KarmaFW\App\Middlewares as KarmaMiddlewares;
 
 
@@ -24,20 +24,11 @@ ini_set('display_errors', 1);
 $request = Request::createFromGlobals();
 
 // Init App and Define workflow
-$app = new App([
-    //new KarmaMiddlewares\TrafficLogger,
+$app = new Kernel([
     new KarmaMiddlewares\ErrorHandler,
     //new KarmaMiddlewares\ResponseTime,
-    //new KarmaMiddlewares\ForceHttps,
-    //new KarmaMiddlewares\GzipEncoding,
-    //new KarmaMiddlewares\MaintenanceMode,
     new KarmaMiddlewares\SessionHandler,
-    //'handle404',
-    //'Authentification',
-    //'CacheHtml',
-    //new KarmaMiddlewares\UrlPrefixRouter,
     new KarmaMiddlewares\CommandRouter($argv),
-    //new KarmaMiddlewares\UrlRouter,
 ]);
 
 // Process App workflow/pipe and return a $response
