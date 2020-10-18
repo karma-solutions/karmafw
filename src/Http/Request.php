@@ -4,7 +4,6 @@ namespace KarmaFW\Http;
 
 use \KarmaFW\Routing\Route;
 
-// TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Request
 
 class Request
 {
@@ -25,7 +24,6 @@ class Request
 	public $SERVER = null;
 
 
-	//public function __construct($url=null, $method=null)
 	public function __construct($method, $url, array $headers=[], $body=null, $version='1.1')
 	{
 		$this->url = $url;
@@ -42,7 +40,6 @@ class Request
 		// TODO
 		$request = new self(null, null);
 
-
 		$request->GET = isset($_GET) ? $_GET : [];
 		$request->POST = isset($_POST) ? $_POST : [];
 		$request->COOKIE = isset($_COOKIE) ? $_COOKIE : [];
@@ -50,9 +47,6 @@ class Request
 		$request->ENV = isset($_ENV) ? $_ENV : [];
 		$request->FILES = isset($_FILES) ? $_FILES : [];
 		$request->SERVER = isset($_SERVER) ? $_SERVER : [];
-
-		$client_ip = null;
-		$request->setClientIp($client_ip);
 		
 		return $request;
 	}
