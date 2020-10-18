@@ -12,8 +12,9 @@ class Request
 	protected $url = null;
 	protected $protocol = null;
 
-	protected $client_ip = null;
 	protected $route = null;
+	protected $client_ip = null;
+	protected $user_agent = null;
 
 	public $GET = null;
 	public $POST = null;
@@ -93,6 +94,10 @@ class Request
 			$request->SERVER['SERVER_NAME'] = $request->SERVER['HTTP_X_FORWARDED_HOST'];
 		}
 
+		// Set Client User-Agent
+		$user_agent = isset($request->SERVER['HTTP_USER_AGENT']) ? $request->SERVER['HTTP_USER_AGENT'] : null;
+		$request->setUserAgent($user_agent);
+
 		// Set Client IP
 		$client_ip = null;
 		if (! empty($request->SERVER['REMOTE_ADDR'])) {
@@ -125,6 +130,16 @@ class Request
 	public function setClientIp($client_ip)
 	{
 		$this->client_ip = $client_ip;
+	}
+
+	public function getUserAgent()
+	{
+		return $this->user_agent;
+	}
+
+	public function setUserAgent($user_agent)
+	{
+		$this->user_agent = $user_agent;
 	}
 
 	public function getRoute()
