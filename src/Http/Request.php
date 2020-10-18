@@ -4,7 +4,6 @@ namespace KarmaFW\Http;
 
 use \KarmaFW\Routing\Route;
 
-// TODO: a remplacer par ou rendre compatible avec GuzzleHttp\Psr7\Request
 
 class Request
 {
@@ -12,8 +11,9 @@ class Request
 	protected $url = null;
 	protected $protocol = null;
 
-	protected $client_ip = null;
 	protected $route = null;
+	protected $client_ip = null;
+	protected $user_agent = null;
 
 	public $GET = null;
 	public $POST = null;
@@ -24,7 +24,6 @@ class Request
 	public $SERVER = null;
 
 
-	//public function __construct($url=null, $method=null)
 	public function __construct($method, $url, array $headers=[], $body=null, $version='1.1')
 	{
 		$this->url = $url;
@@ -41,7 +40,6 @@ class Request
 		// TODO
 		$request = new self(null, null);
 
-
 		$request->GET = isset($_GET) ? $_GET : [];
 		$request->POST = isset($_POST) ? $_POST : [];
 		$request->COOKIE = isset($_COOKIE) ? $_COOKIE : [];
@@ -49,9 +47,6 @@ class Request
 		$request->ENV = isset($_ENV) ? $_ENV : [];
 		$request->FILES = isset($_FILES) ? $_FILES : [];
 		$request->SERVER = isset($_SERVER) ? $_SERVER : [];
-
-		$client_ip = null;
-		$request->setClientIp($client_ip);
 		
 		return $request;
 	}
@@ -93,6 +88,10 @@ class Request
 			$request->SERVER['SERVER_NAME'] = $request->SERVER['HTTP_X_FORWARDED_HOST'];
 		}
 
+		// Set Client User-Agent
+		$user_agent = isset($request->SERVER['HTTP_USER_AGENT']) ? $request->SERVER['HTTP_USER_AGENT'] : null;
+		$request->setUserAgent($user_agent);
+
 		// Set Client IP
 		$client_ip = null;
 		if (! empty($request->SERVER['REMOTE_ADDR'])) {
@@ -125,6 +124,16 @@ class Request
 	public function setClientIp($client_ip)
 	{
 		$this->client_ip = $client_ip;
+	}
+
+	public function getUserAgent()
+	{
+		return $this->user_agent;
+	}
+
+	public function setUserAgent($user_agent)
+	{
+		$this->user_agent = $user_agent;
 	}
 
 	public function getRoute()

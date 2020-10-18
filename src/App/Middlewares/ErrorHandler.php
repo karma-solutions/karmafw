@@ -64,7 +64,7 @@ class ErrorHandler
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
             }
 
-            $response->setStatus($http_code)->setHtml($response_content);
+            $response->setHtml($response_content, $http_code);
         }
 
         return $response;
