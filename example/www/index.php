@@ -11,21 +11,16 @@ $loader->setPsr4('App\\', APP_DIR . '/src');
 
 
 use \KarmaFW\Kernel;
-use \KarmaFW\Http\Request;
-use \KarmaFW\Http\Response;
 use \KarmaFW\App\Middlewares as KarmaMiddlewares;
 
 
 ini_set('display_errors', 1);
 
 
-// Build request
-$request = Request::createFromGlobals();
-
 // Init App and Define workflow
 $app = new Kernel([
     new KarmaMiddlewares\TrafficLogger,
-    new KarmaMiddlewares\ErrorHandler,
+    new KarmaMiddlewares\ErrorHandler(true),
     new KarmaMiddlewares\ResponseTime,
     //new KarmaMiddlewares\MinimifierHtml,
     //new KarmaMiddlewares\RedirectToDomain('www.mydomain.com', ['mydomain.com', 'mydomain.fr', 'www.mydomain.fr']),
@@ -40,9 +35,4 @@ $app = new Kernel([
     new KarmaMiddlewares\UrlRouter,
 ]);
 
-// Process App workflow/pipe and return a $response
-$response = $app->handle($request);
-
-// Send $response->content to the client (browser or stdout)
-$response->send();
-
+$app->run();

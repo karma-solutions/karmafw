@@ -12,18 +12,12 @@ $loader->setPsr4('App\\', APP_DIR . '/src');
 
 
 use \KarmaFW\Kernel;
-use \KarmaFW\Http\Request;
-use \KarmaFW\Http\Response;
 use \KarmaFW\App\Middlewares as KarmaMiddlewares;
 
 
 ini_set('display_errors', 1);
 
 
-// Build request
-$request = Request::createFromGlobals();
-
-// Init App and Define workflow
 $app = new Kernel([
     new KarmaMiddlewares\ErrorHandler,
     //new KarmaMiddlewares\ResponseTime,
@@ -31,9 +25,5 @@ $app = new Kernel([
     new KarmaMiddlewares\CommandRouter($argv),
 ]);
 
-// Process App workflow/pipe and return a $response
-$response = $app->handle($request);
-
-// Send $response->content to the client (browser or stdout)
-$response->send();
+$app->run();
 
