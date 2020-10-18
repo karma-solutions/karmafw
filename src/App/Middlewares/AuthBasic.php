@@ -6,9 +6,17 @@ use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 
 
-class AuthentificationHandler
+class AuthBasic
 {
-	
+	protected $method;
+
+
+	public function __construct($method='basic')
+	{
+		$this->method = $method;
+	}
+
+
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
 		$is_auth = false;
