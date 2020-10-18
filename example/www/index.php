@@ -28,7 +28,7 @@ $app = new Kernel([
     //new KarmaMiddlewares\GzipEncoding,
     //new KarmaMiddlewares\MaintenanceMode,
     new KarmaMiddlewares\SessionHandler,
-    //new Authentification, // (not implemented)
+    //new KarmaMiddlewares\AuthentificationHandler, // (not implemented)
     //new KarmaMiddlewares\CacheHtml(APP_DIR . '/var/cache/html', 3600),
     //new KarmaMiddlewares\CommandRouter($argv),
     //new KarmaMiddlewares\UrlGroupRouter,

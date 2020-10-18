@@ -20,8 +20,8 @@ ini_set('display_errors', 1);
 
 $app = new Kernel([
     new KarmaMiddlewares\ErrorHandler,
-    //new KarmaMiddlewares\ResponseTime,
-    new KarmaMiddlewares\SessionHandler,
+    //new KarmaMiddlewares\SessionHandler,
+    //new KarmaMiddlewares\AuthentificationHandler, // (not implemented)
     new KarmaMiddlewares\CommandRouter($argv),
 ]);
 

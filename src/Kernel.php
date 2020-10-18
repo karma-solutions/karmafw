@@ -6,6 +6,7 @@ use \KarmaFW\App\Container;
 use \KarmaFW\App\Pipe;
 use \KarmaFW\App\Tools;
 use \KarmaFW\Database\Sql\SqlDb;
+use \KarmaFW\Database\Redis\Redis;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 
@@ -28,6 +29,7 @@ class Kernel
 	];
 
 	protected $db = null;
+	protected $redis = null;
 
 	protected $middlewares;
 	protected $container;
@@ -88,6 +90,10 @@ class Kernel
 		if (defined('DB_DSN')) {
 			//$this->db = static::getDb('default', DB_DSN);
 			$this->db = $this->connectDb('default', DB_DSN);
+		}
+
+		if (defined('REDIS_DSN')) {
+			$this->redis = new Redis(REDIS_DSN);
 		}
 
 

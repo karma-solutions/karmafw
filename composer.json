@@ -12,10 +12,11 @@
         "php": ">=5.4.0"
     },
     "suggest": {
-        "phpgangsta/googleauthenticator": "*",
         "phpmailer/phpmailer": "*",
-        "paypal/rest-api-sdk-php": "*",
+		"predis/predis": "2.0.x-dev",
+        "phpgangsta/googleauthenticator": "*",
         "stripe/stripe-php": "*",
+        "paypal/rest-api-sdk-php": "*",
         "payplug/payplug-php": "*",
         "mpdf/mpdf": "*",
         "filp/whoops": "*",

@@ -41,7 +41,7 @@ class UrlRouter
 
 			$content = ob_get_contents();
 			ob_end_clean();
-//var_dump($response); 
+
 			if (! empty($route_response) && is_a($route_response, Response::class)) {
 				$response = $route_response;
 			}
