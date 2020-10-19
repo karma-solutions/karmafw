@@ -168,9 +168,13 @@ class Response
 
 	public function setHtml($body, $status=200, $content_type='text/html')
 	{
-		return $this->setBody($body)
-				->setContentType($content_type)
-				->setStatus($status);
+		if (! is_null($status)) {
+			$this->setStatus($status);
+		}
+		if (! is_null($content_type)) {
+			$this->setContentType($content_type);
+		}
+		return $this->setBody($body);
 	}
 	
 	public function setJson($body, $status=200, $content_type='application/json')

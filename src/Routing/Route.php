@@ -19,6 +19,8 @@ class Route
 	private $get_prefix = null;
 	private $matched_prefix = '';
 	private $matched_params = [];
+	private $middlewares = [];
+	private $continue = false;
 
 
 	public function __construct()
@@ -86,6 +88,17 @@ class Route
 		return $this->matched_params;
 	}
 
+
+	public function setContinue(bool $continue)
+	{
+		$this->continue = $continue;
+	}
+
+	public function getContinue()
+	{
+		return $this->continue;
+	}
+
 	public function getMatchedPrefix()
 	{
 		return $this->matched_prefix;
@@ -101,6 +114,24 @@ class Route
 	public function setName($name)
 	{
 		$this->name = $name;
+	}
+
+	// Get middlewares
+	public function getMiddlewares()
+	{
+		return $this->middlewares;
+	}
+
+	// Set middlewares
+	public function setMiddlewares($middlewares)
+	{
+		$this->middlewares = $middlewares;
+	}
+
+	// Add middleware
+	public function addMiddleware($middleware)
+	{
+		$this->middlewares[] = $middleware;
 	}
 
 	// Set route callback
@@ -156,7 +187,7 @@ class Route
 			//error500("get_prefix is not callable");
 			return null;
 		}
-		//pre($func, 1);
+		//pre($func); exit;
 		return $func();
 	}
 
