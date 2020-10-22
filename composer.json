@@ -20,7 +20,8 @@
         "payplug/payplug-php": "*",
         "mpdf/mpdf": "*",
         "filp/whoops": "*",
-        "symfony/var-dumper": "*"
+        "symfony/var-dumper": "*",
+		"maximebf/debugbar": "^1.16@dev"
     },
     "autoload": {
         "psr-4": {
