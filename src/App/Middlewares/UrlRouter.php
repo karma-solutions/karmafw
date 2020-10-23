@@ -51,7 +51,7 @@ class UrlRouter
 
 			$response = $next($request, $response);
 
-		} catch (\Throwable $e) {
+		} catch (\Exception $e) {
 			$error_code = $e->getCode();
 			$error_message = $e->getMessage();
 

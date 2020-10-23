@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\Lib;
+namespace KarmaFW\App\Middlewares\DebugBar;
 
 use \DebugBar\DataCollector\MessagesCollector;
 
@@ -13,13 +13,14 @@ class KarmaMessagesCollector extends MessagesCollector
 	public function addMessage($message, $label = 'info', $isString = true)
 	{
 		parent::addMessage($message, $label, $isString);
-		return $this->messages[ count($this->messages) - 1 ];
+		return count($this->messages) - 1;
 	}
 
-	public function updateMessage($messageObj, $message)
+	public function updateMessage($message_idx, $message='')
 	{
         $messageText = $message;
         $messageHtml = null;
+
         if (!is_string($message)) {
             // Send both text and HTML representations; the text version is used for searches
             $messageText = $this->getDataFormatter()->formatVar($message);
@@ -28,10 +29,10 @@ class KarmaMessagesCollector extends MessagesCollector
             }
             $isString = false;
         }
-        
-        $messageObj['message'] = $messageText;
-        $messageObj['message_html'] = $messageHtml;
-        $messageObj['is_string'] = $isString;
+
+        $this->messages[$message_idx]['message'] = $messageText;
+        $this->messages[$message_idx]['message_html'] = $messageHtml;
+        $this->messages[$message_idx]['is_string'] = $isString;
 	}
 
 }

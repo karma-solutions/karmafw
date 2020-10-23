@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\Templates;
+namespace KarmaFW\App\Middlewares\DebugBar;
 
 use \DebugBar\DataCollector\DataCollector;
 use \DebugBar\DataCollector\Renderable;

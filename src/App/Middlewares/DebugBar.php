@@ -9,9 +9,9 @@ use \DebugBar\DataCollector\TimeDataCollector;
 use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
-use \KarmaFW\Database\Sql\SqlDbCollector;
-use \KarmaFW\Lib\KarmaMessagesCollector;
-//use \KarmaFW\Templates\PhpTemplateCollector;
+use \KarmaFW\App\Middlewares\DebugBar\SqlDbCollector;
+use \KarmaFW\App\Middlewares\DebugBar\KarmaMessagesCollector;
+//use \KarmaFW\App\Middlewares\DebugBar\PhpTemplateCollector;
 
 
 class DebugBar

@@ -1,6 +1,6 @@
 <?php
 
-namespace KarmaFW\Database\Sql;
+namespace KarmaFW\App\Middlewares\DebugBar;
 
 use \DebugBar\DataCollector\DataCollector;
 use \DebugBar\DataCollector\Renderable;
@@ -13,6 +13,9 @@ class SqlDbCollector extends DataCollector implements Renderable, AssetProvider
 {
 	protected $sql_queries = [];
 	protected $totalExecTime = 0;
+    protected $total_memory = 0;
+    protected $max_memory = 0;
+    protected $nb_failed_statements = 0;
 
 
     public function collect()
@@ -20,8 +23,13 @@ class SqlDbCollector extends DataCollector implements Renderable, AssetProvider
 	    return [
 	        'nb_statements' => count($this->sql_queries),
 	        'accumulated_duration' => $this->totalExecTime,
-	        'accumulated_duration_str' => round($this->totalExecTime, 5),
+	        'accumulated_duration_str' => round($this->totalExecTime, 4),
 	        'statements' => $this->sql_queries,
+            'nb_failed_statements' => $this->nb_failed_statements,
+            'memory_usage' => $this->total_memory,
+            'memory_usage_str' => round($this->total_memory/1000000, 1) . " Mo",
+            'peak_memory_usage' => $this->max_memory,
+            'peak_memory_usage_str' => round($this->max_memory/1000000, 1) . " Mo",
 	    ];
     }
 
@@ -35,6 +43,13 @@ class SqlDbCollector extends DataCollector implements Renderable, AssetProvider
     {
     	$this->sql_queries[] = $query;
     	$this->totalExecTime += $query['duration'];
+
+        $this->total_memory += $query['memory'];
+        $this->max_memory = max($this->max_memory, $query['memory']);
+
+        if ($query['is_success'] === false) {
+            $this->nb_failed_statements += 1;
+        }
     }
 
 

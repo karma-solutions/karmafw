@@ -130,7 +130,12 @@ class SqlQuery
 			$_query = "select 1 from ( select 1 ) tmp where 0";
 		}
 
+		$mem_start = memory_get_usage();
+
 		$rs = $this->db->getDriver()->execute($_query);
+
+		$mem_end = memory_get_usage();
+		$memory_used = $mem_end - $mem_start;
 		//pre($rs);
 
 		$ts_end = microtime(true);
@@ -146,11 +151,31 @@ class SqlQuery
 			//$debugbar['sql']->addMessage( preg_replace('/\s+/', ' ', $query) );
 			
 			if (isset($debugbar['sql_queries'])) {
+				$error_code = 0;
+				$error_msg = null;
+				$is_success = true;
+				if ($rs instanceOf SqlResultSetError) {
+					$is_success = false;
+					$error_code = $rs->getErrorCode();
+					$error_msg = $rs->getErrorMessage();
+				}
+
+
 				$debugbar['sql_queries']->addQuery([
 					'sql' => preg_replace('/\s+/', ' ', $query),
 					'duration' => $this->duration,
-					//'nb_rows' => 'n/a',
-					'duration_str' => round($this->duration, 5),
+					'duration_str' => round($this->duration, 4) . " sec.",
+					'row_count' => $rs->getRowsCount(),
+					//'stmt_id' => null,
+					//'prepared_stmt' => null,
+					'params' => $params,
+					'memory' => $memory_used,
+					'memory_str' => round($memory_used/1000000, 1) . "Mo",
+					'end_memory' => $mem_end,
+					'end_memory_str' => round($mem_end/1000000, 1) . "Mo",
+					'is_success' => $is_success,
+					'error_code' => $error_code,
+					'error_message' => $error_msg,
 				]);
 			}
 			

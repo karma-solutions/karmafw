@@ -173,7 +173,7 @@ class PhpTemplate
 			if (isset($debugbar['templates'])) {
 				//$debugbar['templates']->info($tpl);
 
-				$debugbar_message = $debugbar['templates']->addMessage(['tpl' => $tpl]);
+				$debugbar_message_idx = $debugbar['templates']->addMessage(['tpl' => $tpl]);
 			}
 		}
 
@@ -250,8 +250,9 @@ class PhpTemplate
 		$ts_end = microtime(true);
 		$duration = $ts_end - $ts_start;
 
-		if (! empty($debugbar_message)) {
-			$debugbar['templates']->updateMessage($debugbar_message, [
+		if (! is_null($debugbar_message_idx)) {
+
+			$debugbar['templates']->updateMessage($debugbar_message_idx, [
 				'tpl' => $tpl,
 				'layout' => $layout_old,
 				'content_length' => strlen($content),
