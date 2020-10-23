@@ -2,6 +2,7 @@
 
 namespace KarmaFW\App;
 
+use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 
@@ -34,7 +35,24 @@ class Pipe
         }
 
         $service = array_shift($this->services);
+        $service_name = get_class($service);
+
+        $debugbar = App::getData('debugbar');
+        if ($debugbar) {
+            if (isset($debugbar['time'])) {
+                $debugbar['time']->startMeasure($service_name, $service_name);
+            }
+        }
+
         $response = call_user_func($service, $request, $response, [$this, 'next']);
+
+        $debugbar = App::getData('debugbar');
+        if ($debugbar) {
+            if (isset($debugbar['time']) && $debugbar['time']->hasStartedMeasure($service_name)) {
+                $debugbar['time']->stopMeasure($service_name);
+            }
+        }
+
         return $response;
     }
 }

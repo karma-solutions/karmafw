@@ -2,6 +2,7 @@
 
 namespace KarmaFW\Database\Sql;
 
+use \KarmaFW\App;
 use \KarmaFW\Database\Sql\SqlResultSetError;
 
 
@@ -137,6 +138,24 @@ class SqlQuery
 		
 		$this->recordset = $rs;
 		$this->db->setLastQuery($this);
+
+
+		// TODO: voir comment bien injecter cette dependance
+		$debugbar = App::getData('debugbar');
+		if ($debugbar) {
+			//$debugbar['sql']->addMessage( preg_replace('/\s+/', ' ', $query) );
+			
+			if (isset($debugbar['sql_queries'])) {
+				$debugbar['sql_queries']->addQuery([
+					'sql' => preg_replace('/\s+/', ' ', $query),
+					'duration' => $this->duration,
+					//'nb_rows' => 'n/a',
+					'duration_str' => round($this->duration, 5),
+				]);
+			}
+			
+		}
+
 
 		if ($rs instanceOf SqlResultSetError) {
 			// query error

@@ -2,6 +2,7 @@
 
 namespace KarmaFW;
 
+use \KarmaFW\App;
 use \KarmaFW\App\Container;
 use \KarmaFW\App\Pipe;
 use \KarmaFW\App\Tools;
@@ -138,6 +139,16 @@ class Kernel
             $error_message = $e->getMessage();
 
             error_log("[App] Error " . $error_code . " : " . $error_message);
+
+
+			// TODO: voir comment bien injecter cette dependance
+			$debugbar = App::getData('debugbar');
+			if ($debugbar) {
+	            if (isset($debugbar['exceptions'])) {
+					$debugbar['exceptions']->addException($e);
+	            }
+	        }
+
 
             $content = null;
             if (ENV == 'dev') {

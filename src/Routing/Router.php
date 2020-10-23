@@ -2,6 +2,7 @@
 
 namespace KarmaFW\Routing;
 
+use \KarmaFW\App;
 use \KarmaFW\WebApp;
 use \KarmaFW\App\Pipe;
 use \KarmaFW\Http\Request;
@@ -205,6 +206,16 @@ class Router
 	{
 		$matched_params = $route->getMatchedParams();
 
+        $suffix = empty($route->getName()) ? '' : (' [' . $route->getName() . ']');
+		$service_name = $route->getMethods() . ' ' . $route->getMatchUrl() . $suffix;
+
+        $debugbar = App::getData('debugbar');
+        if ($debugbar) {
+            if (isset($debugbar['time'])) {
+                $debugbar['time']->startMeasure($service_name, $service_name);
+            }
+        }
+
 		if (gettype($callback) == 'array') {
 			//echo " => ARRAY !<br />" . PHP_EOL;
 			//pre($callback, 1);
@@ -218,6 +229,12 @@ class Router
 			$callback($request_uri, $request_method, $route, $matched_params, $response);
 		}
 
+        $debugbar = App::getData('debugbar');
+        if ($debugbar) {
+            if (isset($debugbar['time'])) {
+                $debugbar['time']->stopMeasure($service_name, $service_name);
+            }
+        }
 
 		return true;
 	}
@@ -309,6 +326,16 @@ class Router
 		$matched_params = $route->getMatchedParams();
 		$middlewares_result = ['success' => false];
 
+        $suffix = empty($route->getName()) ? '' : (' [' . $route->getName() . ']');
+		$service_name = $route->getMethods() . ' ' . $route->getMatchUrl() . $suffix;
+
+        $debugbar = App::getData('debugbar');
+        if ($debugbar) {
+            if (isset($debugbar['time'])) {
+                $debugbar['time']->startMeasure($service_name, $service_name);
+            }
+        }
+
 		if (empty($callback)) {
 			// do nothing
 			$route->addMiddleware(function () use ($request, $response, &$middlewares_result) {
@@ -338,8 +365,19 @@ class Router
 			});
 		}
 
+
+
 		$pipe = new Pipe($route->getMiddlewares());
 		$route_response = $pipe->next($request, $response);
+
+
+        $debugbar = App::getData('debugbar');
+        if ($debugbar) {
+            if (isset($debugbar['time'])) {
+                $debugbar['time']->stopMeasure($service_name, $service_name);
+            }
+        }
+
 
 		//pre($middlewares_result);
 		if (! $middlewares_result['success']) {

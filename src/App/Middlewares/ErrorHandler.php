@@ -2,6 +2,7 @@
 
 namespace KarmaFW\App\Middlewares;
 
+use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 
@@ -36,6 +37,16 @@ class ErrorHandler
         } catch (\Throwable $e) {
             $error_code = $e->getCode();
             $error_message = $e->getMessage();
+
+
+            // TODO: voir comment bien injecter cette dependance
+            $debugbar = App::getData('debugbar');
+            if ($debugbar) {
+                if (isset($debugbar['exceptions'])) {
+                    $debugbar['exceptions']->addException($e);
+                }
+            }
+
 
             /*
             if ($error_code == 404) {

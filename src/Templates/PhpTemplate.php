@@ -2,6 +2,8 @@
 
 namespace KarmaFW\Templates;
 
+use \KarmaFW\App;
+
 
 class PhpTemplate
 {
@@ -103,6 +105,7 @@ class PhpTemplate
 	public function fetch($tpl=null, $extra_vars=[], $layout=null, $options=[])
 	{
 		$tpl_dirs = [];
+		$ts_start = microtime(true);
 
 		// user templates
 		if (! empty($this->templates_dirs)) {
@@ -160,6 +163,18 @@ class PhpTemplate
 
 		} else {
 			$content = '';
+		}
+
+
+		// TODO: voir comment bien injecter cette dependance
+		$debugbar = App::getData('debugbar');
+		if ($debugbar) {
+			
+			if (isset($debugbar['templates'])) {
+				//$debugbar['templates']->info($tpl);
+
+				$debugbar_message = $debugbar['templates']->addMessage(['tpl' => $tpl]);
+			}
 		}
 
 
@@ -228,7 +243,23 @@ class PhpTemplate
 		if (is_null($layout)) {
 			$layout = $this->layout;
 		}
+		$layout_old = $this->layout;
 		$this->layout = null;
+
+
+		$ts_end = microtime(true);
+		$duration = $ts_end - $ts_start;
+
+		if (! empty($debugbar_message)) {
+			$debugbar['templates']->updateMessage($debugbar_message, [
+				'tpl' => $tpl,
+				'layout' => $layout_old,
+				'content_length' => strlen($content),
+				'duration' => $duration,
+				'duration_str' => round($duration, 5),
+			]);
+		}
+
 
 		if (empty($layout)) {
 			return $content;

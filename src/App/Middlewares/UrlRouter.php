@@ -2,6 +2,7 @@
 
 namespace KarmaFW\App\Middlewares;
 
+use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 use \KarmaFW\Routing\Router;
@@ -53,6 +54,15 @@ class UrlRouter
 		} catch (\Throwable $e) {
 			$error_code = $e->getCode();
 			$error_message = $e->getMessage();
+
+
+			// TODO: voir comment bien injecter cette dependance
+			$debugbar = App::getData('debugbar');
+			if ($debugbar) {
+	            if (isset($debugbar['exceptions'])) {
+					$debugbar['exceptions']->addException($e);
+	            }
+	        }
 
 
 			// REDIRECTION

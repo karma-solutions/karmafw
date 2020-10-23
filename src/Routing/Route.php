@@ -36,6 +36,11 @@ class Route
 		}
 	}
 
+	public function getMethods()
+	{
+		return implode(',', $this->methods);
+	}
+
 	// Set route match url
 	public function setMatchUrl($match_url)
 	{
