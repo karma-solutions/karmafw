@@ -41,6 +41,8 @@ class Kernel
 		$this->middlewares = $middlewares;
 		$this->container = new Container;
 
+		App::setData('app', $this);
+
 		try {
 			$this->configure();
 

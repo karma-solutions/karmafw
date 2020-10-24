@@ -9,6 +9,7 @@ use \DebugBar\DataCollector\TimeDataCollector;
 use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
+use \KarmaFW\App\Middlewares\DebugBar\KarmaFwCollector;
 use \KarmaFW\App\Middlewares\DebugBar\SqlDbCollector;
 use \KarmaFW\App\Middlewares\DebugBar\KarmaMessagesCollector;
 //use \KarmaFW\App\Middlewares\DebugBar\PhpTemplateCollector;
@@ -25,6 +26,7 @@ class DebugBar
 			$debugbar = new StandardDebugBar();
 			App::setData('debugbar', $debugbar);
 			
+			$debugbar->addCollector(new KarmaFwCollector);
 			$debugbar->addCollector(new SqlDbCollector);
 
 			//$debugbar->addCollector(new PhpTemplateCollector); // DO NOT WORK
@@ -40,6 +42,13 @@ class DebugBar
 		$show_debugbar = ($load_debugbar && $is_html);
 
 		if ($show_debugbar) {
+			$data = [
+				'app' => App::getData('app'),
+				'request' => $request,
+				'response' => $response,
+			];
+			$debugbar['KarmaFW']->setData($data);
+
 			$response->append( $debugbarRenderer->renderHead() );
 			// TODO: $response->injectAppendTo('head', $debugbarRenderer->renderHead())
 			// => function injectAppendTo($tag) { $body = preg_replace('|</'.$tag.'>|', $injected_html . '</'.$tag.'>', $body, 1);
