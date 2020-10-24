@@ -250,7 +250,7 @@ class PhpTemplate
 		$ts_end = microtime(true);
 		$duration = $ts_end - $ts_start;
 
-		if (! is_null($debugbar_message_idx)) {
+		if (isset($debugbar_message_idx) && ! is_null($debugbar_message_idx)) {
 
 			$debugbar['templates']->updateMessage($debugbar_message_idx, [
 				'tpl' => $tpl,

@@ -46,6 +46,11 @@ class DebugBar
 
 			$response->append( $debugbarRenderer->render() );
 			// TODO: injectAppendTo('body', $debugbarRenderer->render())
+
+			$response->addHeader('X-DebugBar', 'on');
+
+		} else {
+			$response->addHeader('X-DebugBar', 'off');
 		}
 
 
