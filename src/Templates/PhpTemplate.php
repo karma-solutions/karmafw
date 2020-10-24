@@ -256,8 +256,10 @@ class PhpTemplate
 				'tpl' => $tpl,
 				'layout' => $layout_old,
 				'content_length' => strlen($content),
+				'content_length_str' => formatSize(strlen($content)),
 				'duration' => $duration,
-				'duration_str' => round($duration, 5),
+				'duration_str' => formatDuration($duration),
+				'vars' => $this->variables,
 			]);
 		}
 
