@@ -286,3 +286,134 @@ if (! function_exists('rrmdir')) {
 	    rmdir($src);
 	}
 }
+
+
+
+if (! function_exists('formatSize')) {
+
+	function formatSize($bytes, $format = '%.2f',$lang = 'fr') {
+		// http://dev.petitchevalroux.net/php/afficher-taille-fichier-avec-une-unite-php.271.html
+
+		if (empty($bytes)) {
+			return '0';
+		}
+
+		static $units = array(
+			'fr' => array(
+				'o',
+				'Ko',
+				'Mo',
+				'Go',
+				'To'
+			),
+			'en' => array(
+				'B',
+				'KB',
+				'MB',
+				'GB',
+				'TB'
+			),
+		);
+		$translatedUnits = &$units[$lang];
+
+		if(isset($translatedUnits)  === false) {
+			$translatedUnits = &$units['en'];
+		}
+
+		$b = (double)$bytes;
+
+		/*On gére le cas des tailles de fichier négatives*/
+		if ($b > 0) {
+			$e = (int)(log($b,1024));
+			/**Si on a pas l'unité on retourne en To*/
+			if(isset($translatedUnits[$e]) === false) {
+				$e = 4;
+			}
+			$b = $b/pow(1024,$e);
+		} else {
+			$b = 0;
+			$e = 0;
+		}
+
+		return sprintf($format.' %s',$b,$translatedUnits[$e]);
+	}
+}
+
+
+if (! function_exists('formatTel')) {
+	function formatTel($num, $sep=' ') {
+	    if (is_null($num)) {
+	        return null;
+	    }
+		$num = trim($num);
+		$num = str_replace(' ', '', $num);
+		$num = str_replace('.', '', $num);
+		$num = str_replace('-', '', $num);
+
+		if (strlen($num) == 10) {
+			$parts = str_split($num, 2);
+			return implode($sep, $parts);
+		}
+
+		if (strlen($num) == 12 && substr($num, 0, 3) == '+33') {
+			$parts = str_split(substr($num, 4), 2);
+			return substr($num, 0, 3) . ' ' . substr($num, 3, 1) . ' ' . implode($sep, $parts);
+		}
+
+		return $num;
+
+	}
+}
+
+
+if (! function_exists('formatPrice')) {
+	function formatPrice($price, $devise='') {
+	    if (empty($price)) {
+	        $price = 0;
+	    }
+		$str = number_format($price, 2, ".", " ");
+		if (! empty($devise)) {
+			$str .= " " . $devise;
+		}
+		return $str;
+	}
+}
+
+
+if (! function_exists('formatDuration')) {
+	function formatDuration($seconds) {
+	    if (empty($seconds)) {
+	        return 0 . " s";
+
+	    } else if ($seconds < 1) {
+	        return round($seconds*1000, 4) . " ms";
+
+	    } else if ($seconds < 60) {
+	        return $seconds . " s";
+
+	    } else if ($seconds < 3600) {
+	        $minutes = floor($seconds/60);
+	        $seconds2 = $seconds - ($minutes * 60);
+	        return $minutes . " min " . $seconds2 . " s";
+
+	    } else if ($seconds < 86400) {
+	        $hours = floor($seconds/3600);
+	        $seconds2 = $seconds - ($hours * 3600);
+	        
+	        $minutes = floor($seconds2/60);
+	        $seconds3 = $seconds2 - ($minutes * 60);
+	        return $hours . " h " . $minutes . " min"; // . " " . $seconds3 . " s";
+
+	    } else {
+	        $days = floor($seconds/86400);
+	        $seconds2 = $seconds - ($days * 3600);
+
+	        $hours = floor($seconds2/3600);
+	        $seconds3 = $seconds2 - ($hours * 3600);
+	        
+	        $minutes = floor($seconds3/60);
+	        $seconds4 = $seconds3 - ($minutes * 60);
+	        return $days . " d " . $hours . " h";// . " " . $minutes . " min " . $seconds4 . " s"
+	    }
+	}
+}
