@@ -23,13 +23,13 @@ class SqlDbCollector extends DataCollector implements Renderable, AssetProvider
 	    return [
 	        'nb_statements' => count($this->sql_queries),
 	        'accumulated_duration' => $this->totalExecTime,
-	        'accumulated_duration_str' => round($this->totalExecTime, 4),
+	        'accumulated_duration_str' => formatDuration($this->totalExecTime),
 	        'statements' => $this->sql_queries,
             'nb_failed_statements' => $this->nb_failed_statements,
             'memory_usage' => $this->total_memory,
-            'memory_usage_str' => round($this->total_memory/1000000, 1) . " Mo",
+            'memory_usage_str' => formatSize($this->total_memory),
             'peak_memory_usage' => $this->max_memory,
-            'peak_memory_usage_str' => round($this->max_memory/1000000, 1) . " Mo",
+            'peak_memory_usage_str' => formatSize($this->max_memory),
 	    ];
     }
 
