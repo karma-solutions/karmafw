@@ -10,6 +10,7 @@ class Redis
 	protected $dsn = null;
 	protected $client = null;
 	
+
 	public function __construct($redis_dsn=null)
 	{
 		if (empty($redis_dsn) && defined('REDIS_DSN')) {
@@ -20,9 +21,11 @@ class Redis
 			$redis_dsn = 'tcp://localhost:6379';
 		}
 
-		$this->dsn = $redis_dsn;
+		if (class_exists('\\Predis\\Client')) {
+			$this->setClient(new Predis\Client($redis_dsn));
+			$this->dsn = $redis_dsn;
+		}
 
-		$this->setClient(new Predis\Client($redis_dsn));
 	}
 
 	public function getClient()
