@@ -20,7 +20,7 @@ class DebugBar
 	
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
-		$load_debugbar = (defined('ENV') && ENV == 'dev' && class_exists('\\DebugBar\\StandardDebugBar'));
+		$load_debugbar = ( class_exists('\\DebugBar\\StandardDebugBar') && ((defined('ENV') && ENV == 'dev') || defined('FORCE_DEBUGBAR') && FORCE_DEBUGBAR)  );
 
 		if ($load_debugbar) {
 			$debugbar = new StandardDebugBar();
