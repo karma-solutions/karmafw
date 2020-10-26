@@ -179,6 +179,9 @@ class Response
 	
 	public function setJson($body, $status=200, $content_type='application/json')
 	{
+		if (! is_string($body)) {
+			$body = json_encode($body);
+		}
 		return $this->setBody($body)
 				->setContentType($content_type)
 				->setStatus($status);
