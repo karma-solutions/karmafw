@@ -30,7 +30,6 @@ $app = new Kernel([
     new KarmaMiddlewares\SessionHandler,
     //new KarmaMiddlewares\AuthentificationHandler, // (not implemented)
     //new KarmaMiddlewares\CacheHtml(APP_DIR . '/var/cache/html', 3600),
-    //new KarmaMiddlewares\CommandRouter($argv),
     //new KarmaMiddlewares\UrlGroupRouter,
     new KarmaMiddlewares\UrlRouter,
 ]);
