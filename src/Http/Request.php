@@ -3,6 +3,7 @@
 namespace KarmaFW\Http;
 
 use \KarmaFW\Routing\Route;
+use \KarmaFW\Http\UserAgent;
 
 
 class Request
@@ -152,6 +153,11 @@ class Request
 		    || (! empty($this->SERVER['REQUEST_SCHEME']) && $this->SERVER['REQUEST_SCHEME'] == 'https')
 		    || (! empty($this->SERVER['HTTP_X_FORWARDED_HTTPS']) && $this->SERVER['HTTP_X_FORWARDED_HTTPS'] == 'On')
 		    || (! empty($this->SERVER['HTTP_X_FORWARDED_SCHEME']) && $this->SERVER['HTTP_X_FORWARDED_SCHEME'] == 'https');
+	}
+
+	public function isBot()
+	{
+		return UserAgent::isBot($this->user_agent);
 	}
 
 	/*

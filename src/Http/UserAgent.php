@@ -932,7 +932,8 @@ class UserAgent
 		"Mozilla/5.0 (compatible; +http://tweetedtimes.com)",
 	];
 
-	public static function isBots($user_agent) 
+	public static function isBot($user_agent) 
+	{
 		return in_array($user_agent, self::$bots_users_agents);
 	}
 
