@@ -166,7 +166,7 @@ class Response
 		return $this->setBody($body);
 	}
 
-	public function setHtml($body, $status=200, $content_type='text/html')
+	public function setHtml($body, $status=200, $content_type='text/html; charset=utf8')
 	{
 		if (! is_null($status)) {
 			$this->setStatus($status);
@@ -177,7 +177,7 @@ class Response
 		return $this->setBody($body);
 	}
 	
-	public function setJson($body, $status=200, $content_type='application/json')
+	public function setJson($body, $status=200, $content_type='application/json; charset=utf8')
 	{
 		if (! is_string($body)) {
 			$body = json_encode($body);
@@ -187,7 +187,7 @@ class Response
 				->setStatus($status);
 	}
 
-	public function setCsv($body, $download_file_name=null, $status=200, $content_type='text/csv')
+	public function setCsv($body, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
 	{
 		if (is_array($body)) {
 			// transform array to csv
@@ -382,7 +382,7 @@ class Response
 	}
 
 
-	public function error404($body='', $content_type='text/html')
+	public function error404($body='', $content_type='text/html; charset=utf8')
 	{
 		$this->setStatus(404)
 			->setContentType($content_type)

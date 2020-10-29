@@ -314,7 +314,7 @@ class SqlTable
 			'offset' => $offset,
 			'page_rows' => count($data),
 			'total_rows' => $found_rows,
-			'nb_pages' => empty($nb_per_page) ? null : ceil($found_rows / $nb_per_page),
+			'nb_pages' => empty($nb_per_page) ? 1 : ceil($found_rows / $nb_per_page),
 		];
 
 		return [
