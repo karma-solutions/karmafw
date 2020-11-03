@@ -21,7 +21,7 @@ class DebugBar
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
 		$load_debugbar = ( class_exists('\\DebugBar\\StandardDebugBar') && ((defined('ENV') && ENV == 'dev') || defined('FORCE_DEBUGBAR') && FORCE_DEBUGBAR)  );
-		$load_debugbar = $load_debugbar && $request->isGet() && ! $request->isAjax();
+		$load_debugbar = $load_debugbar && $request->isGet() && ! $request->isAjax() && (! isset($_GET['debugbar']) || ! empty($_GET['debugbar']));
 
 		if ($load_debugbar) {
 			$debugbar = new StandardDebugBar();
