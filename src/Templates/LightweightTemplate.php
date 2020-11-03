@@ -107,13 +107,14 @@ class LightweightTemplate {
 	protected static function compileCode($code) {
 		$code = self::compileBlock($code);
 		$code = self::compileYield($code);
+		$code = self::compileModules($code);
 		$code = self::compileEscapedEchos($code);
 		$code = self::compileEchos($code);
 		$code = self::compilePHP($code);
 		return $code;
 	}
 
-	protected static function includeFiles($file, $caller_file=null, $parent_file=null) {
+	protected static function includeFiles($file, $level=0, $caller_file=null, $parent_file=null) {
 		$code = file_get_contents(self::$tpl_path . '/' . $file);
 		$code_init = $code;
 		$layout = null;
@@ -158,8 +159,9 @@ class LightweightTemplate {
 				$tpl_infos .= 'with layout ' . $layout . '';
 			}
 
-			$begin = '<!-- BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
-			$end = '<!-- END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+			$level2 = 1 + $level;
+			$begin = str_repeat("\t", $level2) . '<!-- BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+			$end = str_repeat("\t", $level2) . '<!-- END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
 
 			$code = PHP_EOL . $begin . PHP_EOL . $code . PHP_EOL . $end . PHP_EOL;
 		}
@@ -169,7 +171,7 @@ class LightweightTemplate {
 			$value = $layout_matches[0];
 			$layout = $value[1];
 
-			$layout_code = self::includeFiles($layout, $file);
+			$layout_code = self::includeFiles($layout, $level-1, $file);
 			$code = str_replace($value[0], '', $code);
 			
 			$layout_code = str_replace('<' . '?=$child_content?' . '>', '{$child_content}', $layout_code);
@@ -181,7 +183,7 @@ class LightweightTemplate {
 		// includes
 		preg_match_all('/{include ?\'?(.*?)\'? ?}/i', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
-			$included_code = self::includeFiles($value[1], null, $file);
+			$included_code = self::includeFiles($value[1], $level+1, null, $file);
 			$code = str_replace($value[0], $included_code, $code);
 		}
 
@@ -210,19 +212,31 @@ class LightweightTemplate {
 		return $code;
 	}
 
+	protected static function compileModules($code) {
+
+		// routeUrl => {url clients_list}
+		$code = preg_replace('/{routeUrl /', '{url ', $code); // for compatibility with old templates
+		preg_match_all('~{url (.*?)}~is', $code, $matches, PREG_SET_ORDER);
+		foreach ($matches as $value) {
+			//pre($matches); exit;
+			$code = str_replace($value[0], getRouteUrl($value[1]), $code);
+		}
+		return $code;
+	}
+
 	protected static function compileEchos($code, $strict=false) {
-		// compile PHP variables
+		// compile PHP variables (method 1) => {$my_var}
 		if ($strict) {
 			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo \$$1 ?>', $code);
 		} else {
 			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo isset(\$$1) ? (\$$1) : ""; ?>', $code);
 		}
-		// compile PHP
+		// compile PHP variables (method 2) => {{ $my_var }}
 		return preg_replace('~\{{\s*(.+?)\s*\}}~is', '<?php echo $1 ?>', $code);
 	}
 
 	protected static function compileEscapedEchos($code) {
-		// compile PHP escaped variables
+		// compile PHP escaped variables => {{{ $my_var }}}
 		return preg_replace('~\{{{\s*(.+?)\s*\}}}~is', '<?php echo htmlentities($1, ENT_QUOTES, \'UTF-8\') ?>', $code);
 	}
 
@@ -241,6 +255,7 @@ class LightweightTemplate {
 	}
 
 	protected static function compileYield($code) {
+		// compile yields => {yield my_block}
 		foreach(self::$blocks as $block => $value) {
 			$code = preg_replace('/{yield ?' . $block . ' ?}/', $value, $code);
 		}
