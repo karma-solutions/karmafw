@@ -385,6 +385,9 @@ if (! function_exists('formatDuration')) {
 	    if (empty($seconds)) {
 	        return 0 . " s";
 
+	    } else if ($seconds < 1/1000) {
+	        return round($seconds*1000*1000, 4) . " µs";
+
 	    } else if ($seconds < 1) {
 	        return round($seconds*1000, 4) . " ms";
 
