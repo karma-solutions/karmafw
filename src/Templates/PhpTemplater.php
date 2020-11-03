@@ -25,6 +25,10 @@ class PhpTemplater
 		$this->variables = $variables;
 	}
 
+	public function getVariables()	{
+		return $this->variables;
+	}
+
 	public function setAllVariables($var_name, $var_value)
 	{
 		$this->variables[$var_name] = $var_value;

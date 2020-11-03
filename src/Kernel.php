@@ -29,8 +29,8 @@ class Kernel
 		FW_SRC_DIR . "/helpers",
 	];
 
-	protected $db = null;
-	protected $redis = null;
+	protected $db = null; // TODO: a deplacer dans $services['db']
+	protected $redis = null; // TODO: a deplacer dans $services['redis']
 
 	protected $middlewares;
 	protected $container;
@@ -45,6 +45,7 @@ class Kernel
 
 		try {
 			$this->configure();
+			$this->init();
 
 		} catch (\Exception $e) {
 			header("HTTP/1.0 500 Internal Server Error");
@@ -88,21 +89,29 @@ class Kernel
 		if (! defined('ERROR_TEMPLATE')) {
 			//define('ERROR_TEMPLATE', "page_error.tpl.php");
 		}
+	}
+
+
+	public function init()
+	{
+		// Load helpers
+		Tools::loadHelpers(APP_DIR . '/src/helpers');
+		Tools::loadHelpers(FW_DIR . '/src/helpers');
+
+
+		// Load services
+		$this->loadServices();
 
 
 		if (defined('DB_DSN')) {
 			//$this->db = static::getDb('default', DB_DSN);
-			$this->db = $this->connectDb('default', DB_DSN);
+			$this->db = $this->connectDb('default', DB_DSN); // TODO: a deplacer dans $services['db'] ( ou $services['sql'] ? )
 		}
 
 		if (defined('REDIS_DSN')) {
-			$this->redis = new Redis(REDIS_DSN);
+			$this->redis = new Redis(REDIS_DSN); // TODO: a deplacer dans $services['redis']
 		}
-
-
-		// Load helpers
-		Tools::loadHelpers(APP_DIR . '/src/helpers');
-		Tools::loadHelpers(FW_DIR . '/src/helpers');
+		
 	}
 
 
@@ -167,6 +176,22 @@ class Kernel
 	}
 
     
+	public function loadServices()
+	{
+		$this->set('db', function ($dsn=null) {
+			return new \KarmaFW\Database\Sql\SqlDb($dsn);
+		});
+
+		$this->set('redis', function ($dsn=null) {
+			return new \KarmaFW\Database\Redis\Redis($dsn);
+		});
+
+		$this->set('template', function ($tpl=null, $data=[]) {
+			return new \KarmaFW\Templates\PhpTemplate($tpl, $data);
+			//return new \KarmaFW\Templates\LightweightTemplate($tpl, $data);
+		});
+	}
+
 
     /* CONTAINER */
 
