@@ -149,17 +149,17 @@ class LightweightTemplate {
 		if (defined('ENV') && ENV == 'dev') {
 			$tpl_infos = '';
 			if ($caller_file) {
-				$tpl_infos .= 'layout for ' . $caller_file . '';
+				$tpl_infos .= ' layout for ' . $caller_file . '';
 			}
 			if ($parent_file) {
-				$tpl_infos .= 'child of ' . $parent_file . '';
+				$tpl_infos .= ' child of ' . $parent_file . '';
 			}
 			if ($layout) {
-				$tpl_infos .= 'with layout ' . $layout . '';
+				$tpl_infos .= ' with layout ' . $layout . '';
 			}
 
-			$begin = '<!-- BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
-			$end = '<!-- END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+			$begin = '<!-- BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' -' . $tpl_infos . ') -->';
+			$end = '<!-- END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' -' . $tpl_infos . ') -->';
 
 			$code = PHP_EOL . $begin . PHP_EOL . $code . PHP_EOL . $end . PHP_EOL;
 		}
@@ -210,7 +210,7 @@ class LightweightTemplate {
 		return $code;
 	}
 
-	protected static function compileEchos($code, $strict=false) {
+	protected static function compileEchos($code, $strict=true) {
 		// compile PHP variables
 		if ($strict) {
 			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo \$$1 ?>', $code);
