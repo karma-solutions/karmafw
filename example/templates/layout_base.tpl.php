@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="/assets/vendor/alertify-1.11.1/css/alertify.css">
     <link rel="stylesheet" type="text/css" href="/assets/vendor/tui.chart-3.11.2/tui-chart.min.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/app.css">
-    {$block_extra_css}
+    {yield block_css}
 
     <script type="text/javascript">var onload_actions = []; function registerOnloadAction(func) { onload_actions.push(func); }</script>
   </head>
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="/assets/vendor/tui.chart-3.11.2/tui-chart.min.js"></script>
     <script type="text/javascript" src="/assets/vendor/jQuery-Autocomplete-1.4.11/jquery.autocomplete.min.js"></script>
     <script type="text/javascript" src="/assets/js/app.js"></script>
-    {$block_extra_js}
+    {yield block_js}
 
     <script type="text/javascript">executeOnloadActions();</script>
   </body>

@@ -187,8 +187,8 @@ class Kernel
 		});
 
 		$this->set('template', function ($tpl=null, $data=[]) {
-			return new \KarmaFW\Templates\PhpTemplate($tpl, $data);
-			//return new \KarmaFW\Templates\LightweightTemplate($tpl, $data);
+			//return new \KarmaFW\Templates\PhpTemplate($tpl, $data);
+			return new \KarmaFW\Templates\LightweightTemplate($tpl, $data);
 		});
 	}
 

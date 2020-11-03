@@ -117,6 +117,16 @@ class Request
 		return $this->method;
 	}
 
+	public function isGet()
+	{
+		return ($this->method == 'GET');
+	}
+
+	public function isPost()
+	{
+		return ($this->method == 'POST');
+	}
+
 	public function getClientIp()
 	{
 		return $this->client_ip;
@@ -158,6 +168,11 @@ class Request
 	public function isBot()
 	{
 		return UserAgent::isBot($this->user_agent);
+	}
+
+	public function isAjax()
+	{
+		return (! empty($request->SERVER['HTTP_X_REQUESTED_WITH']) && $request->SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 	}
 
 	/*

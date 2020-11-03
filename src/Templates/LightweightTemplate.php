@@ -11,7 +11,7 @@ class LightweightTemplate {
 	static $blocks = array();
 	static $cache_path = APP_DIR . '/var/cache';
 	static $tpl_path = APP_DIR . '/templates';
-	static $cache_enabled = (ENV == 'dev') && false;
+	static $cache_enabled = (ENV == 'prod');
 
 
 	protected $data = [];
@@ -32,6 +32,16 @@ class LightweightTemplate {
 		} else {
 			$this->data[$k] = $v;
 		}
+	}
+	
+	public function getVariables() 
+	{
+		return $this->data;
+	}
+	
+	public function getVar($var_name, $default_value=null) 
+	{
+		return isset($this->data[$var_name]) ? $this->data[$var_name] : $default_value;
 	}
 
 	public function fetch($tpl=null, $extra_vars=[], $layout=null, $options=[]) 
@@ -59,7 +69,9 @@ class LightweightTemplate {
 
 	protected static function cache($file) {
 		if (!file_exists(self::$cache_path)) {
-		  	mkdir(self::$cache_path, 0744);
+		  	if (! @mkdir(self::$cache_path, 0744)) {
+		  		throw new \Exception("Cannot create templates cache dir " . self::$cache_path, 1);
+		  	}
 		}
 	    $cached_file = self::$cache_path . '/' . str_replace(array('/', '.html'), array('_', ''), $file . '.php');
 	    if (!self::$cache_enabled || !file_exists($cached_file) || filemtime($cached_file) < filemtime(self::$tpl_path . '/' . $file)) {
@@ -106,6 +118,12 @@ class LightweightTemplate {
 		$code_init = $code;
 		$layout = null;
 
+		static $tpl_idx = null;
+		if (is_null($tpl_idx) || (empty($caller_file) && empty($parent_file))) {
+			$tpl_idx = 0;
+		}
+		$tpl_idx++;
+
 		$debugbar = App::getData('debugbar');
 		if ($debugbar) {
 			if (isset($debugbar['templates'])) {
@@ -118,21 +136,37 @@ class LightweightTemplate {
 		$ts_start = microtime(true);
 
 
-		if (defined('ENV') && ENV == 'dev') {
-			$suffix = '';
-			if ($caller_file) {
-				$suffix .= ' => caller: ' . $caller_file . '';
-			}
-			if ($parent_file) {
-				$suffix .= ' => parent: ' . $parent_file . '';
-			}
-			$code = '<!-- TEMPLATE START : ' . $file . $suffix . ' -->' . $code . '<!-- TEMPLATE END : ' . $file . ' => size: ' . formatSize(strlen($code)) . ' -->';
+		// Layout (1)
+		preg_match_all('/{layout ?\'?(.*?)\'? ?}/i', $code, $layout_matches, PREG_SET_ORDER);
+		if ($layout_matches) {
+			$value = $layout_matches[0];
+			$layout = $value[1];
+		} else {
+			$layout = null;
 		}
 
-		// Layout
-		preg_match_all('/{layout ?\'?(.*?)\'? ?}/i', $code, $matches, PREG_SET_ORDER);
-		if ($matches) {
-			$value = $matches[0];
+
+		if (defined('ENV') && ENV == 'dev') {
+			$tpl_infos = '';
+			if ($caller_file) {
+				$tpl_infos .= 'layout for ' . $caller_file . '';
+			}
+			if ($parent_file) {
+				$tpl_infos .= 'child of ' . $parent_file . '';
+			}
+			if ($layout) {
+				$tpl_infos .= 'with layout ' . $layout . '';
+			}
+
+			$begin = '<!-- BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+			$end = '<!-- END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+
+			$code = PHP_EOL . $begin . PHP_EOL . $code . PHP_EOL . $end . PHP_EOL;
+		}
+
+		// Layout (2)
+		if ($layout_matches) {
+			$value = $layout_matches[0];
 			$layout = $value[1];
 
 			$layout_code = self::includeFiles($layout, $file);
@@ -172,25 +206,28 @@ class LightweightTemplate {
 	}
 
 	protected static function compilePHP($code) {
-		return preg_replace('~\{%\s*(.+?)\s*\%}~is', '<?php $1 ?>', $code);
+		/* return preg_replace('~\{%\s*(.+?)\s*\%}~is', '<?php $1 ?>', $code); */
+		return $code;
 	}
 
 	protected static function compileEchos($code, $strict=false) {
+		// compile PHP variables
 		if ($strict) {
 			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo \$$1 ?>', $code);
-
 		} else {
 			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo isset(\$$1) ? (\$$1) : ""; ?>', $code);
 		}
+		// compile PHP
 		return preg_replace('~\{{\s*(.+?)\s*\}}~is', '<?php echo $1 ?>', $code);
 	}
 
 	protected static function compileEscapedEchos($code) {
+		// compile PHP escaped variables
 		return preg_replace('~\{{{\s*(.+?)\s*\}}}~is', '<?php echo htmlentities($1, ENT_QUOTES, \'UTF-8\') ?>', $code);
 	}
 
 	protected static function compileBlock($code) {
-		preg_match_all('/{% ?block ?(.*?) ?%}(.*?){% ?endblock ?%}/is', $code, $matches, PREG_SET_ORDER);
+		preg_match_all('~{block ?(.*?) ?}(.*?){/block}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
 			if (!array_key_exists($value[1], self::$blocks)) self::$blocks[$value[1]] = '';
 			if (strpos($value[2], '@parent') === false) {
@@ -205,9 +242,9 @@ class LightweightTemplate {
 
 	protected static function compileYield($code) {
 		foreach(self::$blocks as $block => $value) {
-			$code = preg_replace('/{% ?yield ?' . $block . ' ?%}/', $value, $code);
+			$code = preg_replace('/{yield ?' . $block . ' ?}/', $value, $code);
 		}
-		$code = preg_replace('/{% ?yield ?(.*?) ?%}/i', '', $code);
+		$code = preg_replace('/{yield ?(.*?) ?}/i', '', $code);
 		return $code;
 	}
 
