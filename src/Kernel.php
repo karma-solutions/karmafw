@@ -178,6 +178,8 @@ class Kernel
     
 	public function loadServices()
 	{
+		// TODO: rendre parametrable la liste des services
+
 		$this->set('db', function ($dsn=null) {
 			return new \KarmaFW\Database\Sql\SqlDb($dsn);
 		});
@@ -189,6 +191,10 @@ class Kernel
 		$this->set('template', function ($tpl=null, $data=[]) {
 			//return new \KarmaFW\Templates\PhpTemplate($tpl, $data);
 			return new \KarmaFW\Templates\LightweightTemplate($tpl, $data);
+		});
+
+		$this->set('traffic_logger', function (Request $request, Response $response) {
+			return null; // TODO
 		});
 	}
 

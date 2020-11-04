@@ -29,11 +29,9 @@ class DebugBar
 			App::setData('debugbar', $debugbar);
 			
 			$debugbar->addCollector(new KarmaFwCollector);
-			$debugbar->addCollector(new SEOCollector);
 			$debugbar->addCollector(new SqlDbCollector);
-
-			//$debugbar->addCollector(new PhpTemplateCollector); // DO NOT WORK
 			$debugbar->addCollector(new KarmaMessagesCollector('templates'));
+			$debugbar->addCollector(new SEOCollector);
 
 			$debugbarRenderer = $debugbar->getJavascriptRenderer('/assets/vendor/debugbar'); // symlink to ${APP_DIR}/vendor/maximebf/debugbar/src/DebugBar/Resources
 		}
@@ -83,31 +81,24 @@ class DebugBar
 	{
 		$content = $response->getBody();
 
-
-		preg_match('~<title(.*?)>(.*?)</title>~', $content, $matches);
+		preg_match('~<title(.*?)>(.*?)</title>~is', $content, $matches);
 		$title = empty($matches) ? '' : $matches[2];
 
-		preg_match('~<meta +name="description" +content="(.*?)" *>~', $content, $matches);
+		preg_match('~<meta +name="description" +content="(.*?)" *>~is', $content, $matches);
 		$meta_desc = empty($matches) ? '' : $matches[1];
 
-		$x = strpos($content, '<h1');
-		$subcontent = substr($content, $x, 1024);
-		//pre($subcontent); exit;
-		//preg_match('~<h1>(.*?)</h1>~', $content, $matches);
-		preg_match('~<h1(.*?)>(.*?)</h1>~', $content, $matches);
-		//pre($matches); exit;
+		preg_match('~<h1(.*?)>(.*?)</h1>~is', $content, $matches);
 		$h1 = empty($matches) ? '' : $matches[2];
 
-		preg_match_all('/<a /', $content, $matches);
+		preg_match_all('/<a /is', $content, $matches);
 		$nb_links = empty($matches) ? 0 : count($matches[0]);
-
 
 		$data = [
 			'title' => $title,
 			'meta description' => $meta_desc,
 			'h1' => $h1,
 			'nb links' => $nb_links,
-			'content length' => strlen($content),
+			'content length' => formatSize(strlen($content)),
 		];
 
 		return $data;

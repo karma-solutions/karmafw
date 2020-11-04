@@ -145,7 +145,7 @@ class SqlQuery
 		$this->db->setLastQuery($this);
 
 
-		// TODO: voir comment bien injecter cette dependance
+		// debugbar
 		$debugbar = App::getData('debugbar');
 		if ($debugbar) {
 			//$debugbar['sql']->addMessage( preg_replace('/\s+/', ' ', $query) );
@@ -166,14 +166,10 @@ class SqlQuery
 					'duration' => $this->duration,
 					'duration_str' => formatDuration($this->duration),
 					'row_count' => $rs->getRowsCount(),
-					//'stmt_id' => null,
-					//'prepared_stmt' => null,
 					'params' => $params,
 					'memory' => $memory_used,
-					//'memory_str' => round($memory_used/1000000, 1) . "Mo",
 					'memory_str' => formatSize($memory_used),
 					'end_memory' => $mem_end,
-					//'end_memory_str' => round($mem_end/1000000, 1) . "Mo",
 					'end_memory_str' => formatSize($mem_end),
 					'is_success' => $is_success,
 					'error_code' => $error_code,

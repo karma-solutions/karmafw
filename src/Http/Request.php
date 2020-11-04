@@ -11,6 +11,7 @@ class Request
 	protected $method = null;
 	protected $url = null;
 	protected $protocol = null;
+	protected $attributes = [];
 
 	protected $route = null;
 	protected $client_ip = null;
@@ -31,6 +32,8 @@ class Request
 		$this->method = strtoupper($method);
 		$this->protocol = $version;
 		//$this->setHeaders($headers);
+
+		$this->setAttribute('env', ENV);
 
 		//print_r($_SERVER); exit;
 	}
@@ -174,6 +177,29 @@ class Request
 	{
 		return (! empty($request->SERVER['HTTP_X_REQUESTED_WITH']) && $request->SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 	}
+
+
+
+	public function getAttributes()
+	{
+		return $this->attributes;
+	}
+
+	public function setAttributes($attributes)
+	{
+		$this->attributes = $attributes;
+	}
+
+	public function getAttribute($key, $default_value=null)
+	{
+		return isset($this->attributes[$key]) ? $this->attributes[$key] : $default_value;
+	}
+
+	public function setAttribute($key, $value)
+	{
+		$this->attributes[$key] = $value;
+	}
+
 
 	/*
 

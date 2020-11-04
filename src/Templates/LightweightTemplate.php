@@ -135,6 +135,10 @@ class LightweightTemplate {
 	}
 
 	protected static function includeFiles($file, $level=0, $caller_file=null, $parent_file=null) {
+		if (! is_file(self::$tpl_path . '/' . $file)) {
+			throw new \Exception("Template file not found " . $file, 500);
+		}
+		
 		$code = file_get_contents(self::$tpl_path . '/' . $file);
 		$code_init = $code;
 		$layout = null;
@@ -259,7 +263,7 @@ class LightweightTemplate {
 		preg_match_all('~{if (.*?) ?}(.*?){/if}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
 			
-			$replaced = '<' . '? else if ( $1 ) : ?' . '>';
+			$replaced = '<' . '?php elseif ( $1 ) : ?' . '>';
 			$value[2] = preg_replace('/{elseif (.*?) ?}/', $replaced, $value[2]);
 
 			$replaced = PHP_EOL . '<' . '?php if (' . $value[1] . ') : ?' . '>' . PHP_EOL . $value[2] . PHP_EOL . '<' . '?php endif; ?' . '>';
