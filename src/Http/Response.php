@@ -19,6 +19,7 @@ class Response
 	protected $redirect_url = null;
 	protected $download_file_name = null;
 	protected $download_file_path = null;
+	protected $attributes = [];
 
 
 	/* public */ const http_status_codes = [
@@ -389,6 +390,27 @@ class Response
 			->setBody($body);
 
 		return $this;
+	}
+
+
+	public function getAttributes()
+	{
+		return $this->attributes;
+	}
+
+	public function setAttributes($attributes)
+	{
+		$this->attributes = $attributes;
+	}
+
+	public function getAttribute($key, $default_value=null)
+	{
+		return isset($this->attributes[$key]) ? $this->attributes[$key] : $default_value;
+	}
+
+	public function setAttribute($key, $value)
+	{
+		$this->attributes[$key] = $value;
 	}
 
 }

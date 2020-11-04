@@ -10,6 +10,7 @@ use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 use \KarmaFW\App\Middlewares\DebugBar\KarmaFwCollector;
+use \KarmaFW\App\Middlewares\DebugBar\SEOCollector;
 use \KarmaFW\App\Middlewares\DebugBar\SqlDbCollector;
 use \KarmaFW\App\Middlewares\DebugBar\KarmaMessagesCollector;
 //use \KarmaFW\App\Middlewares\DebugBar\PhpTemplateCollector;
@@ -28,6 +29,7 @@ class DebugBar
 			App::setData('debugbar', $debugbar);
 			
 			$debugbar->addCollector(new KarmaFwCollector);
+			$debugbar->addCollector(new SEOCollector);
 			$debugbar->addCollector(new SqlDbCollector);
 
 			//$debugbar->addCollector(new PhpTemplateCollector); // DO NOT WORK
@@ -40,15 +42,24 @@ class DebugBar
 		$response = $next($request, $response);
 
 		$is_html = (empty($response->getContentType()) || strpos($response->getContentType(), 'text/html') === 0);
-		$show_debugbar = ($load_debugbar && $is_html);
+		$show_debugbar = ($load_debugbar && $is_html && $response->getStatus() == 200);
 
 		if ($show_debugbar) {
+
+			
+			// KarmaFW
 			$data = [
 				'app' => App::getData('app'),
 				'request' => $request,
 				'response' => $response,
 			];
 			$debugbar['KarmaFW']->setData($data);
+
+
+			// SEO
+			$seo_data = $this->seoParseContent($response);
+			$debugbar['SEO']->setData($seo_data);
+
 
 			$response->append( $debugbarRenderer->renderHead() );
 			// TODO: $response->injectAppendTo('head', $debugbarRenderer->renderHead())
@@ -65,6 +76,41 @@ class DebugBar
 
 
 		return $response;
+	}
+
+
+	protected function seoParseContent(Response $response)
+	{
+		$content = $response->getBody();
+
+
+		preg_match('~<title(.*?)>(.*?)</title>~', $content, $matches);
+		$title = empty($matches) ? '' : $matches[2];
+
+		preg_match('~<meta +name="description" +content="(.*?)" *>~', $content, $matches);
+		$meta_desc = empty($matches) ? '' : $matches[1];
+
+		$x = strpos($content, '<h1');
+		$subcontent = substr($content, $x, 1024);
+		//pre($subcontent); exit;
+		//preg_match('~<h1>(.*?)</h1>~', $content, $matches);
+		preg_match('~<h1(.*?)>(.*?)</h1>~', $content, $matches);
+		//pre($matches); exit;
+		$h1 = empty($matches) ? '' : $matches[2];
+
+		preg_match_all('/<a /', $content, $matches);
+		$nb_links = empty($matches) ? 0 : count($matches[0]);
+
+
+		$data = [
+			'title' => $title,
+			'meta description' => $meta_desc,
+			'h1' => $h1,
+			'nb links' => $nb_links,
+			'content length' => strlen($content),
+		];
+
+		return $data;
 	}
 
 }

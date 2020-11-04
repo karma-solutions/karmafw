@@ -9,9 +9,10 @@ class LightweightTemplate {
 	// https://codeshack.io/lightweight-template-engine-php/
 
 	static $blocks = array();
-	static $cache_path = APP_DIR . '/var/cache';
+	static $cache_path = APP_DIR . '/var/cache/templates';
 	static $tpl_path = APP_DIR . '/templates';
-	static $cache_enabled = (ENV == 'prod');
+	static $cache_enabled = (ENV == 'prod') || true;
+	static $tpl_last_updated = null;
 
 
 	protected $data = [];
@@ -67,20 +68,38 @@ class LightweightTemplate {
 	   	require $cached_file;
 	}
 
+
 	protected static function cache($file) {
 		if (!file_exists(self::$cache_path)) {
 		  	if (! @mkdir(self::$cache_path, 0744)) {
 		  		throw new \Exception("Cannot create templates cache dir " . self::$cache_path, 1);
 		  	}
 		}
+
 	    $cached_file = self::$cache_path . '/' . str_replace(array('/', '.html'), array('_', ''), $file . '.php');
-	    if (!self::$cache_enabled || !file_exists($cached_file) || filemtime($cached_file) < filemtime(self::$tpl_path . '/' . $file)) {
-			$code = self::includeFiles($file);
+	    $cached_file_exists = is_file($cached_file);
+
+	    if ($cached_file_exists) {
+		    $cached_file_updated = filemtime($cached_file);
+		    self::$tpl_last_updated = filemtime(self::$tpl_path . '/' . $file);
+	    } else {
+	    	$cached_file_updated = null;
+	    }
+
+	    if (ENV == 'dev') {
+	    	// on force le parcours de tous les fichiers inclus pour avoir la vraie valeur de self::$tpl_last_updated
+	    	$code = self::includeFiles($file);
+	    }
+
+	    if (!self::$cache_enabled || ! $cached_file_exists || $cached_file_updated < self::$tpl_last_updated) {
+	    	if (! isset($code)) {
+				$code = self::includeFiles($file);
+	    	}
 			$code = self::compileCode($code);
 	        file_put_contents($cached_file, '<?php class_exists(\'' . __CLASS__ . '\') or exit; ?>' . PHP_EOL . $code);
 
 	    } else {
-	    	//header('X-Template: cached');
+	    	//header('X-Template: cached'); // TODO: $response->addHeader(...)
 
 			$debugbar = App::getData('debugbar');
 			if ($debugbar) {
@@ -107,10 +126,11 @@ class LightweightTemplate {
 	protected static function compileCode($code) {
 		$code = self::compileBlock($code);
 		$code = self::compileYield($code);
+
 		$code = self::compileModules($code);
 		$code = self::compileEscapedEchos($code);
 		$code = self::compileEchos($code);
-		$code = self::compilePHP($code);
+		//$code = self::compilePHP($code);
 		return $code;
 	}
 
@@ -118,6 +138,11 @@ class LightweightTemplate {
 		$code = file_get_contents(self::$tpl_path . '/' . $file);
 		$code_init = $code;
 		$layout = null;
+
+		$ts_update_file = filectime(self::$tpl_path . '/' . $file);
+		if (empty(self::$tpl_last_updated) || self::$tpl_last_updated < $ts_update_file) {
+			self::$tpl_last_updated = $ts_update_file;
+		}
 
 		static $tpl_idx = null;
 		if (is_null($tpl_idx) || (empty($caller_file) && empty($parent_file))) {
@@ -173,8 +198,9 @@ class LightweightTemplate {
 			$layout_code = self::includeFiles($layout, $level-1, $file);
 			$code = str_replace($value[0], '', $code);
 			
-			$layout_code = str_replace('<' . '?=$child_content?' . '>', '{$child_content}', $layout_code);
-			$layout_code = str_replace('{$child_content}', $code, $layout_code);
+			$layout_code = str_replace('<' . '?=$child_content?' . '>', '{@content}', $layout_code);
+			$layout_code = str_replace('{$child_content}', '{@content}', $layout_code);
+			$layout_code = str_replace('{@content}', $code, $layout_code);
 
 			$code = $layout_code;
 		}
@@ -214,7 +240,7 @@ class LightweightTemplate {
 
 	protected static function compileModules($code) {
 
-		// routeUrl => {url clients_list}
+		// url => {url clients_list}
 		$code = preg_replace('/{routeUrl /', '{url ', $code); // for compatibility with old templates
 		preg_match_all('~{url (.*?)}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
@@ -222,16 +248,20 @@ class LightweightTemplate {
 			$code = str_replace($value[0], getRouteUrl($value[1]), $code);
 		}
 
-		// foreach
-		preg_match_all('~{foreach ?(.*?) ?}(.*?){/foreach}~is', $code, $matches, PREG_SET_ORDER);
+		// foreach => {foreach $list as $item}<div>...</div>{/foreach}
+		preg_match_all('~{foreach (.*?) ?}(.*?){/foreach}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
 			$replaced = PHP_EOL . '<' . '?php foreach (' . $value[1] . ') : ?' . '>' . PHP_EOL . $value[2] . PHP_EOL . '<' . '?php endforeach; ?' . '>';
 			$code = str_replace($value[0], $replaced, $code);
 		}
 
-		// if
-		preg_match_all('~{if ?(.*?) ?}(.*?){/if}~is', $code, $matches, PREG_SET_ORDER);
+		// if => {if $item}<div>...</div>{/if}
+		preg_match_all('~{if (.*?) ?}(.*?){/if}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
+			
+			$replaced = '<' . '? else if ( $1 ) : ?' . '>';
+			$value[2] = preg_replace('/{elseif (.*?) ?}/', $replaced, $value[2]);
+
 			$replaced = PHP_EOL . '<' . '?php if (' . $value[1] . ') : ?' . '>' . PHP_EOL . $value[2] . PHP_EOL . '<' . '?php endif; ?' . '>';
 			$code = str_replace($value[0], $replaced, $code);
 		}
@@ -272,7 +302,7 @@ class LightweightTemplate {
 	protected static function compileYield($code) {
 		// compile yields => {yield my_block}
 		foreach(self::$blocks as $block => $value) {
-			$code = preg_replace('/{yield ?' . $block . ' ?}/', $value, $code);
+			$code = preg_replace('/{yield ' . $block . ' ?}/', $value, $code);
 		}
 		$code = preg_replace('/{yield ?(.*?) ?}/i', '', $code);
 		return $code;
