@@ -9,8 +9,8 @@ class LightweightTemplate {
 	// https://codeshack.io/lightweight-template-engine-php/
 
 	static $blocks = array();
-	static $cache_path = APP_DIR . '/var/cache/templates';
-	static $tpl_path = APP_DIR . '/templates';
+	static $cache_path = TPL_CACHE_DIR; // APP_DIR . '/var/cache/templates';
+	static $tpl_path = TPL_DIR;
 	static $cache_enabled = (ENV == 'prod') || true;
 	static $tpl_last_updated = null;
 

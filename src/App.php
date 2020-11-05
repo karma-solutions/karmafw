@@ -3,7 +3,7 @@
 namespace KarmaFW;
 
 use \KarmaFW\Lib\Hooks\HooksManager;
-use \KarmaFW\Database\Sql\SqlDb;
+//use \KarmaFW\Database\Sql\SqlDb;
 //use \KarmaFW\Database\Sql\SqlOrmModel;
 
 class App
@@ -77,16 +77,16 @@ class App
 
 		// define class aliases
 		class_alias('\\KarmaFW\\App', 'App');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlDb', 'SqlDb');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlSchema', 'SqlSchema');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlTable', 'SqlTable');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlOrmModel', 'SqlOrmModel');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlQuery', 'SqlQuery');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlWhere', 'SqlWhere');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlExpr', 'SqlExpr');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlLike', 'SqlLike');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlIn', 'SqlIn');
-		class_alias('\\KarmaFW\\Database\\Sql\\SqlTools', 'SqlTools');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlDb', 'SqlDb');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlSchema', 'SqlSchema');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlTable', 'SqlTable');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlOrmModel', 'SqlOrmModel');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlQuery', 'SqlQuery');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlWhere', 'SqlWhere');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlExpr', 'SqlExpr');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlLike', 'SqlLike');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlIn', 'SqlIn');
+		//class_alias('\\KarmaFW\\Database\\Sql\\SqlTools', 'SqlTools');
 		
 
 		if (defined('DB_DSN')) {
@@ -200,7 +200,11 @@ class App
 			if (empty($dsn) && defined('DB_DSN')) {
 				$dsn = DB_DSN;
 			}
-			$instances[$instance_name] = new SqlDb($dsn);
+
+			//$instances[$instance_name] = new SqlDb($dsn);
+
+			$db = App::getData('app')->get('db');
+			$instances[$instance_name] = $db($dsn);
 		}
 
 		return $instances[$instance_name];

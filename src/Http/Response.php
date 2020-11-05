@@ -262,7 +262,7 @@ class Response
 
 		if ($this->status === 200 && empty($this->body)) {
 			// No content
-			$this->setStatus(204);
+			//$this->setStatus(204);
 		}
 
 		if (! empty($this->status)) {

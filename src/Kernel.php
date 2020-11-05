@@ -106,11 +106,11 @@ class Kernel
 
 		if (defined('DB_DSN')) {
 			//$this->db = static::getDb('default', DB_DSN);
-			$this->db = $this->connectDb('default', DB_DSN); // TODO: a deplacer dans $services['db'] ( ou $services['sql'] ? )
+			//$this->db = $this->connectDb('default', DB_DSN); // TODO: a deplacer dans $services['db'] ( ou $services['sql'] ? )
 		}
 
 		if (defined('REDIS_DSN')) {
-			$this->redis = new Redis(REDIS_DSN); // TODO: a deplacer dans $services['redis']
+			//$this->redis = new Redis(REDIS_DSN); // TODO: a deplacer dans $services['redis']
 		}
 		
 	}
@@ -177,6 +177,13 @@ class Kernel
 	}
 
     
+    /*
+	public function setService($service_name, $callback)
+	{
+		return $this->set($service_name, $callback);
+	}
+	*/
+
 	public function loadServices()
 	{
 		// TODO: rendre parametrable la liste des services
@@ -186,10 +193,16 @@ class Kernel
 		});
 
 		$this->set('db', function ($dsn=null) {
+			if (empty($dsn) && defined('DB_DSN')) {
+				$dsn = DB_DSN;
+			}
 			return new \KarmaFW\Database\Sql\SqlDb($dsn);
 		});
 
 		$this->set('redis', function ($dsn=null) {
+			if (empty($dsn) && defined('REDIS_DSN')) {
+				$dsn = REDIS_DSN;
+			}
 			return new \KarmaFW\Database\Redis\Redis($dsn);
 		});
 
