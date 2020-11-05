@@ -7,7 +7,7 @@ use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 
 
-class TestCommand
+class ControllerCommand
 {
 	protected $request;
 	protected $response;
@@ -22,7 +22,7 @@ class TestCommand
 
 	public function execute($arguments=[]) 
 	{
-		print_r($arguments);
+
 		
 	}
 	
