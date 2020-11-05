@@ -4,7 +4,7 @@ namespace KarmaFW\App\Middlewares;
 
 use \DebugBar\StandardDebugBar;
 //use \DebugBar\DataCollector\MessagesCollector;
-use \DebugBar\DataCollector\TimeDataCollector;
+use \DebugBar\DataCollector\ConfigCollector;
 
 use \KarmaFW\App;
 use \KarmaFW\Http\Request;
@@ -29,6 +29,7 @@ class DebugBar
 			App::setData('debugbar', $debugbar);
 			
 			$debugbar->addCollector(new KarmaFwCollector);
+			$debugbar->addCollector(new ConfigCollector);
 			$debugbar->addCollector(new SqlDbCollector);
 			$debugbar->addCollector(new KarmaMessagesCollector('templates'));
 			$debugbar->addCollector(new SEOCollector);
@@ -43,6 +44,10 @@ class DebugBar
 		$show_debugbar = ($load_debugbar && $is_html && $response->getStatus() == 200);
 
 		if ($show_debugbar) {
+
+			// config
+			$constants = get_defined_constants(true);
+			$debugbar['config']->setData($constants['user']);
 
 			
 			// KarmaFW

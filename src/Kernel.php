@@ -14,7 +14,7 @@ use \KarmaFW\Routing\Router;
 
 
 define('FW_SRC_DIR', __DIR__);
-define('FW_DIR', __DIR__ . "/..");
+define('FW_DIR', realpath(__DIR__ . '/..'));
 
 if (! defined('APP_DIR')) {
 	echo "ERROR: Please, define APP_DIR" . PHP_EOL;
