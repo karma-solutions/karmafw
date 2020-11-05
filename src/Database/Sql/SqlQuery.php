@@ -3,6 +3,7 @@
 namespace KarmaFW\Database\Sql;
 
 use \KarmaFW\App;
+use \KarmaFW\App\Tools;
 use \KarmaFW\Database\Sql\SqlResultSetError;
 
 
@@ -149,6 +150,11 @@ class SqlQuery
 		$debugbar = App::getData('debugbar');
 		if ($debugbar) {
 			//$debugbar['sql']->addMessage( preg_replace('/\s+/', ' ', $query) );
+			$query_escaped = preg_replace('/\s+/', ' ', $query);
+
+            if (isset($debugbar['sql_time'])) {
+                $debugbar['sql_time']->startMeasure($query_escaped, [], Tools::getCaller([__FILE__]));
+            }
 			
 			if (isset($debugbar['sql_queries'])) {
 				$error_code = 0;
@@ -160,9 +166,8 @@ class SqlQuery
 					$error_msg = $rs->getErrorMessage();
 				}
 
-
 				$debugbar['sql_queries']->addQuery([
-					'sql' => preg_replace('/\s+/', ' ', $query),
+					'sql' => $query_escaped,
 					'duration' => $this->duration,
 					'duration_str' => formatDuration($this->duration),
 					'row_count' => $rs->getRowsCount(),
@@ -174,6 +179,7 @@ class SqlQuery
 					'is_success' => $is_success,
 					'error_code' => $error_code,
 					'error_message' => $error_msg,
+					//'label' => Tools::getCaller([__FILE__]),
 				]);
 			}
 			

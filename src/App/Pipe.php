@@ -3,6 +3,7 @@
 namespace KarmaFW\App;
 
 use \KarmaFW\App;
+use \KarmaFW\App\Tools;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
 
@@ -40,7 +41,7 @@ class Pipe
         $debugbar = App::getData('debugbar');
         if ($debugbar) {
             if (isset($debugbar['time'])) {
-                $debugbar['time']->startMeasure($service_name, $service_name);
+                $debugbar['time']->startMeasure($service_name, [], Tools::getCaller([__FILE__]));
             }
         }
 

@@ -12,6 +12,7 @@ use \KarmaFW\Http\Response;
 use \KarmaFW\App\Middlewares\DebugBar\KarmaFwCollector;
 use \KarmaFW\App\Middlewares\DebugBar\SEOCollector;
 use \KarmaFW\App\Middlewares\DebugBar\SqlDbCollector;
+use \KarmaFW\App\Middlewares\DebugBar\SqlDbTimelineCollector;
 use \KarmaFW\App\Middlewares\DebugBar\KarmaMessagesCollector;
 //use \KarmaFW\App\Middlewares\DebugBar\PhpTemplateCollector;
 
@@ -31,6 +32,7 @@ class DebugBar
 			$debugbar->addCollector(new KarmaFwCollector);
 			$debugbar->addCollector(new ConfigCollector);
 			$debugbar->addCollector(new SqlDbCollector);
+			$debugbar->addCollector(new SqlDbTimelineCollector);
 			$debugbar->addCollector(new KarmaMessagesCollector('templates'));
 			$debugbar->addCollector(new SEOCollector);
 
@@ -51,17 +53,21 @@ class DebugBar
 
 			
 			// KarmaFW
-			$data = [
-				'app' => App::getData('app'),
-				'request' => $request,
-				'response' => $response,
-			];
-			$debugbar['KarmaFW']->setData($data);
+			if (isset($debugbar['KarmaFW'])) {
+				$data = [
+					'app' => App::getData('app'),
+					'request' => $request,
+					'response' => $response,
+				];
+				$debugbar['KarmaFW']->setData($data);
+			}
 
 
 			// SEO
-			$seo_data = $this->seoParseContent($response);
-			$debugbar['SEO']->setData($seo_data);
+			if (isset($debugbar['SEO'])) {
+				$seo_data = $this->seoParseContent($response);
+				$debugbar['SEO']->setData($seo_data);
+			}
 
 
 			$response->append( $debugbarRenderer->renderHead() );
