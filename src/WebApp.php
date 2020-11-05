@@ -53,7 +53,8 @@ class WebApp extends App
 
 	public static function createTemplate($tpl_path=null, $variables=[], $layout=null, $templates_dirs=null)
 	{
-		return App::getData('app')->get('template')($tpl_path, $variables);
+		$templater = App::getData('app')->get('template');
+		return $templater($tpl_path, $variables);
 
 		// return new PhpTemplate($tpl_path, $variables, $layout, $templates_dirs);
 	}
