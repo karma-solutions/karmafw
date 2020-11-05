@@ -5,7 +5,7 @@ namespace KarmaFW\App\Middlewares;
 use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
-use \KarmaFW\Routing\Router;
+//use \KarmaFW\Routing\Router;
 
 
 class UrlRouter
@@ -31,14 +31,15 @@ class UrlRouter
 
 
 		try {
-			$router = new Router;
-
 			ob_start();
 			
-			$route_response = Router::routeRequest($request, $response);
+			//$route_response = Router::routeRequest($request, $response);
+			$app = App::getData('app');
+			$router = $app->get('router');
+			$route_response = $router($request, $response);
 
-			// en principe le contenu de la reponse est dans $response->content
-			// mais si il y a eu des "echo", ils sont capturés par le ob_start puis insérés au début de $response->content
+			// en principe le contenu de la reponse est dans $response->body
+			// mais si il y a eu des "echo", ils sont capturés par le ob_start puis insérés au début de $response->body
 
 			$content = ob_get_contents();
 			ob_end_clean();

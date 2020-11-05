@@ -10,6 +10,7 @@ use \KarmaFW\Database\Sql\SqlDb;
 use \KarmaFW\Database\Redis\Redis;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
+use \KarmaFW\Routing\Router;
 
 
 define('FW_SRC_DIR', __DIR__);
@@ -179,6 +180,10 @@ class Kernel
 	public function loadServices()
 	{
 		// TODO: rendre parametrable la liste des services
+
+		$this->set('router', function (Request $request, Response $response) {
+			return Router::routeRequest($request, $response);
+		});
 
 		$this->set('db', function ($dsn=null) {
 			return new \KarmaFW\Database\Sql\SqlDb($dsn);
