@@ -65,6 +65,15 @@ class LightweightTemplate {
 	public static function view($file, $data = array()) {
 		$cached_file = self::cache($file);
 	    extract($data, EXTR_SKIP);
+
+		$debugbar = App::getData('debugbar');
+		if ($debugbar) {
+			if (isset($debugbar['templates_vars'])) {
+				$debugbar['templates_vars']->setData($data);
+			}
+		}
+		unset($debugbar);
+
 	   	require $cached_file;
 	}
 

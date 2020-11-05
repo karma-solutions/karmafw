@@ -29,11 +29,12 @@ class DebugBar
 			$debugbar = new StandardDebugBar();
 			App::setData('debugbar', $debugbar);
 			
-			$debugbar->addCollector(new KarmaFwCollector);
 			$debugbar->addCollector(new ConfigCollector);
+			$debugbar->addCollector(new KarmaFwCollector);
 			$debugbar->addCollector(new SqlDbCollector);
 			$debugbar->addCollector(new SqlDbTimelineCollector);
 			$debugbar->addCollector(new KarmaMessagesCollector('templates'));
+			$debugbar->addCollector(new ConfigCollector([], 'templates_vars'));
 			$debugbar->addCollector(new SEOCollector);
 
 			$debugbarRenderer = $debugbar->getJavascriptRenderer('/assets/vendor/debugbar'); // symlink to ${APP_DIR}/vendor/maximebf/debugbar/src/DebugBar/Resources

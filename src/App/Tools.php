@@ -24,20 +24,19 @@ class Tools
 
     public static function getCaller($excludeFiles = [], $formatted = true, $traceOffset = 2)
     {
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
         $backtrace = array_slice($backtrace, $traceOffset);
 
-        $excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/App/Pipe.php';
         $excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/Database/Sql/SqlTable.php';
         $excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/Database/Sql/SqlTableModel.php';
-        $excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/Database/Sql/SqlQuery.php';
+        //$excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/Database/Sql/SqlQuery.php';
+        //$excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/App/Middlewares/DebugBar.php';
+        //$excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/Routing/Router.php';
+        //$excludeFiles[] = VENDOR_DIR . '/karmasolutions/karmafw/src/App/Pipe.php';
 
         foreach ($backtrace as $index => $context) {
-        	if (isset($context['file'])) {
-        		//pre($context['file']); exit;
-        	}
-            if (isset($context['file']) && in_array($context['file'], $excludeFiles)) {
-                continue;
+            if (isset($context['file']) && ! in_array($context['file'], $excludeFiles)) {
+                break;
             }
         }
 

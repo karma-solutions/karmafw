@@ -145,6 +145,13 @@ class SqlQuery
 		$this->recordset = $rs;
 		$this->db->setLastQuery($this);
 
+		/*
+		if (strpos($query, 'from utilisateurs')) {
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+			//pre(Tools::getCaller([__FILE__])); exit;
+			pre($backtrace); exit;
+		}
+		*/
 
 		// debugbar
 		$debugbar = App::getData('debugbar');
