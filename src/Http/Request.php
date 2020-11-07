@@ -92,6 +92,10 @@ class Request
 			$request->SERVER['SERVER_NAME'] = $request->SERVER['HTTP_X_FORWARDED_HOST'];
 		}
 
+		if (empty($request->SERVER['SERVER_ADDR'])) {
+			$request->SERVER['SERVER_ADDR'] = '127.0.0.1';
+		}
+
 		// Set Client User-Agent
 		$user_agent = isset($request->SERVER['HTTP_USER_AGENT']) ? $request->SERVER['HTTP_USER_AGENT'] : null;
 		$request->setUserAgent($user_agent);
@@ -109,6 +113,12 @@ class Request
 		return $request;
 	}
 
+
+	public function getFullUrl()
+	{
+		$scheme = $this->isSecure() ? 'https://' : 'http:';
+		return $scheme . $this->SERVER['SERVER_NAME'] . $this->url;
+	}
 
 	public function getUrl()
 	{
@@ -128,6 +138,11 @@ class Request
 	public function isPost()
 	{
 		return ($this->method == 'POST');
+	}
+
+	public function getServerIp()
+	{
+		return $this->SERVER['SERVER_ADDR'];
 	}
 
 	public function getClientIp()

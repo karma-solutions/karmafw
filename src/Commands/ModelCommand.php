@@ -84,7 +84,14 @@ class ' . $class_name . ' extends SqlTableModel
 }
 ';
 
-		echo $tpl;		
+		echo $tpl;
+
+		if (false) {
+			$model_filepath = APP_DIR . "/src/Models/" . $class_name . ".php";
+			if (! is_file($model_filepath)) {
+				file_put_contents($model_filepath, $tpl);
+			}
+		}
 	}
 	
 }

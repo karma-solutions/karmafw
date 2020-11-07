@@ -9,6 +9,7 @@ use \DebugBar\DataCollector\ConfigCollector;
 use \KarmaFW\App;
 use \KarmaFW\Http\Request;
 use \KarmaFW\Http\Response;
+use \KarmaFW\Http\UserAgent;
 use \KarmaFW\App\Middlewares\DebugBar\KarmaFwCollector;
 use \KarmaFW\App\Middlewares\DebugBar\SEOCollector;
 use \KarmaFW\App\Middlewares\DebugBar\SqlDbCollector;
@@ -52,13 +53,18 @@ class DebugBar
 			$constants = get_defined_constants(true);
 			$debugbar['config']->setData($constants['user']);
 
+
 			
 			// KarmaFW
 			if (isset($debugbar['KarmaFW'])) {
+				$ua_infos = UserAgent::analyseUserAgent( $request->getUserAgent() );
+
 				$data = [
 					'app' => App::getData('app'),
 					'request' => $request,
 					'response' => $response,
+					'user agent' => $ua_infos,
+					'client_ip' => $request->getClientIp(),
 				];
 				$debugbar['KarmaFW']->setData($data);
 			}
@@ -66,7 +72,7 @@ class DebugBar
 
 			// SEO
 			if (isset($debugbar['SEO'])) {
-				$seo_data = $this->seoParseContent($response);
+				$seo_data = $debugbar['SEO']->seoParseContent($request, $response);
 				$debugbar['SEO']->setData($seo_data);
 			}
 
@@ -88,32 +94,5 @@ class DebugBar
 		return $response;
 	}
 
-
-	protected function seoParseContent(Response $response)
-	{
-		$content = $response->getBody();
-
-		preg_match('~<title(.*?)>(.*?)</title>~is', $content, $matches);
-		$title = empty($matches) ? '' : $matches[2];
-
-		preg_match('~<meta +name="description" +content="(.*?)" *>~is', $content, $matches);
-		$meta_desc = empty($matches) ? '' : $matches[1];
-
-		preg_match('~<h1(.*?)>(.*?)</h1>~is', $content, $matches);
-		$h1 = empty($matches) ? '' : $matches[2];
-
-		preg_match_all('/<a /is', $content, $matches);
-		$nb_links = empty($matches) ? 0 : count($matches[0]);
-
-		$data = [
-			'title' => $title,
-			'meta description' => $meta_desc,
-			'h1' => $h1,
-			'nb links' => $nb_links,
-			'content length' => formatSize(strlen($content)),
-		];
-
-		return $data;
-	}
 
 }
