@@ -130,16 +130,6 @@ class Request
 		return $this->method;
 	}
 
-	public function isGet()
-	{
-		return ($this->method == 'GET');
-	}
-
-	public function isPost()
-	{
-		return ($this->method == 'POST');
-	}
-
 	public function getServerIp()
 	{
 		return $this->SERVER['SERVER_ADDR'];
@@ -175,6 +165,42 @@ class Request
 		$this->route = $route;
 	}
 
+
+	public function isGet()
+	{
+		return ($this->method == 'GET');
+	}
+
+	public function isPost()
+	{
+		return ($this->method == 'POST');
+	}
+
+	public function isHead()
+	{
+		return ($this->method == 'HEAD');
+	}
+
+	public function isOptions()
+	{
+		return ($this->method == 'OPTIONS');
+	}
+
+	public function isPut()
+	{
+		return ($this->method == 'PUT');
+	}
+
+	public function isDelete()
+	{
+		return ($this->method == 'DELETE');
+	}
+
+	public function isPatch()
+	{
+		return ($this->method == 'PATCH');
+	}
+
 	public function isSecure()
 	{
 		return (! empty($this->SERVER['HTTPS']) && $this->SERVER['HTTPS'] == 'On')
@@ -186,6 +212,11 @@ class Request
 	public function isBot()
 	{
 		return UserAgent::isBot($this->user_agent);
+	}
+
+	public function isMobile()
+	{
+		return UserAgent::isMobile($this->user_agent);
 	}
 
 	public function isAjax()

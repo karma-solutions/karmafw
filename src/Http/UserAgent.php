@@ -1140,7 +1140,15 @@ class UserAgent
 
 	public static function isBot($user_agent) 
 	{
-		return in_array($user_agent, self::$bots_users_agents);
+		$ua_infos = self::analyseUserAgent($user_agent);
+		return ! empty($ua_infos['robot']) || in_array($user_agent, self::$bots_users_agents);
+	}
+
+
+	public static function isMobile($user_agent) 
+	{
+		$ua_infos = self::analyseUserAgent($user_agent);
+		return ! empty($ua_infos['mobile']);
 	}
 
 
