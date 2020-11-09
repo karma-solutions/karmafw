@@ -221,7 +221,7 @@ class Request
 
 	public function isAjax()
 	{
-		return (! empty($request->SERVER['HTTP_X_REQUESTED_WITH']) && $request->SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
+		return (! empty($this->SERVER['HTTP_X_REQUESTED_WITH']) && $this->SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 	}
 
 
