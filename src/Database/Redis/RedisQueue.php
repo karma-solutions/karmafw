@@ -21,10 +21,12 @@ class RedisQueue
 		return $this->redis;
 	}
 
+
 	function getClient()
 	{
 		return $this->redis->getClient();
 	}
+
 
 	function push($data)
 	{
@@ -33,12 +35,14 @@ class RedisQueue
 		$client->rPush($this->queue_name, $data);
 	}
 
+
 	function unshift($data)
 	{
 		$data = serialize($data);
 		$client = $this->redis->getClient();
 		$client->lPush($this->queue_name, $data);
 	}
+
 
 	function pop($timeout=0)
 	{
@@ -53,14 +57,24 @@ class RedisQueue
 				break;
 			}
 
-			$ts_end = microtime(true);
-			$duration = $ts_end - $ts_start;
-			if ($duration > $timeout) {
+			if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
 				break;
 			}
+
+			$ts_end = microtime(true);
+			$duration = $ts_end - $ts_start;
+			$remaining_max = $timeout - $duration;
+
+			if ($remaining_max <= 0) {
+				break;
+			}
+
+			usleep( 1000 * 1000 * min($remaining_max, 0.05) ); // 0.05 second
 		}
+		
 		return $data;
 	}
+
 
 	function shift($timeout=0)
 	{
@@ -75,12 +89,21 @@ class RedisQueue
 				break;
 			}
 
-			$ts_end = microtime(true);
-			$duration = $ts_end - $ts_start;
-			if ($duration > $timeout) {
+			if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
 				break;
 			}
+
+			$ts_end = microtime(true);
+			$duration = $ts_end - $ts_start;
+			$remaining_max = $timeout - $duration;
+
+			if ($remaining_max <= 0) {
+				break;
+			}
+
+			usleep( 1000 * 1000 * min($remaining_max, 0.05) ); // 0.05 second
 		}
+
 		return $data;
 	}
 
