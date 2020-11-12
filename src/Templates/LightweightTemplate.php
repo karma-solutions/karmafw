@@ -62,14 +62,14 @@ class LightweightTemplate {
 	}
 
 	
-	public static function view($file, $data = array()) {
+	public static function view($file, $tpl_data = array()) {
 		$cached_file = self::cache($file);
-	    extract($data, EXTR_SKIP);
+	    extract($tpl_data, EXTR_SKIP);
 
 		$debugbar = App::getData('debugbar');
 		if ($debugbar) {
 			if (isset($debugbar['templates_vars'])) {
-				$debugbar['templates_vars']->setData($data);
+				$debugbar['templates_vars']->setData($tpl_data);
 			}
 		}
 		unset($debugbar);
@@ -90,7 +90,8 @@ class LightweightTemplate {
 
 	    if ($cached_file_exists) {
 		    $cached_file_updated = filemtime($cached_file);
-		    self::$tpl_last_updated = filemtime(self::$tpl_path . '/' . $file);
+		    $file_path = strpos($file, '/') === 0 ? $file : (self::$tpl_path . '/' . $file);
+		    self::$tpl_last_updated = filemtime($file_path);
 	    } else {
 	    	$cached_file_updated = null;
 	    }
@@ -144,15 +145,17 @@ class LightweightTemplate {
 	}
 
 	protected static function includeFiles($file, $level=0, $caller_file=null, $parent_file=null) {
-		if (! is_file(self::$tpl_path . '/' . $file)) {
+		$file_path = strpos($file, '/') === 0 ? $file : (self::$tpl_path . '/' . $file);
+
+		if (! is_file($file_path)) {
 			throw new \Exception("Template file not found " . $file, 500);
 		}
 		
-		$code = file_get_contents(self::$tpl_path . '/' . $file);
+		$code = file_get_contents($file_path);
 		$code_init = $code;
 		$layout = null;
 
-		$ts_update_file = filectime(self::$tpl_path . '/' . $file);
+		$ts_update_file = filectime($file_path);
 		if (empty(self::$tpl_last_updated) || self::$tpl_last_updated < $ts_update_file) {
 			self::$tpl_last_updated = $ts_update_file;
 		}

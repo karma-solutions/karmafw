@@ -212,7 +212,9 @@ if (! function_exists('date_us_to_fr')) {
 
 if (! function_exists('date_us2_to_fr')) {
 	function date_us2_to_fr($date_us, $include_time=false) {
-		if (empty($date_us)) {
+		//pre($date_us, "date_us2_to_fr: "); exit;
+
+		if (empty($date_us) || strlen($date_us) < 8) {
 			return null;
 		}
 		$time = ($include_time) ? substr($date_us, 10) : "";
