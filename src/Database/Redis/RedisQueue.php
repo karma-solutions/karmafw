@@ -84,6 +84,7 @@ class RedisQueue
 
 		while (! $data) {
 			$data_raw = $client->lPop($this->queue_name);
+
 			if ($data_raw) {
 				$data = unserialize($data_raw);
 				break;
