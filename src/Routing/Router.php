@@ -3,6 +3,7 @@
 namespace KarmaFW\Routing;
 
 use \KarmaFW\App;
+use \KarmaFW\App\Tools;
 use \KarmaFW\WebApp;
 use \KarmaFW\App\Pipe;
 use \KarmaFW\Http\Request;
@@ -212,7 +213,7 @@ class Router
         $debugbar = App::getData('debugbar');
         if ($debugbar) {
             if (isset($debugbar['time'])) {
-                $debugbar['time']->startMeasure($service_name, $service_name);
+                $debugbar['time']->startMeasure($service_name, [], Tools::getCaller([__FILE__]));
             }
         }
 
@@ -332,7 +333,7 @@ class Router
         $debugbar = App::getData('debugbar');
         if ($debugbar) {
             if (isset($debugbar['time'])) {
-                $debugbar['time']->startMeasure($service_name, $service_name);
+                $debugbar['time']->startMeasure($service_name, [], Tools::getCaller([__FILE__]));
             }
         }
 

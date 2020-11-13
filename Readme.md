@@ -344,3 +344,32 @@ nano templates/homepage2.tpl.php
 </pre>
 
 ```
+
+
+
+## Good practives
+
+## Configuration
+fichiers de conf (config.php & routes.php)
+page 404
+erreurs et exceptions (page 500)
+
+### SEO
+url rewriting
+title, meta desc, h1, canonical
+liens
+robots.txt
+sitemap.xml
+
+### Performance
+opcache, memcache/redis
+cache de templates
+minimify/combine css & js
+gzip
+etag + not_modified_304 + expire
+cdn
+
+### Stats
+traffic logguer
+google analytics
+google webmaster tools

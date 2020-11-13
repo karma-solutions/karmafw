@@ -212,7 +212,9 @@ if (! function_exists('date_us_to_fr')) {
 
 if (! function_exists('date_us2_to_fr')) {
 	function date_us2_to_fr($date_us, $include_time=false) {
-		if (empty($date_us)) {
+		//pre($date_us, "date_us2_to_fr: "); exit;
+
+		if (empty($date_us) || strlen($date_us) < 8) {
 			return null;
 		}
 		$time = ($include_time) ? substr($date_us, 10) : "";
@@ -384,6 +386,9 @@ if (! function_exists('formatDuration')) {
 	function formatDuration($seconds) {
 	    if (empty($seconds)) {
 	        return 0 . " s";
+
+	    } else if ($seconds < 1/1000) {
+	        return round($seconds*1000*1000, 4) . " µs";
 
 	    } else if ($seconds < 1) {
 	        return round($seconds*1000, 4) . " ms";

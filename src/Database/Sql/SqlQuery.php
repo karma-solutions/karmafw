@@ -3,6 +3,7 @@
 namespace KarmaFW\Database\Sql;
 
 use \KarmaFW\App;
+use \KarmaFW\App\Tools;
 use \KarmaFW\Database\Sql\SqlResultSetError;
 
 
@@ -144,11 +145,23 @@ class SqlQuery
 		$this->recordset = $rs;
 		$this->db->setLastQuery($this);
 
+		/*
+		if (strpos($query, 'from utilisateurs')) {
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+			//pre(Tools::getCaller([__FILE__])); exit;
+			pre($backtrace); exit;
+		}
+		*/
 
-		// TODO: voir comment bien injecter cette dependance
+		// debugbar
 		$debugbar = App::getData('debugbar');
 		if ($debugbar) {
 			//$debugbar['sql']->addMessage( preg_replace('/\s+/', ' ', $query) );
+			$query_escaped = preg_replace('/\s+/', ' ', $query);
+
+            if (isset($debugbar['sql_time'])) {
+                $debugbar['sql_time']->startMeasure($query_escaped, [], Tools::getCaller([__FILE__]));
+            }
 			
 			if (isset($debugbar['sql_queries'])) {
 				$error_code = 0;
@@ -160,24 +173,20 @@ class SqlQuery
 					$error_msg = $rs->getErrorMessage();
 				}
 
-
 				$debugbar['sql_queries']->addQuery([
-					'sql' => preg_replace('/\s+/', ' ', $query),
+					'sql' => $query_escaped,
 					'duration' => $this->duration,
 					'duration_str' => formatDuration($this->duration),
 					'row_count' => $rs->getRowsCount(),
-					//'stmt_id' => null,
-					//'prepared_stmt' => null,
 					'params' => $params,
 					'memory' => $memory_used,
-					//'memory_str' => round($memory_used/1000000, 1) . "Mo",
 					'memory_str' => formatSize($memory_used),
 					'end_memory' => $mem_end,
-					//'end_memory_str' => round($mem_end/1000000, 1) . "Mo",
 					'end_memory_str' => formatSize($mem_end),
 					'is_success' => $is_success,
 					'error_code' => $error_code,
 					'error_message' => $error_msg,
+					//'label' => Tools::getCaller([__FILE__]),
 				]);
 			}
 			

@@ -19,6 +19,7 @@ class Response
 	protected $redirect_url = null;
 	protected $download_file_name = null;
 	protected $download_file_path = null;
+	protected $attributes = [];
 
 
 	/* public */ const http_status_codes = [
@@ -166,7 +167,7 @@ class Response
 		return $this->setBody($body);
 	}
 
-	public function setHtml($body, $status=200, $content_type='text/html')
+	public function setHtml($body, $status=200, $content_type='text/html; charset=utf8')
 	{
 		if (! is_null($status)) {
 			$this->setStatus($status);
@@ -177,7 +178,7 @@ class Response
 		return $this->setBody($body);
 	}
 	
-	public function setJson($body, $status=200, $content_type='application/json')
+	public function setJson($body, $status=200, $content_type='application/json; charset=utf8')
 	{
 		if (! is_string($body)) {
 			$body = json_encode($body);
@@ -187,7 +188,7 @@ class Response
 				->setStatus($status);
 	}
 
-	public function setCsv($body, $download_file_name=null, $status=200, $content_type='text/csv')
+	public function setCsv($body, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
 	{
 		if (is_array($body)) {
 			// transform array to csv
@@ -261,7 +262,7 @@ class Response
 
 		if ($this->status === 200 && empty($this->body)) {
 			// No content
-			$this->setStatus(204);
+			//$this->setStatus(204);
 		}
 
 		if (! empty($this->status)) {
@@ -382,13 +383,34 @@ class Response
 	}
 
 
-	public function error404($body='', $content_type='text/html')
+	public function error404($body='', $content_type='text/html; charset=utf8')
 	{
 		$this->setStatus(404)
 			->setContentType($content_type)
 			->setBody($body);
 
 		return $this;
+	}
+
+
+	public function getAttributes()
+	{
+		return $this->attributes;
+	}
+
+	public function setAttributes($attributes)
+	{
+		$this->attributes = $attributes;
+	}
+
+	public function getAttribute($key, $default_value=null)
+	{
+		return isset($this->attributes[$key]) ? $this->attributes[$key] : $default_value;
+	}
+
+	public function setAttribute($key, $value)
+	{
+		$this->attributes[$key] = $value;
 	}
 
 }
