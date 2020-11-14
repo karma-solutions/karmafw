@@ -339,6 +339,7 @@ class SqlTools
             $w_regex = $db->escape('\b' . preg_quote($word) . '\b');
 
             // score de position parmi les mots de recherche
+            //$word_idx_score = 1 / $word_pos;
             $word_idx_score = ($words_count - $word_idx) / $words_count;
 
             // score de longueur du mot par rapport à la longueur total de l'expression de recherche
@@ -353,42 +354,44 @@ class SqlTools
                 //$field_pos = $field_idx + 1;
 
                 // score de position du champ sql parmis tous les champs où on va rechercher
+                //$field_idx_score = 1 / $field_pos;
                 $field_idx_score = ($fields_count - $field_idx) / $fields_count;
                
-                // score de longueur par rapport a la longueur du champ sql
-                //$word_len = strlen($word);
+                // score de longueur du mot (de recherche) par rapport a la longueur du champ sql
                 $word_field_len_score = 1;
-                $word_field_len_score = "(0.9 + 0.1 * (least($word_len / length($field), length($field) / $word_len)) )"; // longueur du mot (de recherche) rapport à la longueur du champ sql
+                $weight = "0.9 + 0.1 *";
+                $word_field_len_score = "( $weight (least($word_len / length($field), length($field) / $word_len)) )";
+                 // TODO: algo et poids à revoir
 
-                // score de position de match dans la valeur du champ sql
+                // score de position du mot dans la valeur du champ sql
                 //$locate_max = "(greatest(1, length($field) - $word_len) )";
                 //$word_match_pos_score = "( ($locate_max - locate($w, $field)) / $locate_max)";
                 $word_match_pos_score = 1;
-                $word_match_pos_score = "(0.5 + 0.5 * (1 + length($field) - locate($w, $field)) / length($field) )";
+                $weight = "0.5 + 0.5 *";  // TODO: poids à revoir
+                $word_match_pos_score = "( $weight (1 + length($field) - locate($w, $field)) / length($field) )";
 
                 // score distance levenshtein
                 $word_levenshtein_score = 1;
                 if ($use_levenshtein) {
-                    //$word_levenshtein_score = "( levenshtein_ratio($field, $w) / 100 )";
+                    //$word_levenshtein_score = "( if(length($field) < 64, levenshtein_ratio($field, $w) / 100, 0.01) )";
                 }
 
-
-                // score distance levenshtein
+                // score soundex
                 $word_soundex_score = 1;
                 if ($use_soundex) {
-                    //$word_soundex_score = "( least(mid(soundex(" . $field . "), 2) / mid(soundex(" . $w_like . "), 2), mid(soundex(" . $w_like . "), 2) / mid(soundex(" . $field . "), 2)) )";
+                    //$word_soundex_score = "( if(length($field) < 64, least(mid(soundex(" . $field . "), 2) / mid(soundex(" . $w_like . "), 2), mid(soundex(" . $w_like . "), 2) / mid(soundex(" . $field . "), 2)), 0.01) )";
                 }
 
                 // matching
                 $extra_rules = "";
                 if ($use_soundex) {
-                    $extra_rules .= " when soundex(" . $field . ") = soundex(" . $w_like . ") then 0.3
-                                        when (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2)) <= 5 and left(soundex(" . $field . "),1) = left(soundex(" . $w_like . "),1) ) then 0.2
-                                        when (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2))) <= 5 then 0.1
+                    $extra_rules .= " when length($field) < 64 and soundex(" . $field . ") = soundex(" . $w_like . ") then 0.3
+                                        when length($field) < 64 and (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2)) <= 5 and left(soundex(" . $field . "),1) = left(soundex(" . $w_like . "),1) ) then 0.2
+                                        when length($field) < 64 and (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2))) <= 5 then 0.1
                                         ";
                 }
                 if ($use_levenshtein) {
-                    //$extra_rules .= " when levenshtein_ratio($field, $w) > 90 then 0.3 when levenshtein_ratio($field, $w) > 70 then 0.1 ";
+                    //$extra_rules .= " when length($field) < 64 and levenshtein_ratio($field, $w) > 90 then 0.3 when length($field) < 64 and levenshtein_ratio($field, $w) > 70 then 0.1 ";
                 }
                 $word_matching_score = "(case when $field = '' then 0
                                          when $field = $w then 1
