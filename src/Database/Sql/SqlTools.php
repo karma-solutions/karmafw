@@ -301,14 +301,13 @@ class SqlTools
 
 
 
-    public function buildSqlWhereSearch_beta($q='', $search_fields=[], $min_str_length=1, $max_words=10, $all_words_required=false)
+    public function buildSqlWhereSearch_beta($q='', $search_fields=[], $min_str_length=1, $max_words=10, $all_words_required=false, $use_soundex=false, $use_levenshtein=false)
     {
         $db = $this->db;
         
         $q = str_replace(['.', ',', '-', '_', ';', ':', '(', ')', '[', ']'], ' ', $q);
         //$q_one = str_replace(' ', '', $q);
         $q_len = strlen($q);
-
 
         /*
         $search_fields = [
@@ -328,75 +327,105 @@ class SqlTools
             $search_where = "(0";
         }
 
-        $fields_scores = [];
+        $words_scores = [];
 
         // pour chaque champ sql dans lequel on recherche...
-        foreach ($search_fields as $field_idx => $field) {
-            $field_pos = $field_idx + 1;
+        foreach ($words as $word_idx => $word) {
+            //$word_pos = $word_idx + 1;
+            $word_len = strlen($word);
 
-            // score de position du champ sql parmis tous les champs où on va rechercher
-            $field_idx_score = 1 / $field_pos;
+            $w = $db->escape($word);
+            $w_like = $db->escape("%" . $word . "%");
+            $w_regex = $db->escape('\b' . preg_quote($word) . '\b');
 
-            $words_scores = [];
+            // score de position parmi les mots de recherche
+            $word_idx_score = ($words_count - $word_idx) / $words_count;
+
+            // score de longueur du mot par rapport à la longueur total de l'expression de recherche
+            $word_search_len_score = $word_len / $q_len;
+
+
+            $fields_scores = [];
+            $word_conditions_or = [];
 
             // pour chaque mot de l'expression recherchée...
-            foreach ($words as $word_idx => $word) {
-                $word_len = strlen($word);
-                $word_pos = $word_idx + 1;
+            foreach ($search_fields as $field_idx => $field) {
+                //$field_pos = $field_idx + 1;
 
-                $w = $db->escape($word);
-                $w_like = $db->escape("%" . $word . "%");
-                $w_regex = $db->escape('\b' . preg_quote($word) . '\b');
-
-                // score de position parmi les mots de recherche
-                $word_idx_score = $word_pos / $words_count;
-
-                // score de longueur du mot par rapport à la longueur total de l'expression de recherche
-                $word_search_len_score = $word_len / $q_len;
-                
+                // score de position du champ sql parmis tous les champs où on va rechercher
+                $field_idx_score = ($fields_count - $field_idx) / $fields_count;
+               
                 // score de longueur par rapport a la longueur du champ sql
                 //$word_len = strlen($word);
-                $word_field_len_score = "(least($word_len / length($field), length($field) / $word_len))"; // longueur du mot (de recherche) rapport à la longueur du champ sql
+                $word_field_len_score = 1;
+                $word_field_len_score = "(0.9 + 0.1 * (least($word_len / length($field), length($field) / $word_len)) )"; // longueur du mot (de recherche) rapport à la longueur du champ sql
 
                 // score de position de match dans la valeur du champ sql
-                $locate_max = "(greatest(0.1, length($field) - $word_len) )";
-                $word_match_pos_score = "(locate(" . $w . ", $field) / $locate_max)";
+                //$locate_max = "(greatest(1, length($field) - $word_len) )";
+                //$word_match_pos_score = "( ($locate_max - locate($w, $field)) / $locate_max)";
+                $word_match_pos_score = 1;
+                $word_match_pos_score = "(0.5 + 0.5 * (1 + length($field) - locate($w, $field)) / length($field) )";
+
+                // score distance levenshtein
+                $word_levenshtein_score = 1;
+                if ($use_levenshtein) {
+                    //$word_levenshtein_score = "( levenshtein_ratio($field, $w) / 100 )";
+                }
+
+
+                // score distance levenshtein
+                $word_soundex_score = 1;
+                if ($use_soundex) {
+                    //$word_soundex_score = "( least(mid(soundex(" . $field . "), 2) / mid(soundex(" . $w_like . "), 2), mid(soundex(" . $w_like . "), 2) / mid(soundex(" . $field . "), 2)) )";
+                }
 
                 // matching
-                $word_matching_score = "(case when " . $field . " = " . $w . " then 1
-                                         when " . $field . " regexp " . $w_regex . " then 0.7
-                                         when " . $field . " like " . $w_like . " then 0.5
-                                         /*
-                                         when soundex(" . $field . ") = soundex(" . $w_like . ") then 0.3
-                                         when (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2)) <= 5 and left(soundex(" . $field . "),1) = left(soundex(" . $w_like . "),1) ) then 0.1
-                                         */
+                $extra_rules = "";
+                if ($use_soundex) {
+                    $extra_rules .= " when soundex(" . $field . ") = soundex(" . $w_like . ") then 0.3
+                                        when (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2)) <= 5 and left(soundex(" . $field . "),1) = left(soundex(" . $w_like . "),1) ) then 0.2
+                                        when (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2))) <= 5 then 0.1
+                                        ";
+                }
+                if ($use_levenshtein) {
+                    //$extra_rules .= " when levenshtein_ratio($field, $w) > 90 then 0.3 when levenshtein_ratio($field, $w) > 70 then 0.1 ";
+                }
+                $word_matching_score = "(case when $field = '' then 0
+                                         when $field = $w then 1
+                                         when $field regexp $w_regex then 0.8
+                                         when $field like $w_like then 0.6
+                                         $extra_rules
                                          else 0
                                     end )";
+                $word_conditions_or[] = $word_matching_score;
+
+                $word_score = "( if(length($field)=0, 0, $field_idx_score * $word_idx_score * $word_search_len_score * $word_field_len_score * $word_soundex_score * $word_levenshtein_score * $word_match_pos_score * $word_matching_score) )";
+                $fields_scores[] = $word_score;
+            }
+            
+            $word_condition = "(" . implode(" or ", $word_conditions_or) . ")";
 
 
-                $word_score = "($field_idx_score * $word_idx_score * $word_search_len_score * $word_field_len_score * $word_match_pos_score * $word_matching_score)";
-                $words_scores[] = $word_score;
+            if ($all_words_required) {
+                // TODO
+                $search_where .= " and (" . $word_condition . ")";
 
+            } else {
+                $search_where .= " or " . $word_condition;
 
-                if ($all_words_required) {
-                    // TODO
-                    $search_where .= " and (" . $word_matching_score . ")";
-
-                } else {
-                    $search_where .= " or " . $word_matching_score;
-
-                }
             }
 
-            $fields_scores[] = "(" . implode(" + ", $words_scores) . ")";
+            //$words_scores[] = "(" . implode(" + ", $fields_scores) . ")";
+            //$words_scores[] = "( (" . implode(" + ", $fields_scores) . ") / $fields_count )";
+            $words_scores[] = "( greatest(" . implode(", ", $fields_scores) . ") )";
 
         }
 
         $search_where .= ")";
-        $search_score = "(" . implode(' + ', $fields_scores) . ")";
+        $search_score = "(" . implode(' + ', $words_scores) . ")";
 
         
-        if (false) {
+        if (! empty($_GET['debug_search'])) {
             echo "SCORE:" . PHP_EOL;
             $nb_scores = count($words_scores);
             print_r($search_score);

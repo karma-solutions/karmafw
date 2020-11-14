@@ -66,6 +66,12 @@ class UrlRouter
 	        }
 
 
+	        // CODE 200
+			if ($error_code === 200) {
+				return $response->setHtml($error_message, $error_code);
+			}
+
+
 			// REDIRECTION
 			if (in_array($error_code, [301, 302, 310])) {
 				// if $error_code is a redirection

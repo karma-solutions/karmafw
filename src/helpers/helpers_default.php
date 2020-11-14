@@ -29,7 +29,7 @@ if (! function_exists('pre')) {
 		if ($exit) {
 			//exit; 
 
-			throw new \Exception($out, 503);
+			throw new \Exception($out, 200);
 
 		} else {
 			echo $out;

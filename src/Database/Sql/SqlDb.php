@@ -286,9 +286,9 @@ class SqlDb
 		return $this->tools->buildSqlWhereSearch($q, $search_fields, $min_str_length, $max_words, $all_words_required);
 	}
 
-	public function buildSqlWhereSearch_beta($q='', $search_fields=[], $min_str_length=1, $max_words=10, $all_words_required=false)
+	public function buildSqlWhereSearch_beta($q='', $search_fields=[], $min_str_length=1, $max_words=10, $all_words_required=false, $use_soundex=false, $use_levenshtein=false)
 	{
-		return $this->tools->buildSqlWhereSearch_beta($q, $search_fields, $min_str_length, $max_words, $all_words_required);
+		return $this->tools->buildSqlWhereSearch_beta($q, $search_fields, $min_str_length, $max_words, $all_words_required, $use_soundex, $use_levenshtein);
 	}
 
 
