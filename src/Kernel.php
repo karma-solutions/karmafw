@@ -170,7 +170,7 @@ class Kernel
             }
 
             //throw $e;
-            $response->setHtml($content, 500);
+            $response->html($content, 500);
 		}
 
 		return $response;

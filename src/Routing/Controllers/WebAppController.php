@@ -97,7 +97,7 @@ class WebAppController extends AppController
 			}
 
 			//$template->display($error_template);
-			return $this->response->setHtml( $template->fetch($error_template) , $http_status);
+			return $this->response->html( $template->fetch($error_template) , $http_status);
 
 		} else {
 			//header("HTTP/1.0 " . $http_status . " " . $meta_title);
@@ -121,7 +121,7 @@ class WebAppController extends AppController
 
 			//echo $output_html;
 
-			return $this->response->setHtml($output_html, $http_status);
+			return $this->response->html($output_html, $http_status);
 		}
 
 	}

@@ -282,7 +282,7 @@ class Router
 						return $response;
 					}
 
-					return $response->setHtml('<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>', 404);
+					return $response->html('<h1>Page not Found</h1><p>Warning: route found but no callback defined</p>', 404);
 
 				} else if (is_callable($callback)) {
 					// OK !
@@ -309,7 +309,7 @@ class Router
 						continue;
 					}
 
-					return $response->setHtml('<h1>Page not Found</h1><p>Warning: route callback is not callable</p>', 404);
+					return $response->html('<h1>Page not Found</h1><p>Warning: route callback is not callable</p>', 404);
 				}
 
 			}
@@ -318,7 +318,7 @@ class Router
 
 		// no matching route
 		//return false;
-		return $response->setHtml('<h1>Page not Found</h1><p>Warning: no matching route</p>', 404);
+		return $response->html('<h1>Page not Found</h1><p>Warning: no matching route</p>', 404);
 	}
 
 
@@ -391,11 +391,11 @@ class Router
 			$response = $route_response;
 
 		} else if ($route_response) {
-			return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is not a Response</p></body></html>', 404);
+			return $response->html('<html><body><h1>Server Error</h1><p>Error: $response is not a Response</p></body></html>', 404);
 
 		} else {
 			if (! $response->getContentLength()) {
-				//return $response->setHtml('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
+				//return $response->html('<html><body><h1>Server Error</h1><p>Error: $response is empty</p></body></html>', 404);
 			}
 		}
 

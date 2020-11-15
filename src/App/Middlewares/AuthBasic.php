@@ -38,7 +38,7 @@ class AuthBasic
         } else {
             $response->addHeader('WWW-Authenticate', 'Basic realm="My Realm"');
             $body = "Accès interdit";
-            return $response->setHtml($body, 401);
+            return $response->html($body, 401);
         }
     
     }

@@ -51,7 +51,7 @@ class ErrorHandler
             /*
             if ($error_code == 404) {
                 // case moved to UrlRouter
-                $response->setStatus(404)->setHtml($error_message);
+                $response->setStatus(404)->html($error_message);
             }
             */
 
@@ -75,7 +75,7 @@ class ErrorHandler
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
             }
 
-            $response->setHtml($response_content, $http_code);
+            $response->html($response_content, $http_code);
         }
 
         return $response;
