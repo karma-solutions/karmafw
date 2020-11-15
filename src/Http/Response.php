@@ -167,7 +167,7 @@ class Response
 		return $this->setBody($body);
 	}
 
-	public function setHtml($body, $status=200, $content_type='text/html; charset=utf8')
+	public function html($body, $status=200, $content_type='text/html; charset=utf8')
 	{
 		if (! is_null($status)) {
 			$this->setStatus($status);
@@ -178,23 +178,34 @@ class Response
 		return $this->setBody($body);
 	}
 	
-	public function setJson($body, $status=200, $content_type='application/json; charset=utf8')
+	public function json($json, $download_file_name=null, $status=200, $content_type='application/json; charset=utf8')
 	{
-		if (! is_string($body)) {
-			$body = json_encode($body);
+		if (! is_string($json) || ! in_array(substr($json, 0, 1), ['"', "'", '[', '{'])) {
+			$json = json_encode($json);
 		}
+		return $this->download($body, $download_file_name, $status, $content_type);
+	}
+
+	public function csv(array $rows, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
+	{
+		if (is_array($rows)) {
+			// transform array to csv
+			$body = get_csv($rows);
+		} else {
+			$body = "";
+		}
+		
+		$this->download_file_name = $download_file_name;
+
 		return $this->setBody($body)
 				->setContentType($content_type)
 				->setStatus($status);
 	}
-
-	public function setCsv($body, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
+	
+	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream')
 	{
-		if (is_array($body)) {
-			// transform array to csv
-			$body = get_csv($body);
-		}
-		$this->download_file_name = $download_file_name;
+		$this->download_file_path = $file_path;
+		$this->download_file_name = empty($download_file_name) ? basename($file_path) : $download_file_name;
 
 		return $this->setBody($body)
 				->setContentType($content_type)
@@ -283,7 +294,7 @@ class Response
 
 				if (! is_file($this->download_file_path)) {
 					// File not found
-					return $this->setHtml("File not found", 404);
+					return $this->html("File not found", 404);
 
 				} else {
 					// File exists
@@ -292,11 +303,13 @@ class Response
 					}
 
 					$this->headers['Content-Length'] = filesize($this->download_file_path);
+
+					$this->body = '';
 				}
 
 			} else {
 				// DOWNLOAD A VIRTUAL FILE
-
+				$this->headers['Content-Length'] = strlen($this->body);
 			}
 
 
