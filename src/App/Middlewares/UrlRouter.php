@@ -50,6 +50,14 @@ class UrlRouter
 
 			$response->prepend($content); // on ajoute ici le texte capturé pendant l'execution de la route
 
+			$content_type = $response->getContentType();
+			if (empty($content_type)) {
+				$content_type = 'text/html; charset=utf-8';
+				$response->setContentType($content_type);
+			}
+
+			$response->addHeader('X-Content-Type', $content_type);
+
 			$response = $next($request, $response);
 
 		} catch (\Exception $e) {

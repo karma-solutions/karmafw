@@ -14,12 +14,11 @@ class MinimifierHtml
     protected $content_types;
 
     
-    public function __construct($minimify_html=true, $minimify_external_js=true, $minimify_external_css=true, $content_types=['text/html'])
+    public function __construct($minimify_html=true, $minimify_external_js=true, $minimify_external_css=true)
     {
         $this->minimify_html = $minimify_html;
         $this->minimify_external_js = $minimify_external_js;
         $this->minimify_external_css = $minimify_external_css;
-        $this->content_types = $content_types;
     }
 
 
@@ -31,8 +30,11 @@ class MinimifierHtml
         $content_type = $response->getContentType();
         $content_type_short = explode(';', $content_type)[0];
 
+        $content_types = [
+            'text/html',
+        ];
 
-        if (! empty($this->content_types) && ! in_array($content_type_short, $this->content_types)) {
+        if (empty($content_types) || ! in_array($content_type_short, $content_types)) {
             // restriction to the selected content_types
             return $response;
         }
@@ -70,7 +72,7 @@ class MinimifierHtml
                 }
             }
 
-            $response->setContent($content);
+            $response->setBody($content);
         }
 
 
@@ -80,7 +82,7 @@ class MinimifierHtml
             $content_length = $response->getContentLength();
 
             $content_minimified = self::minify_html($content);
-            $response->setContent($content_minimified);
+            $response->setBody($content_minimified);
             $content_minimified_length = $response->getContentLength();
 
             // add information headers

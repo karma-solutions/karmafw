@@ -14,21 +14,41 @@ class GzipEncoding
 		$response = $next($request, $response);
 
 
-        $content_type = $response->getContentType();
-        $content_type_short = explode(';', $content_type)[0];
+		$content_type = $response->getContentType();
+		$content_type_short = explode(';', $content_type)[0];
 
-        if ($content_type_short !== 'text/html') {
-            return $response;
-        }
+		$contents_types = [
+			'text/html',
+			'text/plain',
+			'text/xml',
+			'text/css',
+			'application/x-javascript',
+			'application/javascript',
+			'application/ecmascript',
+			'application/json',
+			'application/xml',
+			'image/svg+xml',
+		];
+
+		if (empty($content_types) || ! in_array($content_type_short, $content_types)) {
+			return $response;
+		}
+
+		$content_length = $response->getContentLength();
 
 
-		$content = (string) gzencode($response->getBody());
+		if ($content_length > 1000) {
+			$content_minimified = (string) gzencode($response->getBody());
+			$response->setBody($content_minimified);
+			$content_minimified_length = $response->getContentLength();
 
-		if (strlen($content) > 1000) {
-			$response->setBody($content);
 
 			$response->addHeader('Content-Encoding', 'gzip');
 			$response->addHeader('X-Encoding', 'gzip');
+
+			// add information headers
+			$response->addHeader('X-Before-Encoding-Content-Length', $content_length);
+			$response->addHeader('X-After-Encoding-Content-Length', $content_minimified_length);
 		}
 
 		return $response;
