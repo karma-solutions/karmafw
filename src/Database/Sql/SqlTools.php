@@ -328,6 +328,7 @@ class SqlTools
         }
 
         $words_scores = [];
+        $w_soundexes = [];
 
         // pour chaque champ sql dans lequel on recherche...
         foreach ($words as $word_idx => $word) {
@@ -373,36 +374,43 @@ class SqlTools
                 // score distance levenshtein
                 $word_levenshtein_score = 1;
                 if ($use_levenshtein) {
-                    //$word_levenshtein_score = "( if(length($field) < 64, levenshtein_ratio($field, $w) / 100, 0.01) )";
+                    //$word_levenshtein_score = "( if(length($field) < 32, levenshtein_ratio($field, $w) / 100, 0.01) )";
                 }
 
                 // score soundex
                 $word_soundex_score = 1;
                 if ($use_soundex) {
-                    //$word_soundex_score = "( if(length($field) < 64, least(mid(soundex(" . $field . "), 2) / mid(soundex(" . $w_like . "), 2), mid(soundex(" . $w_like . "), 2) / mid(soundex(" . $field . "), 2)), 0.01) )";
+                    //$word_soundex_score = "( greatest( if(length($field) < 32, least(mid(soundex(" . $field . "), 2) / mid(soundex(" . $w_like . "), 2), mid(soundex(" . $w_like . "), 2) / mid(soundex(" . $field . "), 2)), 0), 0.01 ) )";
                 }
 
                 // matching
                 $extra_rules = "";
                 if ($use_soundex) {
-                    $extra_rules .= " when length($field) < 64 and soundex(" . $field . ") = soundex(" . $w_like . ") then 0.3
-                                        when length($field) < 64 and (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2)) <= 5 and left(soundex(" . $field . "),1) = left(soundex(" . $w_like . "),1) ) then 0.2
-                                        when length($field) < 64 and (abs(mid(soundex(" . $field . "), 2) - mid(soundex(" . $w_like . "), 2))) <= 5 then 0.1
+                    $w_soundex = "soundex($w)";
+                    if (isset($w_soundexes[$word])) {
+                        $w_soundex = $w_soundexes[$word];
+                    }
+                    $extra_rules .= " when length($field) < 32 and soundex($field) = $w_soundex then 0.1
+                                        when length($field) < 32 and (abs(mid(soundex($field), 2) - mid($w_soundex, 2)) <= 5 and left(soundex($field),1) = left($w_soundex,1) ) then 0.05
                                         ";
                 }
                 if ($use_levenshtein) {
-                    //$extra_rules .= " when length($field) < 64 and levenshtein_ratio($field, $w) > 90 then 0.3 when length($field) < 64 and levenshtein_ratio($field, $w) > 70 then 0.1 ";
+                    // very slow...
+                    //$extra_rules .= " when length($field) < 32 and levenshtein_ratio($field, $w) > 80 then 0.05 when length($field) < 32 and levenshtein_ratio($field, $w) > 50 then 0.01 ";
                 }
                 $word_matching_score = "(case when $field = '' then 0
                                          when $field = $w then 1
-                                         when $field regexp $w_regex then 0.8
-                                         when $field like $w_like then 0.6
+                                         when $field regexp $w_regex then 0.5
+                                         when $field like $w_like then 0.1
                                          $extra_rules
                                          else 0
                                     end )";
-                $word_conditions_or[] = $word_matching_score;
+                //$word_conditions_or[] = $word_matching_score;
 
-                $word_score = "( if(length($field)=0, 0, $field_idx_score * $word_idx_score * $word_search_len_score * $word_field_len_score * $word_soundex_score * $word_levenshtein_score * $word_match_pos_score * $word_matching_score) )";
+                //$word_score = "( if(length($field)=0, 0, $field_idx_score * $word_idx_score * $word_search_len_score * $word_field_len_score * $word_soundex_score * $word_levenshtein_score * $word_match_pos_score * $word_matching_score) )";
+                $word_score = "( $word_matching_score * ifnull($field_idx_score + $word_idx_score + $word_search_len_score + $word_field_len_score + $word_soundex_score + $word_levenshtein_score + $word_match_pos_score, 0) / 7 )";
+                $word_conditions_or[] = $word_score;
+
                 $fields_scores[] = $word_score;
             }
             
@@ -419,13 +427,14 @@ class SqlTools
             }
 
             //$words_scores[] = "(" . implode(" + ", $fields_scores) . ")";
-            //$words_scores[] = "( (" . implode(" + ", $fields_scores) . ") / $fields_count )";
-            $words_scores[] = "( greatest(" . implode(", ", $fields_scores) . ") )";
+            $words_scores[] = "( (" . implode(" + ", $fields_scores) . ") / $fields_count )";
+            //$words_scores[] = "( greatest(" . implode(", ", $fields_scores) . ") )";
 
         }
 
         $search_where .= ")";
-        $search_score = "(" . implode(' + ', $words_scores) . ")";
+        //$search_score = "(" . implode(' + ', $words_scores) . ")";
+        $search_score = "( (" . implode(' + ', $words_scores) . ") / $words_count )";
 
         
         if (! empty($_GET['debug_search'])) {
