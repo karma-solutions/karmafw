@@ -183,7 +183,13 @@ class Response
 		if (! is_string($json) || ! in_array(substr($json, 0, 1), ['"', "'", '[', '{'])) {
 			$json = json_encode($json);
 		}
-		return $this->download($json, $download_file_name, $status, $content_type);
+		//return $this->download($json, $download_file_name, $status, $content_type);
+		
+		$this->download_file_name = $download_file_name;
+
+		return $this->setBody($json)
+				->setContentType($content_type)
+				->setStatus($status);
 	}
 
 	public function csv(array $rows, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
@@ -207,7 +213,7 @@ class Response
 		$this->download_file_path = $file_path;
 		$this->download_file_name = empty($download_file_name) ? basename($file_path) : $download_file_name;
 
-		return $this->setBody($body)
+		return $this->setBody('')
 				->setContentType($content_type)
 				->setStatus($status);
 	}
