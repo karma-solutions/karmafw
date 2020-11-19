@@ -86,7 +86,7 @@ class DebugBar
 
 			$response->addHeader('X-DebugBar', 'on');
 
-		} else {
+		} else if ($load_debugbar) {
 			$response->addHeader('X-DebugBar', 'off');
 		}
 
