@@ -447,7 +447,7 @@ class Router
 		if ($get_prefix) {
 			$link = $get_prefix . $link;
 		}
-		//pre($link, 1, 'link: ');
+		//pre($link, 0, 'link: ');
 
 
 		$link = rtrim($link, '$');

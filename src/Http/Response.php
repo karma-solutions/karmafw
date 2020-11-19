@@ -183,7 +183,7 @@ class Response
 		if (! is_string($json) || ! in_array(substr($json, 0, 1), ['"', "'", '[', '{'])) {
 			$json = json_encode($json);
 		}
-		return $this->download($body, $download_file_name, $status, $content_type);
+		return $this->download($json, $download_file_name, $status, $content_type);
 	}
 
 	public function csv(array $rows, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
