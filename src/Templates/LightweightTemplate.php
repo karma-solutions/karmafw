@@ -261,7 +261,15 @@ class LightweightTemplate {
 		preg_match_all('~{url (.*?)}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
 			//pre($matches); exit;
-			$code = str_replace($value[0], getRouteUrl($value[1]), $code);
+			if (false) {
+				// {url clients_list} => "/clients/"
+				$code = str_replace($value[0], getRouteUrl($value[1]), $code);
+				// si on utilise des prefix d'urls, le prefix sera hardcodé dans le cache et crééra des erreurs d'urls quand on passera sur une url d'un prefix different
+
+			} else {
+				// {url clients_list} => "< ?=getRouteUrl('clients_list')? >" (dans espaces)
+				$code = str_replace($value[0], '<?=getRouteUrl("' . $value[1] . '")?>', $code);
+			}
 		}
 
 		// foreach => {foreach $list as $item}<div>...</div>{/foreach}
