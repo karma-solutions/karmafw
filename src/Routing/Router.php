@@ -322,7 +322,7 @@ class Router
 	}
 
 
-	public static function requestRouteRun(Route $route, callable $callback=null, Request $request, Response $response)
+	public static function requestRouteRun(Route $route, $callback=null, Request $request, Response $response)
 	{
 		$matched_params = $route->getMatchedParams();
 		$middlewares_result = ['success' => false];
