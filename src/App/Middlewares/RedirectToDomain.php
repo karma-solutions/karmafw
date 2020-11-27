@@ -12,10 +12,11 @@ class RedirectToDomain
 	protected $redirect_domains = []; // www.example.com, example.fr, www.example.fr
 
 
-	public function __construct($target_domain, $redirect_domains=[])
+	public function __construct($target_domain, $redirect_domains=[], $redirect_status=301)
 	{
 		$this->target_domain = strtolower($target_domain);
 		$this->redirect_domains = $redirect_domains;
+		$this->redirect_status = $redirect_status;
 	}
 
 
