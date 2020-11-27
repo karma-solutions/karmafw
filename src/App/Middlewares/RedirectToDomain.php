@@ -21,9 +21,11 @@ class RedirectToDomain
 
 	public function __invoke(Request $request, Response $response, callable $next)
 	{
-		if (strtolower($request->SERVER['SERVER_NAME']) != $this->target_domain) {
+		$current_domain = $request->SERVER['SERVER_NAME'];
 
-			if (empty($this->redirect_domains) || in_array($this->target_domain, $this->redirect_domains)) {
+		if (strtolower($current_domain != $this->target_domain)) {
+
+			if (empty($this->redirect_domains) || in_array($current_domain, $this->redirect_domains)) {
 				$redirect_url = 'https://' . $this->target_domain . $request->SERVER['REQUEST_URI'];
 				
 				return $response->redirect($redirect_url, $this->redirect_status);
