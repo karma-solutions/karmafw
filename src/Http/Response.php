@@ -208,10 +208,14 @@ class Response
 				->setStatus($status);
 	}
 	
-	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream')
+	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream', $add_content_disposition=true)
 	{
 		$this->download_file_path = $file_path;
 		$this->download_file_name = empty($download_file_name) ? basename($file_path) : $download_file_name;
+
+		if ($add_content_disposition && !empty($this->download_file_name)) {
+			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+		}
 
 		return $this->setBody('')
 				->setContentType($content_type)
@@ -325,7 +329,7 @@ class Response
 			$this->setContentType($content_type);
 
 			$this->headers['Content-Transfer-Encoding'] = "Binary";
-			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+			//$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
 		}
 
 		if (empty($this->headers['Content-Type']) && ! empty($this->content_type)) {
