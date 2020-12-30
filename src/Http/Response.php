@@ -406,13 +406,39 @@ class Response
 	}
 
 
-	public function error404($body='', $content_type='text/html; charset=utf8')
+	public function error($status=500, $body='Error', $content_type='text/html; charset=utf8')
 	{
-		$this->setStatus(404)
+		$this->setStatus($status)
 			->setContentType($content_type)
 			->setBody($body);
 
 		return $this;
+	}
+
+
+	public function error401($body='Unauthorized', $content_type='text/html; charset=utf8')
+	{
+		return $this->error(401, $body, $content_type);
+	}
+
+	public function error403($body='Forbidden', $content_type='text/html; charset=utf8')
+	{
+		return $this->error(403, $body, $content_type);
+	}
+
+	public function error404($body='Not Found', $content_type='text/html; charset=utf8')
+	{
+		return $this->error(404, $body, $content_type);
+	}
+
+	public function error500($body='Internal Server Error', $content_type='text/html; charset=utf8')
+	{
+		return $this->error(500, $body, $content_type);
+	}
+
+	public function error503($body='Service Unavailable', $content_type='text/html; charset=utf8')
+	{
+		return $this->error(503, $body, $content_type);
 	}
 
 
