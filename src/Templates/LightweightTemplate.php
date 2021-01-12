@@ -14,6 +14,8 @@ class LightweightTemplate {
 	static $cache_enabled = (ENV == 'prod') || true;
 	static $tpl_last_updated = null;
 
+	protected $tpl_cache_enabled = true; // and if $cache_enabled is true
+
 
 	protected $data = [];
 
@@ -21,6 +23,18 @@ class LightweightTemplate {
 	{
 		$this->data = $variables;
 	}
+
+	
+	public function disableCache() 
+	{
+		$this->tpl_cache_enabled = false;
+	}
+
+	public function enableCache() 
+	{
+		$this->tpl_cache_enabled = true;
+	}
+
 
 	public function assign($k, $v=null) 
 	{
@@ -56,14 +70,20 @@ class LightweightTemplate {
 
 	public function display($tpl=null, $extra_vars=[], $layout=null, $options=[]) 
 	{
+		$use_cache = empty($options['no_cache']);
 		$tpl_data = $this->data + $extra_vars;
-		self::view($tpl, $tpl_data);
+		self::view($tpl, $tpl_data, $use_cache);
 		return true;
 	}
 
 	
-	public static function view($file, $tpl_data = array()) {
-		$cached_file = self::cache($file);
+	public static function view($file, $tpl_data = array(), $use_cache=true) {
+		if ($use_cache) {
+			$cached_file = self::cache($file);
+		} else {
+			$cached_file = $file;
+		}
+		
 	    extract($tpl_data, EXTR_SKIP);
 
 		$debugbar = App::getData('debugbar');
