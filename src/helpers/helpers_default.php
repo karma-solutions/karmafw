@@ -422,3 +422,46 @@ if (! function_exists('formatDuration')) {
 	    }
 	}
 }
+
+
+if (! function_exists('IPv6ToIPv4')) {
+	function IPv6ToIPv4($ip) {
+		// source: https://stackoverflow.com/questions/12435582/php-serverremote-addr-shows-ipv6
+
+		/*
+		Fonctionne uniquement pour les IPv4 encapsulées dans IPv6 :
+
+		::ffff:192.000.002.123
+		::ffff:192.0.2.123
+		0000:0000:0000:0000:0000:ffff:c000:027b
+		::ffff:c000:027b
+		::ffff:c000:27b
+		192.000.002.123
+		192.0.2.123
+		*/
+
+
+		// Known prefix
+		$v4mapped_prefix_hex = '00000000000000000000ffff';
+		//$v4mapped_prefix_bin = pack("H*", $v4mapped_prefix_hex); // PHP < 5.4
+		$v4mapped_prefix_bin = hex2bin($v4mapped_prefix_hex);  // PHP >= 5.4
+
+		// Parse
+		$addr_bin = inet_pton($ip);
+		if( $addr_bin === FALSE ) {
+			// Unparsable? How did they connect?!?
+			return null;
+		}
+
+		// Check prefix
+		if( substr($addr_bin, 0, strlen($v4mapped_prefix_bin)) == $v4mapped_prefix_bin) {
+			// Strip prefix
+			$addr_bin = substr($addr_bin, strlen($v4mapped_prefix_bin));
+		}
+
+		// Convert back to printable address in canonical form
+		$ip4 = inet_ntop($addr_bin);
+
+		return $ip4;
+	}
+}

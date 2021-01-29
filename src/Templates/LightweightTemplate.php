@@ -70,19 +70,15 @@ class LightweightTemplate {
 
 	public function display($tpl=null, $extra_vars=[], $layout=null, $options=[]) 
 	{
-		$use_cache = empty($options['no_cache']);
+		$allow_template_debug_traces = empty($options['deny_template_debug']);
 		$tpl_data = $this->data + $extra_vars;
-		self::view($tpl, $tpl_data, $use_cache);
+		self::view($tpl, $tpl_data, $allow_template_debug_traces);
 		return true;
 	}
 
 	
-	public static function view($file, $tpl_data = array(), $use_cache=true) {
-		if ($use_cache) {
-			$cached_file = self::cache($file);
-		} else {
-			$cached_file = $file;
-		}
+	public static function view($file, $tpl_data = array(), $allow_template_debug_traces=true) {
+		$cached_file = self::cache($file, $allow_template_debug_traces);
 		
 	    extract($tpl_data, EXTR_SKIP);
 
@@ -98,7 +94,7 @@ class LightweightTemplate {
 	}
 
 
-	protected static function cache($file) {
+	protected static function cache($file, $allow_template_debug_traces=true) {
 		if (!file_exists(self::$cache_path)) {
 		  	if (! @mkdir(self::$cache_path, 0744)) {
 		  		throw new \Exception("Cannot create templates cache dir " . self::$cache_path, 1);
@@ -111,30 +107,38 @@ class LightweightTemplate {
 	    if ($cached_file_exists) {
 		    $cached_file_updated = filemtime($cached_file);
 		    $file_path = strpos($file, '/') === 0 ? $file : (self::$tpl_path . '/' . $file);
-		    self::$tpl_last_updated = filemtime($file_path);
+			self::$tpl_last_updated = filemtime($file_path);
+			
 	    } else {
 	    	$cached_file_updated = null;
 	    }
 
 	    if (ENV == 'dev') {
 	    	// on force le parcours de tous les fichiers inclus pour avoir la vraie valeur de self::$tpl_last_updated
-	    	$code = self::includeFiles($file);
+	    	$code = self::includeFiles($file, 0, null, null, $allow_template_debug_traces);
 	    }
 
 	    if (!self::$cache_enabled || ! $cached_file_exists || $cached_file_updated < self::$tpl_last_updated) {
+			// (re)regenere le template
+
 	    	if (! isset($code)) {
-				$code = self::includeFiles($file);
-	    	}
-			$code = self::compileCode($code);
+				// si env != 'dev' (car pour env=dev on a déjà rempli la variable $code. voir quelques lignes au-dessus)
+				$code = self::includeFiles($file, 0, null, null, $allow_template_debug_traces);
+			}
+			
+			$code = self::compileCode($code); // compilation du template
+
 	        file_put_contents($cached_file, '<?php class_exists(\'' . __CLASS__ . '\') or exit; ?>' . PHP_EOL . $code);
 
-	    } else {
+	    } else if (ENV == 'dev') {
+			// affichage des infos du cached_template dans la debugbar
+
 	    	//header('X-Template: cached'); // TODO: $response->addHeader(...)
 
 			$debugbar = App::getData('debugbar');
 			if ($debugbar) {
 				if (isset($debugbar['templates'])) {
-					$debugbar_message_idx = $debugbar['templates']->addMessage([
+					$debugbar['templates']->addMessage([
 						'tpl' => $cached_file,
 						'content_length' => filesize($cached_file),
 						'content_length_str' => formatSize(filesize($cached_file)),
@@ -164,7 +168,7 @@ class LightweightTemplate {
 		return $code;
 	}
 
-	protected static function includeFiles($file, $level=0, $caller_file=null, $parent_file=null) {
+	protected static function includeFiles($file, $level=0, $caller_file=null, $parent_file=null, $allow_template_debug_traces=true) {
 		$file_path = strpos($file, '/') === 0 ? $file : (self::$tpl_path . '/' . $file);
 
 		if (! is_file($file_path)) {
@@ -220,10 +224,12 @@ class LightweightTemplate {
 				$tpl_infos .= ' with layout ' . $layout . '';
 			}
 
-			$begin = '<!-- [' . $level . '] BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
-			$end = '<!-- [' . $level . '] END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+			if ($allow_template_debug_traces) {
+				$begin = '<!-- [' . $level . '] BEGIN TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+				$end = '<!-- [' . $level . '] END TEMPLATE #' . $tpl_idx . ' : ' . $file . ' (size: ' . formatSize(strlen($code)) . ' - ' . $tpl_infos . ') -->';
+				$code = PHP_EOL . $begin . PHP_EOL . $code . PHP_EOL . $end . PHP_EOL;
+			}
 
-			$code = PHP_EOL . $begin . PHP_EOL . $code . PHP_EOL . $end . PHP_EOL;
 		}
 
 		// Layout (2)
@@ -231,7 +237,7 @@ class LightweightTemplate {
 			$value = $layout_matches[0];
 			$layout = $value[1];
 
-			$layout_code = self::includeFiles($layout, $level-1, $file);
+			$layout_code = self::includeFiles($layout, $level-1, $file, null, $allow_template_debug_traces);
 			$code = str_replace($value[0], '', $code);
 			
 			$layout_code = str_replace('<' . '?=$child_content?' . '>', '{@content}', $layout_code);
@@ -244,7 +250,7 @@ class LightweightTemplate {
 		// includes
 		preg_match_all('/{include ?\'?(.*?)\'? ?}/i', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
-			$included_code = self::includeFiles($value[1], $level+1, null, $file);
+			$included_code = self::includeFiles($value[1], $level+1, null, $file, $allow_template_debug_traces);
 			$code = str_replace($value[0], $included_code, $code);
 		}
 
