@@ -11,10 +11,12 @@ class WhereQuery
 	protected $table_name;
 	protected $db;
 	protected $where = [];
+	protected $alias = null;
 	protected $selects = [];
 	protected $join = [];
 	protected $sets = [];
 	protected $orders = [];
+	protected $groups = [];
 	protected $options = [];
 
 
@@ -35,6 +37,15 @@ class WhereQuery
 
 		return $this;
 	}
+
+	public function alias($alias)
+	{
+		$this->alias = $alias;
+		$this->options['alias'] = $this->alias;
+
+		return $this;
+	}
+
 
 
 	public function select($select)
@@ -68,13 +79,25 @@ class WhereQuery
 		return $this;
 	}
 
-	public function order($order)
+	public function group($group_by)
 	{
-		if (! is_array($order)) {
-			$order = [ (string) $order ];
+		if (! is_array($group_by)) {
+			$group_by = [ (string) $group_by ];
 		}
 		
-		$this->orders = $order + $this->orders;
+		$this->groups = $group_by + $this->groups;
+		$this->options['order by'] = $this->groups;
+
+		return $this;
+	}
+
+	public function order($order_by)
+	{
+		if (! is_array($order_by)) {
+			$order_by = [ (string) $order_by ];
+		}
+		
+		$this->orders = $order_by + $this->orders;
 		$this->options['order by'] = $this->orders;
 
 		return $this;
@@ -84,17 +107,17 @@ class WhereQuery
 
 	public function insert($options=[])
 	{
-		return $this->db->getTable($this->table_name)->insert($this->sets, $options);
+		return $this->db->getTable($this->table_name)->insert($this->sets, $this->options + $options);
 	}
 
 	public function update($options=[])
 	{
-		return $this->db->getTable($this->table_name)->update($this->sets, $this->where, $options);
+		return $this->db->getTable($this->table_name)->update($this->sets, $this->where, $this->options + $options);
 	}
 
 	public function delete($options=[])
 	{
-		return $this->db->getTable($this->table_name)->delete($this->where, $options);
+		return $this->db->getTable($this->table_name)->delete($this->where, $this->options + $options);
 	}
 
 
@@ -103,7 +126,7 @@ class WhereQuery
 		if (empty($options['select'])) {
 			$options['select'] = empty($this->selects) ? '*' : $this->selects;
 		}
-		return $this->db->getTable($this->table_name)->all($this->where, $options);
+		return $this->db->getTable($this->table_name)->all($this->where, $this->options + $options);
 	}
 
 	public function getAll($options=[])
@@ -118,7 +141,7 @@ class WhereQuery
 		if (empty($options['select'])) {
 			$options['select'] = $select;
 		}
-		return $this->db->getTable($this->table_name)->one($this->where, $options);
+		return $this->db->getTable($this->table_name)->one($this->where, $this->options + $options);
 	}
 
 	public function getCount($options=[])
@@ -127,7 +150,7 @@ class WhereQuery
 		if (empty($options['select'])) {
 			$options['select'] = $select;
 		}
-		return $this->db->getTable($this->table_name)->count($this->where, $options);
+		return $this->db->getTable($this->table_name)->count($this->where, $this->options + $options);
 	}
 
 	public function getAllWithFoundRows($options=[])
@@ -136,7 +159,7 @@ class WhereQuery
 		if (empty($options['select'])) {
 			$options['select'] = $select;
 		}
-		return $this->db->getTable($this->table_name)->getAllWithFoundRows($this->where, $options);
+		return $this->db->getTable($this->table_name)->getAllWithFoundRows($this->where, $this->options + $options);
 	
 	}
 
@@ -146,7 +169,7 @@ class WhereQuery
 		if (empty($options['select'])) {
 			$options['select'] = $select;
 		}
-		return $this->db->getTable($this->table_name)->getAllPagination($this->where, $nb_per_page, $page_idx, $options);
+		return $this->db->getTable($this->table_name)->getAllPagination($this->where, $nb_per_page, $page_idx, $this->options + $options);
 	}
 
 }
