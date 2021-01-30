@@ -310,7 +310,10 @@ class LightweightTemplate {
 		foreach ($matches as $value) {
 			
 			$replaced = '<' . '?php elseif ( $1 ) : ?' . '>';
-			$value[2] = preg_replace('/{elseif (.*?) ?}/', $replaced, $value[2]);
+			$value[2] = preg_replace('/\{ ?elseif (.*?) ?\}/', $replaced, $value[2]);
+
+			$replaced = '<' . '?php else : ?' . '>';
+			$value[2] = preg_replace('/\{ ?else ?\}/', $replaced, $value[2]);
 
 			$replaced = PHP_EOL . '<' . '?php if (' . $value[1] . ') : ?' . '>' . PHP_EOL . $value[2] . PHP_EOL . '<' . '?php endif; ?' . '>';
 			$code = str_replace($value[0], $replaced, $code);
