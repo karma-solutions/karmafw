@@ -83,7 +83,7 @@ class WebAppController extends AppController
 
 
 
-	public function error($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $message = 'an error has occured')
+	protected function showError($http_status = 500, $meta_title = 'Server Error', $h1 = 'Error 500 - Server Error', $message = 'an error has occured')
 	{
 		if ($template = $this->getTemplate()) {
 			$template->assign('meta_title', $meta_title);
@@ -126,30 +126,29 @@ class WebAppController extends AppController
 
 	}
 
-	public function error400($title = 'Bad request', $message = '')
+	protected function showError400($title = 'Bad request', $message = '')
 	{
-		return $this->error(400, $title, $title, $message);
+		return $this->showError(400, $title, $title, $message);
 	}
 
-	public function error403($title = 'Forbidden', $message = 'you are not allowed')
+	protected function showError403($title = 'Forbidden', $message = 'you are not allowed')
 	{
-		return $this->error(403, $title, $title, $message);
+		return $this->showError(403, $title, $title, $message);
 	}
 
-	public function error404($title = 'Page not found', $message = "The page you're looking for doesn't exist")
+	protected function showError404($title = 'Page not found', $message = "The page you're looking for doesn't exist")
 	{
-		return $this->error(404, $title, $title, $message);
+		return $this->showError(404, $title, $title, $message);
 	}
 
-	public function error500($title = 'Internal Server Error', $message = 'An error has occured')
+	protected function showError500($title = 'Internal Server Error', $message = 'An error has occured')
 	{
-		return $this->error(500, $title, $title, $message);
+		return $this->showError(500, $title, $title, $message);
 	}
 
-	public function error503($title = 'Service Unavailable', $message = 'The service is unavailable')
+	protected function showError503($title = 'Service Unavailable', $message = 'The service is unavailable')
 	{
-		return $this->error(503, $title, $title, $message);
+		return $this->showError(503, $title, $title, $message);
 	}
-
 
 }
