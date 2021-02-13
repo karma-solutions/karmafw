@@ -15,9 +15,8 @@ class LightweightTemplate {
 	static $tpl_last_updated = null;
 
 	protected $tpl_cache_enabled = true; // and if $cache_enabled is true
-
-
 	protected $data = [];
+
 
 	public function __construct($tpl_path=null, $variables=[], $layout=null) 
 	{
@@ -29,6 +28,7 @@ class LightweightTemplate {
 	{
 		$this->tpl_cache_enabled = false;
 	}
+
 
 	public function enableCache() 
 	{
@@ -48,16 +48,19 @@ class LightweightTemplate {
 			$this->data[$k] = $v;
 		}
 	}
+
 	
 	public function getVariables() 
 	{
 		return $this->data;
 	}
+
 	
 	public function getVar($var_name, $default_value=null) 
 	{
 		return isset($this->data[$var_name]) ? $this->data[$var_name] : $default_value;
 	}
+
 
 	public function fetch($tpl=null, $extra_vars=[], $layout=null, $options=[]) 
 	{
@@ -67,6 +70,7 @@ class LightweightTemplate {
 		ob_end_clean();
 		return $content;
 	}
+
 
 	public function display($tpl=null, $extra_vars=[], $layout=null, $options=[]) 
 	{
@@ -151,11 +155,13 @@ class LightweightTemplate {
 		return $cached_file;
 	}
 
+
 	public static function clearCache() {
 		foreach(glob(self::$cache_path . '/*') as $file) {
 			unlink($file);
 		}
 	}
+
 
 	protected static function compileCode($code) {
 		$code = self::compileBlock($code);
@@ -164,9 +170,10 @@ class LightweightTemplate {
 		$code = self::compileModules($code);
 		$code = self::compileEscapedEchos($code);
 		$code = self::compileEchos($code);
-		//$code = self::compilePHP($code);
+
 		return $code;
 	}
+
 
 	protected static function includeFiles($file, $level=0, $caller_file=null, $parent_file=null, $allow_template_debug_traces=true) {
 		$file_path = strpos($file, '/') === 0 ? $file : (self::$tpl_path . '/' . $file);
@@ -213,6 +220,7 @@ class LightweightTemplate {
 
 
 		if (defined('ENV') && ENV == 'dev') {
+			// show dev/debug infos when on development ENV
 			$tpl_infos = '';
 			if ($caller_file) {
 				$tpl_infos .= ' layout for ' . $caller_file . '';
@@ -239,7 +247,8 @@ class LightweightTemplate {
 
 			$layout_code = self::includeFiles($layout, $level-1, $file, null, $allow_template_debug_traces);
 			$code = str_replace($value[0], '', $code);
-			
+
+			// @content
 			$layout_code = str_replace('<' . '?=$child_content?' . '>', '{@content}', $layout_code);
 			$layout_code = str_replace('{$child_content}', '{@content}', $layout_code);
 			$layout_code = str_replace('{@content}', $code, $layout_code);
@@ -275,27 +284,16 @@ class LightweightTemplate {
 		return $code;
 	}
 
-	protected static function compilePHP($code) {
-		/* return preg_replace('~\{%\s*(.+?)\s*\%}~is', '<?php $1 ?>', $code); */
-		return $code;
-	}
 
 	protected static function compileModules($code) {
 
 		// url => {url clients_list}
 		$code = preg_replace('/{routeUrl /', '{url ', $code); // for compatibility with old templates
+		$code = preg_replace('/{route /', '{url ', $code); // for compatibility with old templates
 		preg_match_all('~{url (.*?)}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
-			//pre($matches); exit;
-			if (false) {
-				// {url clients_list} => "/clients/"
-				$code = str_replace($value[0], getRouteUrl($value[1]), $code);
-				// si on utilise des prefix d'urls, le prefix sera hardcodé dans le cache et crééra des erreurs d'urls quand on passera sur une url d'un prefix different
-
-			} else {
-				// {url clients_list} => "< ?=getRouteUrl('clients_list')? >" (dans espaces)
-				$code = str_replace($value[0], '<?=getRouteUrl("' . $value[1] . '")?>', $code);
-			}
+			// {url clients_list} => "< ?=getRouteUrl('clients_list')? >" (dans espaces)
+			$code = str_replace($value[0], '<?=getRouteUrl("' . $value[1] . '")?>', $code);
 		}
 
 		// foreach => {foreach $list as $item}<div>...</div>{/foreach}
@@ -322,40 +320,52 @@ class LightweightTemplate {
 		return $code;
 	}
 
-	protected static function compileEchos($code, $strict=true) {
-		// compile PHP variables (method 1) => {$my_var}
-		if ($strict) {
-			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo \$$1 ?>', $code);
-		} else {
-			$code = preg_replace('~\{\$(.+?)}~is', '<?php echo isset(\$$1) ? (\$$1) : ""; ?>', $code);
-		}
-		// compile PHP variables (method 2) => {{ $my_var }}
-		return preg_replace('~\{{\s*(.+?)\s*\}}~is', '<?php echo $1 ?>', $code);
+
+	protected static function compileEchos($code) {
+		// compile PHP optional variables => {{$my_optional_var}} => echo (isset($my_optional_var) ? $my_optional_var : '')
+		$code = preg_replace('~\{{\$(.+?)}}~is', '<?php echo isset(\$$1) ? (\$$1) : ""; ?>', $code);
+
+		// compile PHP strict variables => {$my_var} => echo $my_var
+		$code = preg_replace('~\{\$(.+?)}~is', '<?php echo \$$1 ?>', $code);
+
+		// compile PHP code => {{ my_php_code }} => echo my_php_code
+		$code = preg_replace('~\{{\s*(.+?)\s*\}}~is', '<?php echo $1 ?>', $code);
+
+		return $code;
 	}
+
 
 	protected static function compileEscapedEchos($code) {
 		// compile PHP escaped variables => {{{ $my_var }}}
 		return preg_replace('~\{{{\s*(.+?)\s*\}}}~is', '<?php echo htmlentities($1, ENT_QUOTES, \'UTF-8\') ?>', $code);
 	}
 
+
 	protected static function compileBlock($code) {
 		preg_match_all('~{block ?(.*?) ?}(.*?){/block}~is', $code, $matches, PREG_SET_ORDER);
+
 		foreach ($matches as $value) {
-			if (!array_key_exists($value[1], self::$blocks)) self::$blocks[$value[1]] = '';
-			if (strpos($value[2], '@parent') === false) {
-				self::$blocks[$value[1]] = $value[2];
-			} else {
-				self::$blocks[$value[1]] = str_replace('@parent', self::$blocks[$value[1]], $value[2]);
+			$block_outer = $value[0];
+			$block_name = $value[1];
+			$block_inner = $value[2];
+
+			if (!array_key_exists($block_name, self::$blocks)) {
+				self::$blocks[$block_name] = [];
 			}
-			$code = str_replace($value[0], '', $code);
+			
+			self::$blocks[$block_name][] = $block_inner;
+
+			$code = str_replace($block_outer, '', $code);
 		}
 		return $code;
 	}
 
+
 	protected static function compileYield($code) {
 		// compile yields => {yield my_block}
-		foreach(self::$blocks as $block => $value) {
-			$code = preg_replace('/{yield ' . $block . ' ?}/', $value, $code);
+		foreach(self::$blocks as $block_name => $block_chunks) {
+			$block_replace = implode('', $block_chunks);
+			$code = preg_replace('/{yield ' . $block_name . ' ?}/', $block_replace, $code);
 		}
 		$code = preg_replace('/{yield ?(.*?) ?}/i', '', $code);
 		return $code;
