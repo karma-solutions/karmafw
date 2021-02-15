@@ -411,6 +411,8 @@ class Response
 			->setStatus($status)
 			->setBody('');
 
+		// TODO: throw response immediately
+
 		return $this;
 	}
 
@@ -420,6 +422,8 @@ class Response
 		$this->setStatus($status)
 			->setContentType($content_type)
 			->setBody($body);
+
+		// TODO: throw response immediately
 
 		return $this;
 	}
