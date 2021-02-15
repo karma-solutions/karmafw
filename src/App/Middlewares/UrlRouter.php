@@ -97,6 +97,15 @@ class UrlRouter
 				return $response->html($error_message, $error_code);
 			}
 
+			// ERROR 403
+			if (in_array($error_code, [401, 403])) {
+				// if $error_code is a 403 page not found
+				if (empty($error_message)) {
+					$error_message = '<title>Access denied</title><h1>Access denied</h1><p>Page access denied</p>';
+				}
+				return $response->html($error_message, $error_code);
+			}
+
 
 			// ERROR 500
 
