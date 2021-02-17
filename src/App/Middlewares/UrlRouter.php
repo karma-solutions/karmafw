@@ -106,6 +106,15 @@ class UrlRouter
 				return $response->html($error_message, $error_code);
 			}
 
+			// ERROR 400
+			if (in_array($error_code, [400])) {
+				// if $error_code is a 400 page not found
+				if (empty($error_message)) {
+					$error_message = '<title>Bad request</title><h1>Bad request</h1><p>Bad request</p>';
+				}
+				return $response->html($error_message, $error_code);
+			}
+
 
 			// ERROR 500
 
