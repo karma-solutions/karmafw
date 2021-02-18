@@ -117,6 +117,14 @@ class UrlRouter
 
 
 			// ERROR 500
+			if (in_array($error_code, [500])) {
+				// if $error_code is a 500 page not found
+				if (empty($error_message)) {
+					$error_message = '<title>Server error</title><h1>Server error</h1><p>An error has occured</p>';
+				}
+				return $response->html($error_message, $error_code);
+			}
+
 
 			if (! $this->catch_exceptions) {
 				// on relance l'exception => pour laisser la gestion de l'erreur à un handler parent (ou le error_handler par defaut de PHP)
