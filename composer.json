@@ -1,5 +1,5 @@
 {
-    "name": "karmasolutions/karmafw",
+    "name": "karma-solutions/karmafw",
     "description": "PHP framework",
     "authors": [
         {
@@ -7,7 +7,7 @@
             "email": "max@karma-solutions.fr"
         }
     ],
-    "minimum-stability": "dev",
+    "license": "MIT",
     "require": {
         "php": ">=5.4.0"
     },

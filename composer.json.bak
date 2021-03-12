@@ -1,0 +1,19 @@
+{
+    "name": "karma-solutions/karmafw",
+    "description": "PHP framework",
+    "authors": [
+        {
+            "name": "Karma Solutions",
+            "email": "max@karma-solutions.fr"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "KarmaFW\\": "src/"
+        }
+    }
+}

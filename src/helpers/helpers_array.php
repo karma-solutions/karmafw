@@ -233,8 +233,8 @@ if (! function_exists('get_csv')) {
 				$line = array();
 				foreach ($fields as $field) {
 					$val = $row[$field];
-					if (is_numeric($val) && substr($val."", 0, 1) === "0" && strlen($val."") > 1) {
-						// pour exporter correctement dans Excel les numeros de telephone commencant par 0
+					if (is_numeric($val) && strlen($val."") > 1) {
+						// pour exporter correctement dans Excel les valeurs numériques
 						$val = '="' . $val . '"';
 					}
 					$line[] = $val;

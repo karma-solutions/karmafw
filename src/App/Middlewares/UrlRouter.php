@@ -97,8 +97,34 @@ class UrlRouter
 				return $response->html($error_message, $error_code);
 			}
 
+			// ERROR 403
+			if (in_array($error_code, [401, 403])) {
+				// if $error_code is a 403 page not found
+				if (empty($error_message)) {
+					$error_message = '<title>Access denied</title><h1>Access denied</h1><p>Page access denied</p>';
+				}
+				return $response->html($error_message, $error_code);
+			}
+
+			// ERROR 400
+			if (in_array($error_code, [400])) {
+				// if $error_code is a 400 page not found
+				if (empty($error_message)) {
+					$error_message = '<title>Bad request</title><h1>Bad request</h1><p>Bad request</p>';
+				}
+				return $response->html($error_message, $error_code);
+			}
+
 
 			// ERROR 500
+			if (in_array($error_code, [500])) {
+				// if $error_code is a 500 page not found
+				if (empty($error_message)) {
+					$error_message = '<title>Server error</title><h1>Server error</h1><p>An error has occured</p>';
+				}
+				return $response->html($error_message, $error_code);
+			}
+
 
 			if (! $this->catch_exceptions) {
 				// on relance l'exception => pour laisser la gestion de l'erreur à un handler parent (ou le error_handler par defaut de PHP)
