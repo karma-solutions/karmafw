@@ -46,6 +46,23 @@ class WhereQuery
 		return $this;
 	}
 
+	public function options($options)
+	{
+		$this->options += $options;
+		$this->options = $this->options;
+
+		return $this;
+	}
+
+	public function getOptions()
+	{
+		return $this->options;
+	}
+
+	public function setOptions($options=[])
+	{
+		$this->options = $options;
+	}
 
 
 	public function select($select)

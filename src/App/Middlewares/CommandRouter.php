@@ -29,6 +29,8 @@ class CommandRouter
 		
 		$class_name = implode('', array_map('ucfirst', explode("_", $command_name)));
 
+		$class_name = str_replace('/', '\\', $class_name);
+
 		if (! empty($class_name)) {
 			$class_user = '\\App\\Commands\\' . $class_name;
 			$class_fw = '\\KarmaFW\\Commands\\' . $class_name;
