@@ -10,6 +10,8 @@ use \KarmaFW\Database\Sql\SqlResultSetError;
 
 class MySqliDriver extends SqlDriver implements SqlDriverInterface
 {
+	protected $current_recordset = null;
+
 
 	public function connect()
 	{
@@ -48,7 +50,24 @@ class MySqliDriver extends SqlDriver implements SqlDriverInterface
 			return null;
 		}
 
-		$rs = mysqli_query($this->conn, $query);
+		$mode_use_result = false; // TODO: ce mode permet de ne pas stocker tout le resultat en local (ideal pour les gros resultats qui depassent la RAM)
+		if ($mode_use_result && $this->current_recordset) {
+			mysqli_free_result($this->current_recordset);
+			$this->current_recordset = null;
+
+			$rs = mysqli_query($this->conn, $query, MYSQLI_USE_RESULT);
+
+		} else {
+			$rs = mysqli_query($this->conn, $query);
+		}
+
+
+		if (is_bool($rs)) {
+			$this->current_recordset = null;
+
+		} else {
+			$this->current_recordset = $rs;
+		}
 
 		$error_code = $this->getConn()->errno;
 		if ($error_code) {
