@@ -116,7 +116,7 @@ class Request
 
 	public function getFullUrl()
 	{
-		$scheme = $this->isSecure() ? 'https://' : 'http:';
+		$scheme = $this->isSecure() ? 'https://' : 'http://';
 		return $scheme . $this->SERVER['SERVER_NAME'] . $this->url;
 	}
 

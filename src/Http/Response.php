@@ -178,7 +178,7 @@ class Response
 		return $this->setBody($body);
 	}
 	
-	public function json($json, $download_file_name=null, $status=200, $content_type='application/json; charset=utf8')
+	public function json($json, $download_file_name=null, $status=200, $content_type='application/json; charset=utf8', $add_content_disposition=true)
 	{
 		if (! is_string($json) || ! in_array(substr($json, 0, 1), ['"', "'", '[', '{'])) {
 			$json = json_encode($json);
@@ -187,12 +187,16 @@ class Response
 		
 		$this->download_file_name = $download_file_name;
 
+		if ($add_content_disposition && !empty($this->download_file_name)) {
+			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+		}
+
 		return $this->setBody($json)
 				->setContentType($content_type)
 				->setStatus($status);
 	}
 
-	public function csv(array $rows, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8')
+	public function csv(array $rows, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8', $add_content_disposition=true)
 	{
 		if (is_array($rows)) {
 			// transform array to csv
@@ -200,18 +204,27 @@ class Response
 		} else {
 			$body = "";
 		}
+		//return $this->download($json, $download_file_name, $status, $content_type);
 		
 		$this->download_file_name = $download_file_name;
+
+		if ($add_content_disposition && !empty($this->download_file_name)) {
+			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+		}
 
 		return $this->setBody($body)
 				->setContentType($content_type)
 				->setStatus($status);
 	}
 	
-	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream')
+	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream', $add_content_disposition=true)
 	{
 		$this->download_file_path = $file_path;
 		$this->download_file_name = empty($download_file_name) ? basename($file_path) : $download_file_name;
+
+		if ($add_content_disposition && !empty($this->download_file_name)) {
+			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+		}
 
 		return $this->setBody('')
 				->setContentType($content_type)
@@ -325,7 +338,7 @@ class Response
 			$this->setContentType($content_type);
 
 			$this->headers['Content-Transfer-Encoding'] = "Binary";
-			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+			//$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
 		}
 
 		if (empty($this->headers['Content-Type']) && ! empty($this->content_type)) {
@@ -398,6 +411,8 @@ class Response
 			->setStatus($status)
 			->setBody('');
 
+		// TODO: throw response immediately
+
 		return $this;
 	}
 
@@ -407,6 +422,8 @@ class Response
 		$this->setStatus($status)
 			->setContentType($content_type)
 			->setBody($body);
+
+		// TODO: throw response immediately
 
 		return $this;
 	}

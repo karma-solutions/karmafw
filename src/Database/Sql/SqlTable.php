@@ -370,6 +370,14 @@ class SqlTable
 			$options['group_by'] = $options['group by'];
 		}
 
+		if (isset($options['group_by']) && is_array($options['group_by'])) {
+			$options['group_by'] = implode(', ', $options['group_by']);
+		}
+
+		if (isset($options['order_by']) && is_array($options['order_by'])) {
+			$options['order_by'] = implode(', ', $options['order_by']);
+		}
+
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
 		$group_by_sql = isset($options['group_by']) ? ("group by " . $options['group_by']) : "";
 		$order_by_sql = isset($options['order_by']) ? ("order by " . $options['order_by']) : "";

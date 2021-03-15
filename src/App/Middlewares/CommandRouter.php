@@ -29,6 +29,8 @@ class CommandRouter
 		
 		$class_name = implode('', array_map('ucfirst', explode("_", $command_name)));
 
+		$class_name = str_replace('/', '\\', $class_name);
+
 		if (! empty($class_name)) {
 			$class_user = '\\App\\Commands\\' . $class_name;
 			$class_fw = '\\KarmaFW\\Commands\\' . $class_name;
@@ -61,6 +63,26 @@ class CommandRouter
 
 		} else {
 			$this->usage("missing command");
+
+			
+			$user_commands_files = glob(APP_DIR . '/src/Commands/*.php');
+			$user_commands = array_map(function ($platform_path) {
+				$path_infos = pathinfo($platform_path);
+				return $path_infos['filename'];
+			}, $user_commands_files);
+
+			echo PHP_EOL . "Available user commands :" . PHP_EOL;
+			echo ' - ' . implode(PHP_EOL . ' - ', $user_commands) . PHP_EOL;
+
+
+			$karmafw_commands_files = glob(APP_DIR . '/vendor/karmasolutions/karmafw/src/Commands/*.php');
+			$karmafw_commands = array_map(function ($platform_path) {
+				$path_infos = pathinfo($platform_path);
+				return $path_infos['filename'];
+			}, $karmafw_commands_files);
+
+			echo PHP_EOL . "Available karmafw commands :" . PHP_EOL;
+			echo ' - ' . implode(PHP_EOL . ' - ', $karmafw_commands) . PHP_EOL;
 		}
 
 		return $response;

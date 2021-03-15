@@ -45,7 +45,7 @@ class DebugBar
 		$response = $next($request, $response);
 
 		$is_html = (empty($response->getContentType()) || strpos($response->getContentType(), 'text/html') === 0);
-		$show_debugbar = ($load_debugbar && $is_html && $response->getStatus() == 200);
+		$show_debugbar = ($load_debugbar && $is_html && $response->getStatus() == 200 && (! defined('DISABLE_DEBUGBAR') || ! DISABLE_DEBUGBAR));
 
 		if ($show_debugbar) {
 
