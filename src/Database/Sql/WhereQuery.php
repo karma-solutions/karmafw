@@ -103,7 +103,7 @@ class WhereQuery
 		}
 		
 		$this->groups = $group_by + $this->groups;
-		$this->options['order by'] = $this->groups;
+		$this->options['group by'] = $this->groups;
 
 		return $this;
 	}
