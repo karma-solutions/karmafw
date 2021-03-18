@@ -164,11 +164,11 @@ class SqlOrmModel
 	public function save($force = false)
 	{
 		if (empty($this->primary_keys)) {
-			// on recupere les primary_keys depis le schema de ma table sql
+			// on recupere les primary_keys depuis le schema de ma table sql
 			$this->fetchPrimaryKeys();
 
 			if (empty($this->primary_keys)) {
-				// cannot update beacause no primary key found
+				// cannot update because no primary key found
 				return false;
 			}
 		}
