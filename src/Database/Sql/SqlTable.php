@@ -379,6 +379,7 @@ class SqlTable
 		}
 
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
+		$offset_sql = isset($options['offset']) ? ("offset " . $options['offset']) : "";
 		$group_by_sql = isset($options['group_by']) ? ("group by " . $options['group_by']) : "";
 		$order_by_sql = isset($options['order_by']) ? ("order by " . $options['order_by']) : "";
 		$having_sql = isset($options['having']) ? ("having " . $options['having']) : "";
@@ -416,7 +417,8 @@ class SqlTable
 					" . $group_by_sql . "
 					" . $having_sql . "
 					" . $order_by_sql . "
-					" . $limit_sql;
+					" . $limit_sql . "
+					" . $offset_sql;
 
 		if (! empty($options['debug'])) {
 			echo "<pre>" .preg_replace('/\s+/', ' ', $query) . "</pre>";

@@ -210,7 +210,7 @@ if (! function_exists('import_csv')) {
 
 
 if (! function_exists('get_csv')) {
-	function get_csv($arr, $fields=array(), $sep=";") {
+	function get_csv($arr, $fields=array(), $sep=";", $display_headers=true) {
 		$str = '';
 		if (! empty($arr)) {
 
@@ -227,7 +227,10 @@ if (! function_exists('get_csv')) {
 					$line[] = $v;
 				}
 			}
-			$str .= implode($sep, $line) . PHP_EOL;
+
+			if ($display_headers) {
+				$str .= implode($sep, $line) . PHP_EOL;
+			}
 
 			foreach ($arr as $row) {
 				$line = array();

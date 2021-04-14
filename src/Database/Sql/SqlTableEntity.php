@@ -17,27 +17,64 @@ class SqlTableEntity /* extends \ArrayObject */
 	protected $data = [];
 
 
-    public function __construct($primary_key_values=null)
+    public function __construct($primary_key_values=null, array $where=[], array $options=[])
     {
         if ($primary_key_values !== null) {
+			if (! is_array($primary_key_values)) {
+				if (! empty(static::$primary_keys) && count(static::$primary_keys) == 1) {
+					$primary_key = static::$primary_keys[0];
+					$primary_key_values = [
+						$primary_key => $primary_key_values,
+					];
+
+				} else {
+					throw new \Exception('Unknown primary key ' . $primary_key_values);
+				}
+			}
+			
             $this->primary_key_values = $primary_key_values;
-            $this->load();
+            $this->load($where, $options);
 
         } else {
+            //throw new \Exception('Unknown entity');
             $this->data = (static::$model)::getEmpty();
         }
     }
 
 
-    public function load()
+    public function load(array $where=[], array $options=[])
     {
         if (empty($this->primary_key_values)) {
             throw new \Exception('missing primary_key_values');
         }
 
-        $this->data = (static::$model)::load($this->primary_key_values);
+		$entity = (static::$model)::load($this->primary_key_values, $where, $options);
+
+		if (!$entity) {
+            //throw new \Exception('Unknown entity');
+			$entity = (static::$model)::getEmpty();
+		}
+
+        $this->data = $entity;
         return $this;
     }
+
+
+	public function fromArray($data)
+	{
+		$this->primary_key_values = [];
+		$this->data = array_slice($data, 0);
+
+		if (! empty($this->primary_keys)) {
+			foreach ($this->primary_keys as $column_name) {
+				if (isset($this->data[$column_name])) {
+					$this->primary_key_values[$column_name] = $this->data[$column_name];
+				}
+			}
+		}
+
+		return $this;
+	}
 
 
     public function save()
@@ -103,7 +140,6 @@ class SqlTableEntity /* extends \ArrayObject */
 		unset($this->data[$name]);
 	}
 
-	
 
 	public function asArray()
 	{

@@ -145,6 +145,12 @@ class UrlRouter
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
             }
 
+			if (App::isCli()) {
+				echo $title . PHP_EOL . PHP_EOL;
+				echo $message . PHP_EOL . PHP_EOL;
+				exit;
+			}
+
 
 			// else => error 500
 			$response->html($response_content, 500);

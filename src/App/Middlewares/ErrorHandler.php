@@ -75,6 +75,12 @@ class ErrorHandler
                 $response_content = '<title>' . $title . '</title><h1>' . $title . '</h1><p>' . $message . '</p>';
             }
 
+			if (App::isCli()) {
+				echo $title . PHP_EOL . PHP_EOL;
+				echo $message . PHP_EOL . PHP_EOL;
+				exit;
+			}
+
             $response->html($response_content, $http_code);
         }
 
