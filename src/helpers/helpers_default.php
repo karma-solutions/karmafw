@@ -142,7 +142,7 @@ if (! function_exists('slugify')) {
 		}
 
 		if (! empty($max_length) && strlen($text) > $max_length) {
-			$text = substr(0, $max_length);
+			$text = substr($text, 0, $max_length);
 		}
 
 		return $text;
