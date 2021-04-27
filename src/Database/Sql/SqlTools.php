@@ -134,7 +134,10 @@ class SqlTools
         
         if (! empty($where)) {
             foreach ($where as $key => $value) {
-                if (is_null($value)) {
+                if (is_numeric($key)) {
+                    $where_sql[] = (string) $value;
+                
+                } else if (is_null($value)) {
                     $where_sql[] = $key . ' is null';
 
                 }else if (is_bool($value) || is_int($value)) {
