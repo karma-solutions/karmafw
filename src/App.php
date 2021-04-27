@@ -211,7 +211,7 @@ class App
 	}
 
 
-	public static function getConfig($key=null)
+	public static function getConfig($key=null, $subkey=null)
 	{
 		$config = App::getData('config');
 		if (is_null($key)) {
@@ -222,7 +222,15 @@ class App
 			return null;
 		}
 
-		return $config[$key];
+		if (is_null($subkey)) {
+			return $config[$key];
+		}
+
+		if (empty($config[$key]) || !isset($config[$key][$subkey])) {
+			return null;
+		}
+
+		return $config[$key][$subkey];
 	}
 
 }

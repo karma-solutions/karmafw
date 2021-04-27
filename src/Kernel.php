@@ -212,6 +212,10 @@ class Kernel
 			if (empty($dsn) && defined('DB_DSN')) {
 				$dsn = DB_DSN;
 			}
+			if (empty($dsn)) {
+				$dsn = App::getConfig('database', 'default');
+			}
+			//pre($config_database, 1);
 			return new \KarmaFW\Database\Sql\SqlDb($dsn);
 		});
 
@@ -290,6 +294,9 @@ class Kernel
 		if (empty($instances[$instance_name])) {
 			if (empty($dsn) && defined('DB_DSN')) {
 				$dsn = DB_DSN;
+			}
+			if (empty($dsn)) {
+				$dsn = App::getConfig('database', $instance_name);
 			}
 			$instances[$instance_name] = new SqlDb($dsn);
 		}
