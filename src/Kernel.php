@@ -90,6 +90,22 @@ class Kernel
 		if (! defined('ERROR_TEMPLATE')) {
 			//define('ERROR_TEMPLATE', "page_error.tpl.php");
 		}
+
+
+		// Load config files
+		$config_files = glob(APP_DIR . '/config/config-*.php');
+		$config = [];
+		foreach ($config_files as $config_file) {
+			$config_file_config = require($config_file);
+			$config_file_basename = basename($config_file);
+			$config_file_name = substr($config_file_basename, 7, -4);
+			$config[$config_file_name] = $config_file_config;
+			//print_r($config_file_name);
+		}
+		//echo "<pre>";print_r($config); exit;
+		App::setData('config', $config);
+
+
 	}
 
 

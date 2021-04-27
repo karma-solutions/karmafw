@@ -210,4 +210,19 @@ class App
 		return $instances[$instance_name];
 	}
 
+
+	public static function getConfig($key=null)
+	{
+		$config = App::getData('config');
+		if (is_null($key)) {
+			return $config;
+		}
+
+		if (empty($config) || !isset($config[$key])) {
+			return null;
+		}
+
+		return $config[$key];
+	}
+
 }
