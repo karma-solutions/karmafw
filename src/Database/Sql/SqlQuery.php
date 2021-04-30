@@ -87,7 +87,7 @@ class SqlQuery
 	}
 
 
-	public function execute($query=null, $params=[], $nb_tries=1)
+	public function execute($query=null, $params=[], $nb_tries=1, $mode_use_result=false)
 	{
 		if (! $this->db->isConnected()) {
 			$this->db->connect();
@@ -133,7 +133,7 @@ class SqlQuery
 
 		$mem_start = memory_get_usage();
 
-		$rs = $this->db->getDriver()->execute($_query);
+		$rs = $this->db->getDriver()->execute($_query, $mode_use_result);
 
 		$mem_end = memory_get_usage();
 		$memory_used = $mem_end - $mem_start;
@@ -226,10 +226,10 @@ class SqlQuery
 
 	
 
-	public function executeSelect($query, $params=[])
+	public function executeSelect($query, $params=[], $returns_generator=false)
 	{
 		// Alias of executeSelectAll
-		return $this->executeSelectAll($query, $params);
+		return $this->executeSelectAll($query, $params, $returns_generator);
 	}
 
 	public function executeSelectOne($query, $params=[])
@@ -242,9 +242,14 @@ class SqlQuery
 		return $this->execute($query, $params)->fetchColumn($column_name);
 	}
 
-	public function executeSelectAll($query, $params=[])
+	public function executeSelectAll($query, $params=[], $returns_generator=false)
 	{
-		return $this->execute($query, $params)->fetchAll();
+		if ($returns_generator) {
+			return $this->execute($query, $params, 1, true)->fetchAllGenerator();
+
+		} else {
+			return $this->execute($query, $params)->fetchAll();
+		}
 	}
 
 

@@ -261,7 +261,10 @@ class SqlTable
 			return [];
 		}
 
-		return $this->db->createQuery()->executeSelectAll($query);
+		$params = [];
+		$returns_generator = !empty($options['generator']);
+
+		return $this->db->createQuery()->executeSelectAll($query, $params, $returns_generator);
 	}
 
 	public function getAllWithFoundRows($where=null, $options=[]) /* : array */

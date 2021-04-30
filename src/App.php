@@ -200,7 +200,9 @@ class App
 			if (empty($dsn) && defined('DB_DSN')) {
 				$dsn = DB_DSN;
 			}
-
+			if (empty($dsn)) {
+				$dsn = App::getConfig('database', $instance_name);
+			}
 			//$instances[$instance_name] = new SqlDb($dsn);
 
 			$db = App::getData('app')->get('db');

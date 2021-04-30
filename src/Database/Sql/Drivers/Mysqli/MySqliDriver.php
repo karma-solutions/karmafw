@@ -41,7 +41,7 @@ class MySqliDriver extends SqlDriver implements SqlDriverInterface
 	}
 
 
-	public function execute($query)
+	public function execute($query, $mode_use_result=false)
 	{
 		if (! $this->connected) {
 			if ($this->db->throwOnConnectionError) {
@@ -50,10 +50,12 @@ class MySqliDriver extends SqlDriver implements SqlDriverInterface
 			return null;
 		}
 
-		$mode_use_result = false; // TODO: ce mode permet de ne pas stocker tout le resultat en local (ideal pour les gros resultats qui depassent la RAM)
-		if ($mode_use_result && $this->current_recordset) {
-			mysqli_free_result($this->current_recordset);
-			$this->current_recordset = null;
+		//$mode_use_result = false; // TODO: ce mode permet de ne pas stocker tout le resultat en local (ideal pour les gros resultats qui depassent la RAM)
+		if ($mode_use_result) {
+			if ($this->current_recordset) {
+				mysqli_free_result($this->current_recordset);
+				$this->current_recordset = null;
+			}
 
 			$rs = mysqli_query($this->conn, $query, MYSQLI_USE_RESULT);
 

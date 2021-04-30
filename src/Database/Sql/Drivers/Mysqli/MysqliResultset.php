@@ -53,6 +53,16 @@ class MysqliResultset extends SqlResultset implements SqlResultsetInterface
 		return $rows;
 	}
 
+	public function fetchAllGenerator()
+	{
+		while ($row = $this->fetchOne()) {
+			yield $row;
+		}
+		//$this->rs->free();
+		mysqli_free_result($this->rs);
+		$this->rs = null;
+	}
+
 
 	public function getRowsCount()
 	{
