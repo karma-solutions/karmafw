@@ -3,6 +3,7 @@
 namespace KarmaFW\Lib\Email;
 
 use \PHPMailer\PHPMailer\PHPMailer;
+use \PHPMailer\PHPMailer\SMTP;
 use \PHPMailer\PHPMailer\Exception;
 
 
@@ -47,7 +48,12 @@ class Email_lib
 		$mail->IsHTML(! empty($message_html));
 		$mail->CharSet = "UTF-8";
 
+		if (false) {
+			$mail->SMTPDebug = SMTP::DEBUG_CONNECTION;
+		}
+
 		if (defined('SMTP_HOST') && ! empty(SMTP_HOST)) {
+			//$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 			$mail->SMTPAuth = SMTP_SMTPAUTH;
 			$mail->Host = SMTP_HOST;
 			$mail->Port = SMTP_PORT;
@@ -89,8 +95,8 @@ class Email_lib
 
 		if(!$mail->Send()){
 			if (false) {
-				echo $mail->ErrorInfo . PHP_EOL;
 				print_r($mail);
+				echo $mail->ErrorInfo . PHP_EOL;
 			}
 			$ok = false;
 		} else {
