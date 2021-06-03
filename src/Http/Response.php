@@ -217,16 +217,27 @@ class Response
 				->setStatus($status);
 	}
 	
+	
 	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream', $add_content_disposition=true)
 	{
-		$this->download_file_path = $file_path;
-		$this->download_file_name = empty($download_file_name) ? basename($file_path) : $download_file_name;
-
-		if ($add_content_disposition && !empty($this->download_file_name)) {
-			$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+		if (! is_file($file_path)) {
+			$this->status = 404;
+			$this->download_file_path = null;
+			$this->download_file_name = null;
+			$content = "File '" . $download_file_name . "' not found";
+			$content_type = "text/html";
+	
+		} else {
+			$this->download_file_path = $file_path;
+			$this->download_file_name = empty($download_file_name) ? basename($file_path) : $download_file_name;
+			$content = null;
+	
+			if ($add_content_disposition && !empty($this->download_file_name)) {
+				$this->headers['Content-disposition'] = 'attachment; filename="' . basename($this->download_file_name) . '"';
+			}
 		}
 
-		return $this->setBody('')
+		return $this->setBody($content)
 				->setContentType($content_type)
 				->setStatus($status);
 	}
