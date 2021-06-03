@@ -217,11 +217,11 @@ class Response
 				->setStatus($status);
 	}
 	
-	
+
 	public function download($file_path, $download_file_name=null, $status=200, $content_type='application/octet-stream', $add_content_disposition=true)
 	{
 		if (! is_file($file_path)) {
-			$this->status = 404;
+			$status = 404;
 			$this->download_file_path = null;
 			$this->download_file_name = null;
 			$content = "File '" . $download_file_name . "' not found";
