@@ -313,6 +313,8 @@ class Response
 
 				if (! is_file($this->download_file_path)) {
 					// File not found
+					$this->download_file_name = null;
+					$this->download_file_path = null;
 					return $this->html("File '" . $this->download_file_name . "' not found", 404);
 
 				} else {
