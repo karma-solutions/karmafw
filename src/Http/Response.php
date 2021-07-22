@@ -425,7 +425,7 @@ class Response
 			->setStatus($status)
 			->setBody('');
 
-		// TODO: throw response immediately
+		throw new \Exception($redirect_url, $status);
 
 		return $this;
 	}
@@ -437,7 +437,7 @@ class Response
 			->setContentType($content_type)
 			->setBody($body);
 
-		// TODO: throw response immediately
+		throw new \Exception($body, $status);
 
 		return $this;
 	}
