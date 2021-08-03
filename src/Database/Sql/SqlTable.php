@@ -217,6 +217,8 @@ class SqlTable
 
 	public function delete(array $where=[], $options=[]) /* : int */
 	{
+		$chunk_size = !empty($options['chunk']) ? $options['chunk'] : null; // TODO: delete per chunks
+
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
 
 		$query = "delete from " . $this->table_name . "
