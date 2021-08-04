@@ -32,7 +32,8 @@ class CommandRouter
 		$class_name = str_replace('/', '\\', $class_name);
 
 		if (! empty($class_name)) {
-			$class_user = '\\App\\Commands\\' . $class_name;
+			$app_namespace = defined('APP_NAMESPACE') ? APP_NAMESPACE : "App";
+			$class_user = '\\' . $app_namespace . '\\Commands\\' . $class_name;
 			$class_fw = '\\KarmaFW\\Commands\\' . $class_name;
 
 			if (class_exists($class_user)) {
