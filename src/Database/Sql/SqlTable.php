@@ -432,4 +432,10 @@ class SqlTable
 		return $query;
 	}
 
+
+	public static function where($where=[])
+	{
+		return (new WhereQuery($this->table_name))->where($where);
+	}
+
 }
