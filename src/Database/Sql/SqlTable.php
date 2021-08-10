@@ -433,7 +433,7 @@ class SqlTable
 	}
 
 
-	public static function where($where=[])
+	public function where($where=[])
 	{
 		return (new WhereQuery($this->table_name))->where($where);
 	}
