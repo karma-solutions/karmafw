@@ -114,10 +114,20 @@ class Request
 	}
 
 
+	public function getHost($with_scheme=false)
+	{
+		if ($with_scheme) {
+			$scheme = $this->isSecure() ? 'https://' : 'http://';
+			return $scheme . $this->SERVER['SERVER_NAME'];
+			
+		} else {
+			return $this->SERVER['SERVER_NAME'];
+		}
+	}
+
 	public function getFullUrl()
 	{
-		$scheme = $this->isSecure() ? 'https://' : 'http://';
-		return $scheme . $this->SERVER['SERVER_NAME'] . $this->url;
+		return $this->getHost(true) . $this->url;
 	}
 
 	public function getUrl()
