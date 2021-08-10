@@ -435,7 +435,7 @@ class SqlTable
 
 	public function where($where=[])
 	{
-		return (new WhereQuery($this->table_name))->where($where);
+		return (new WhereQuery($this->table_name, $this->db))->where($where);
 	}
 
 }
