@@ -26,6 +26,11 @@ class CommandRouter
 		if (in_array($command_name, ['-h', '--help', '-help'])) {
 			$command_name = 'help';
 		}
+
+		if (is_file($command_name)) {
+			require $command_name;
+			return $response;
+		}
 		
 		$class_name = implode('', array_map('ucfirst', explode("_", $command_name)));
 
