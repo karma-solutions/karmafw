@@ -190,6 +190,12 @@ class SqlTable
 
 		$join_sql = isset($options['join']) ? implode(" ", $options['join']) : "";
 
+		$chunk_size = !empty($options['chunk']) ? $options['chunk'] : null; // delete per chunks
+
+		if ($chunk_size) {
+			$limit_sql = $chunk_size;
+		}
+
 		/*
 		if (isset($options['group by']) && empty($options['group_by'])) {
 			$options['group_by'] = $options['group by'];
@@ -211,15 +217,48 @@ class SqlTable
 			return true;
 		}
 
-		return $this->db->createQuery()->executeUpdate($query);
+		$affected_rows = 0;
+		$loop_limit = 99999;
+
+		while ($loop_limit--) {
+			$chunk_affected_rows = $this->db->createQuery()->executeUpdate($query);
+			$affected_rows += $chunk_affected_rows;
+
+			/*
+			/!\/!\/!\ ATTENTION AVEC LE UPDATE CHUNK /!\/!\/!\
+			
+			1) ca peut faire une boucle infinie si on faire ce genre d'update : 
+			 update users set field = value where 1;
+			=> si on a 1000 users et qu'on fait un chunk de 100, ca bouclera sur les 100 premiers users, sans fin
+
+			2) si on utilise les offset alors ce genre d'update ne fonctionnera pas bien :
+			 update users set field = value where field <> value;
+			=> l'offset ne sera plus valide au prochains update car le where change la donne à chaque update
+			*/
+
+			if (! $chunk_size) {
+				break;
+			}
+
+			if (! $chunk_affected_rows) {
+				break;
+			}
+		}
+
+		return $affected_rows;
 	}
 
 
 	public function delete(array $where=[], $options=[]) /* : int */
 	{
-		$chunk_size = !empty($options['chunk']) ? $options['chunk'] : null; // TODO: delete per chunks
-
 		$limit_sql = isset($options['limit']) ? ("limit " . $options['limit']) : "";
+		
+		$chunk_size = !empty($options['chunk']) ? $options['chunk'] : null;
+
+		if ($chunk_size) {
+			$limit_sql = $chunk_size;
+		}
+
 
 		$query = "delete from " . $this->table_name . "
 					where " . $this->db->buildSqlWhere($where) . "
@@ -233,7 +272,22 @@ class SqlTable
 			return true;
 		}
 
-		return $this->db->createQuery()->executeDelete($query);
+		$affected_rows = 0;
+
+		while (true) {
+			$chunk_affected_rows = $this->db->createQuery()->executeDelete($query);
+			$affected_rows += $chunk_affected_rows;
+
+			if (! $chunk_size) {
+				break;
+			}
+
+			if ($chunk_affected_rows < $chunk_size) {
+				break;
+			}
+		}
+
+		return $affected_rows;
 	}
 
 
