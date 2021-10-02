@@ -1186,6 +1186,9 @@ class UserAgent
 				break;
 			}
 		}
+		if (! $ua_robot && in_array($user_agent, self::$bots_users_agents)) {
+			$ua_robot = $user_agent;
+		}
 
 		return [
 			'platform' => $ua_platform,
