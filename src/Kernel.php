@@ -166,7 +166,7 @@ class Kernel
             $error_code = $e->getCode();
             $error_message = $e->getMessage();
 
-            error_log("[App] Error " . $error_code . " : " . $error_message);
+            error_log("[App Error] " . $error_code . " : " . $error_message);
 
 
 			// TODO: voir comment bien injecter cette dependance
@@ -183,7 +183,12 @@ class Kernel
                 $title = "App CATCHED EXCEPTION CODE " . $error_code;
                 $message = '<pre>' . print_r($e, true) . '</pre>';
                 $content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>' . $error_message . '</h2><p>' . $message . '</p>';
-            }
+
+            } else {
+				$title = "Server Error";
+				$message = "";
+				$content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>An error has occured</h2><p>' . $message . '</p>';
+			}
 
             //throw $e;
             $response->html($content, 500);

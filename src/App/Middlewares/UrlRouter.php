@@ -131,7 +131,7 @@ class UrlRouter
 				throw $e;
 			}
 
-			error_log("[UrlRouter] Error 500 : " . $error_message);
+			error_log("[UrlRouter Error 500] : " . $error_message);
 
 
             if (ENV == 'dev') {
