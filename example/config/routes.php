@@ -6,6 +6,7 @@ use \KarmaFW\Routing\Router;
 // Homepage
 Router::get('/', ['\\App\\Controllers\\HomeController', 'homepage'])->setName('homepage');
 
+/*
 
 // login/logout
 Router::get('/logout', ['\\App\\Controllers\\HomeController', 'logout'])->setName('logout');
@@ -21,7 +22,7 @@ Router::get('/clients/([0-9]+)-([^/]+)$', ['\\App\\Controllers\\Loggued\\ClientC
 Router::post('/clients/save-client', ['\\App\\Controllers\\Loggued\\ClientController', 'client_save'])->setName('client_save');
 Router::post('/clients/delete-client', ['\\App\\Controllers\\Loggued\\ClientController', 'client_delete'])->setName('client_delete');
 
-
+*/
 
 
 
