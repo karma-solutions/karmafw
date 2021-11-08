@@ -61,7 +61,7 @@ class ErrorHandler
 
             $http_code = (500 <= $error_code && $error_code <= 599) ? $error_code : 500;
             
-            error_log("[UrlRouter] Error " . $error_code . " : " . $error_message);
+            error_log("[UrlRouter Error] " . $error_code . " : " . $error_message);
 
 
             if (ENV == 'dev') {

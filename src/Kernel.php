@@ -185,7 +185,12 @@ class Kernel
                 $title = "App CATCHED EXCEPTION CODE " . $error_code;
                 $message = '<pre>' . print_r($e, true) . '</pre>';
                 $content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>' . $error_message . '</h2><p>' . $message . '</p>';
-            }
+
+            } else {
+				$title = "Server Error";
+				$message = "";
+				$content = '<title>' . $title . '</title><h1>' . $title . '</h1><h2>An error has occured</h2><p>' . $message . '</p>';
+			}
 
             //throw $e;
             $response->html($content, 500);
