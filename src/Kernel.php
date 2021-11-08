@@ -166,7 +166,9 @@ class Kernel
             $error_code = $e->getCode();
             $error_message = $e->getMessage();
 
-            error_log("[App] Error " . $error_code . " : " . $error_message);
+			if (! in_array($error_code, [301, 302, 310])) {
+				error_log("[App] Error " . $error_code . " : " . $error_message);
+			}
 
 
 			// TODO: voir comment bien injecter cette dependance
