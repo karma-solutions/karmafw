@@ -188,12 +188,18 @@ class SqlTools
         }
 
         foreach ($values as $key => $value) {
-            if (is_null($value)) {
+            if (is_numeric($key)) {
+                $values_sql[] = $value;
+
+            } else if (is_null($value)) {
                 $values_sql[] = $key . ' = NULL';
+
             }else if (gettype($value) === 'string') {
                 $values_sql[] = $key . ' = ' . $this->escape($value);
+
             }else if (gettype($value) === 'boolean') {
                 $values_sql[] = $key . ' = ' . intval($value);
+                
             }else{
                 $values_sql[] = $key . ' = ' . $value;
             }
