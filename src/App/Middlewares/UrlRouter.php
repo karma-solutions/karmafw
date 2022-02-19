@@ -74,6 +74,11 @@ class UrlRouter
 	        }
 
 
+	        // CODE 0
+			if ($error_code === 0) {
+				return $response;
+			}
+
 	        // CODE 200
 			if ($error_code === 200) {
 				return $response->html($error_message, $error_code);

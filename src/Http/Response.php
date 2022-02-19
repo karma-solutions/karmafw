@@ -196,6 +196,13 @@ class Response
 				->setStatus($status);
 	}
 
+
+	public function terminate()
+	{
+		throw new \Exception("", 0);
+	}
+
+
 	public function csv(array $rows, $download_file_name=null, $status=200, $content_type='text/csv; charset=utf8', $add_content_disposition=true)
 	{
 		if (is_array($rows)) {
