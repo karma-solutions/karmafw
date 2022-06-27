@@ -132,7 +132,7 @@ class LightweightTemplate {
 			
 			$code = self::compileCode($code); // compilation du template
 
-	        file_put_contents($cached_file, '<?php class_exists(\'' . __CLASS__ . '\') or exit; ?>' . PHP_EOL . $code);
+	        file_put_contents($cached_file, '<' . '?php class_exists(\'' . __CLASS__ . '\') or exit; ?' . '>' . PHP_EOL . $code);
 
 	    } else if (ENV == 'dev') {
 			// affichage des infos du cached_template dans la debugbar
@@ -293,7 +293,7 @@ class LightweightTemplate {
 		preg_match_all('~{url (.*?)}~is', $code, $matches, PREG_SET_ORDER);
 		foreach ($matches as $value) {
 			// {url clients_list} => "< ?=getRouteUrl('clients_list')? >" (dans espaces)
-			$code = str_replace($value[0], '<?=getRouteUrl("' . $value[1] . '")?>', $code);
+			$code = str_replace($value[0], '<' . '?=getRouteUrl("' . $value[1] . '")?' . '>', $code);
 		}
 
 		// foreach => {foreach $list as $item}<div>...</div>{/foreach}
@@ -323,13 +323,13 @@ class LightweightTemplate {
 
 	protected static function compileEchos($code) {
 		// compile PHP optional variables => {{$my_optional_var}} => echo (isset($my_optional_var) ? $my_optional_var : '')
-		$code = preg_replace('~\{{\$(.+?)}}~is', '<?php echo isset(\$$1) ? (\$$1) : ""; ?>', $code);
+		$code = preg_replace('~\{{\$(.+?)}}~is', '<' . '?php echo isset(\$$1) ? (\$$1) : ""; ?' . '>', $code);
 
 		// compile PHP strict variables => {$my_var} => echo $my_var
-		$code = preg_replace('~\{\$(.+?)}~is', '<?php echo \$$1 ?>', $code);
+		$code = preg_replace('~\{\$(.+?)}~is', '<' . '?php echo \$$1 ?' . '>', $code);
 
 		// compile PHP code => {{ my_php_code }} => echo my_php_code
-		$code = preg_replace('~\{{\s*(.+?)\s*\}}~is', '<?php echo $1 ?>', $code);
+		$code = preg_replace('~\{{\s*(.+?)\s*\}}~is', '<' . '?php echo $1 ?' . '>', $code);
 
 		return $code;
 	}
@@ -337,7 +337,7 @@ class LightweightTemplate {
 
 	protected static function compileEscapedEchos($code) {
 		// compile PHP escaped variables => {{{ $my_var }}}
-		return preg_replace('~\{{{\s*(.+?)\s*\}}}~is', '<?php echo htmlentities($1, ENT_QUOTES, \'UTF-8\') ?>', $code);
+		return preg_replace('~\{{{\s*(.+?)\s*\}}}~is', '<' . '?php echo htmlentities($1, ENT_QUOTES, \'UTF-8\') ?' . '>', $code);
 	}
 
 
