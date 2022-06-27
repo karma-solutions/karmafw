@@ -75,14 +75,20 @@ class LightweightTemplate {
 	public function display($tpl=null, $extra_vars=[], $layout=null, $options=[]) 
 	{
 		$allow_template_debug_traces = empty($options['deny_template_debug']);
+		
+		$translations = isset($this->data['_translations']) ? $this->data['_translations'] : [];
+		if (empty($translations) && isset($options['translations'])) {
+			$translations = $options['translations'];
+		}
+
 		$tpl_data = $this->data + $extra_vars;
-		self::view($tpl, $tpl_data, $allow_template_debug_traces);
+		self::view($tpl, $tpl_data, $allow_template_debug_traces, $translations);
 		return true;
 	}
 
 	
-	public static function view($file, $tpl_data = array(), $allow_template_debug_traces=true) {
-		$cached_file = self::cache($file, $allow_template_debug_traces);
+	public static function view($file, $tpl_data = array(), $allow_template_debug_traces=true, $translations=[]) {
+		$cached_file = self::cache($file, $allow_template_debug_traces, $translations);
 		
 	    extract($tpl_data, EXTR_SKIP);
 
@@ -98,7 +104,7 @@ class LightweightTemplate {
 	}
 
 
-	protected static function cache($file, $allow_template_debug_traces=true) {
+	protected static function cache($file, $allow_template_debug_traces=true, $translations=[]) {
 		if (!file_exists(self::$cache_path)) {
 		  	if (! @mkdir(self::$cache_path, 0744)) {
 		  		throw new \Exception("Cannot create templates cache dir " . self::$cache_path, 1);
@@ -131,6 +137,8 @@ class LightweightTemplate {
 			}
 			
 			$code = self::compileCode($code); // compilation du template
+			
+			$code = self::translateCode($code, $translations); // translation du template
 
 	        file_put_contents($cached_file, '<' . '?php class_exists(\'' . __CLASS__ . '\') or exit; ?' . '>' . PHP_EOL . $code);
 
@@ -170,6 +178,16 @@ class LightweightTemplate {
 		$code = self::compileModules($code);
 		$code = self::compileEscapedEchos($code);
 		$code = self::compileEchos($code);
+
+		return $code;
+	}
+
+
+	protected static function translateCode($code, $translations=[]) {
+		$code = preg_replace_callback('~\{"\s*(.+?)\s*"\}~is', function ($matches) use ($translations) {
+			$text = $matches[1];
+			return '<?php echo (isset($_translations["' . $text . '"]) ? $_translations["' . $text . '"] : "' . $text . '"); ?>';
+		}, $code);
 
 		return $code;
 	}
