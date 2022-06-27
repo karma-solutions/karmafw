@@ -1,6 +1,6 @@
 <?php
 
-use \KarmaFW\Lib\Email_lib;
+use \KarmaFW\Lib\Email\Email_lib;
 
 
 function smtp_hook_email($to, $subject, $message_html, $message_text='', $from=null, $from_name=null, $options=[]) {
@@ -10,7 +10,7 @@ function smtp_hook_email($to, $subject, $message_html, $message_text='', $from=n
 	}
 	$to = SMTP_HOOK_EMAIL;
 	$options['no_hook'] = true;
-	return \KarmaFW\Lib\Email_lib::sendmailSMTP($to, $subject, $message_html, $message_text, $from, $from_name, $options);
+	return Email_lib::sendmailSMTP($to, $subject, $message_html, $message_text, $from, $from_name, $options);
 }
 
 function smtp_hook_domain($to, $subject, $message_html, $message_text='', $from=null, $from_name=null, $options=[]) {
@@ -20,7 +20,7 @@ function smtp_hook_domain($to, $subject, $message_html, $message_text='', $from=
 	}
 	$to = str_replace("@", "__", $to) . "@" . SMTP_HOOK_DOMAIN;
 	$options['no_hook'] = true;
-	return \KarmaFW\Lib\Email_lib::sendmailSMTP($to, $subject, $message_html, $message_text, $from, $from_name, $options);
+	return Email_lib::sendmailSMTP($to, $subject, $message_html, $message_text, $from, $from_name, $options);
 }
 
 

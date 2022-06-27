@@ -193,7 +193,7 @@ class SqlTable
 		$chunk_size = !empty($options['chunk']) ? $options['chunk'] : null; // delete per chunks
 
 		if ($chunk_size) {
-			$limit_sql = $chunk_size;
+			$limit_sql = "limit " . $chunk_size;
 		}
 
 		/*
@@ -256,7 +256,7 @@ class SqlTable
 		$chunk_size = !empty($options['chunk']) ? $options['chunk'] : null;
 
 		if ($chunk_size) {
-			$limit_sql = $chunk_size;
+			$limit_sql = "limit " . $chunk_size;
 		}
 
 
